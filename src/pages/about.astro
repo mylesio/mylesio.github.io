@@ -2,14 +2,30 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="About" description="About Myles Liu — frontend engineer and AI practitioner.">
-  <article>
-    <h1 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem;">About</h1>
-    <p>Frontend engineer at Meituan, working on monitoring infrastructure (Raptor). Interested in AI agents, multi-agent systems, and building personal tools.</p>
-    <p style="margin-top:1rem;">This site is my public knowledge base — notes on things I'm learning, projects I'm building, and ideas worth writing down.</p>
-    <h2 style="font-size:1rem; font-weight:600; margin:2rem 0 0.75rem; color:var(--color-muted); text-transform:uppercase; letter-spacing:0.05em;">Links</h2>
-    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.5rem;">
-      <li><a href="https://github.com/mylesio">GitHub</a></li>
+<Base title="About" description="Myles Liu — frontend engineer, AI agent practitioner.">
+  <section class="page-header">
+    <h1 class="page-title">about</h1>
+  </section>
+  <div class="prose about-prose">
+    <p>Frontend engineer at Meituan, working on monitoring infrastructure (Raptor). Based in Shanghai.</p>
+    <p>On the side, I build tools around AI agents — <a href="https://github.com/mylesio/ant-protocol">ant-protocol</a> (multi-agent governance) and <a href="https://github.com/mylesio/prism">prism</a> (personal profile engine).</p>
+    <p>This site is my public knowledge base. Notes on things I'm learning, systems I'm building, ideas worth writing down. It's also designed to be readable by AI agents — clean HTML, <a href="/llms.txt">llms.txt</a>, every note at its own URL.</p>
+
+    <h2>links</h2>
+    <ul>
+      <li><a href="https://github.com/mylesio">github.com/mylesio</a></li>
     </ul>
-  </article>
+  </div>
 </Base>
+
+<style>
+  .page-header { padding: 2rem 0 2.5rem; }
+  .page-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  .about-prose { font-size: 0.9rem; }
+  .about-prose p { margin-bottom: 1.25rem; line-height: 1.75; color: var(--text); }
+  .about-prose a { color: var(--accent); border-color: transparent; }
+  .about-prose a:hover { border-color: var(--accent); }
+  .about-prose h2 { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin: 2rem 0 0.75rem; }
+  .about-prose ul { list-style: none; }
+  .about-prose li { padding: 0.3rem 0; font-size: 0.85rem; }
+</style>

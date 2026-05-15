@@ -3,23 +3,46 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const notes = (await getCollection('notes'))
+  .filter(n => !n.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<Base title="Notes" description="Technical notes on AI, frontend engineering, and building things.">
-  <h1 style="font-size:1.5rem; font-weight:700; margin-bottom:2rem;">Notes</h1>
-  {notes.length === 0 && <p style="color:var(--color-muted);">Nothing here yet.</p>}
-  <ul style="list-style:none; display:flex; flex-direction:column; gap:1rem;">
-    {notes.map(note => (
-      <li style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem; padding-bottom:1rem; border-bottom:1px solid var(--color-border);">
-        <div>
-          <a href={`/notes/${note.slug}`} style="font-weight:500;">{note.data.title}</a>
-          {note.data.description && <p style="color:var(--color-muted); font-size:0.9rem; margin-top:0.25rem;">{note.data.description}</p>}
-        </div>
-        <time datetime={note.data.date.toISOString()} style="color:var(--color-muted); font-size:0.85rem; white-space:nowrap;">
-          {note.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-        </time>
-      </li>
-    ))}
-  </ul>
+<Base title="Notes" description="Technical notes on AI agents, frontend engineering, and building things.">
+  <section class="page-header">
+    <h1 class="page-title">notes</h1>
+  </section>
+
+  {notes.length === 0
+    ? <p class="empty">nothing here yet.</p>
+    : (
+      <ul class="list">
+        {notes.map(note => (
+          <li class="list-item">
+            <a href={`/notes/${note.slug}`}>{note.data.title}</a>
+            <time datetime={note.data.date.toISOString()}>
+              {note.data.date.toISOString().slice(0, 10)}
+            </time>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 </Base>
+
+<style>
+  .page-header { padding: 2rem 0 2.5rem; }
+  .page-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  .empty { color: var(--muted); font-size: 0.85rem; }
+  .list { list-style: none; }
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .list-item:first-child { border-top: 1px solid var(--border); }
+  .list-item time { color: var(--muted); font-size: 0.78rem; white-space: nowrap; font-weight: 300; flex-shrink: 0; }
+</style>

@@ -5,31 +5,83 @@ const projects = [
   {
     name: 'ant-protocol',
     url: 'https://github.com/mylesio/ant-protocol',
-    description: 'Portable multi-agent governance protocol. Defines task lifecycle, agent coordination, and memory contracts for AI agent teams.',
-    tags: ['AI', 'multi-agent', 'protocol'],
+    desc: 'Portable multi-agent governance protocol. Defines task lifecycle, agent coordination, and memory contracts for AI agent teams.',
+    tags: ['protocol', 'multi-agent', 'AI'],
+    status: 'active',
   },
   {
     name: 'prism',
     url: 'https://github.com/mylesio/prism',
-    description: 'AI personal profile engine. Parses agent conversation logs and memory files to generate structured personality profiles.',
-    tags: ['AI', 'Python', 'LLM'],
+    desc: 'AI personal profile engine. Parses conversation logs and memory files to generate structured personality profiles.',
+    tags: ['Python', 'LLM', 'AI'],
+    status: 'active',
   },
 ];
 ---
 
-<Base title="Projects" description="Open source projects by Myles Liu.">
-  <h1 style="font-size:1.5rem; font-weight:700; margin-bottom:2rem;">Projects</h1>
-  <ul style="list-style:none; display:flex; flex-direction:column; gap:1.5rem;">
+<Base title="Projects">
+  <section class="page-header">
+    <h1 class="page-title">projects</h1>
+  </section>
+
+  <ul class="projects">
     {projects.map(p => (
-      <li style="padding:1.25rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px;">
-        <a href={p.url} style="font-weight:600; font-size:1.05rem;">{p.name}</a>
-        <p style="color:var(--color-muted); margin:0.5rem 0;">{p.description}</p>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-          {p.tags.map(tag => (
-            <span style="font-size:0.75rem; padding:0.2rem 0.6rem; background:var(--color-bg); border:1px solid var(--color-border); border-radius:9999px; color:var(--color-muted);">{tag}</span>
-          ))}
+      <li class="project">
+        <div class="project-top">
+          <a href={p.url} class="project-name">{p.name}</a>
+          <span class="project-status">{p.status}</span>
+        </div>
+        <p class="project-desc">{p.desc}</p>
+        <div class="project-tags">
+          {p.tags.map(t => <span class="tag">{t}</span>)}
         </div>
       </li>
     ))}
   </ul>
 </Base>
+
+<style>
+  .page-header { padding: 2rem 0 2.5rem; }
+  .page-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+
+  .projects { list-style: none; }
+  .project {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .project:first-child { border-top: 1px solid var(--border); }
+
+  .project-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .project-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+    border-color: transparent;
+  }
+  .project-name:hover { color: var(--accent); }
+  .project-status {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .project-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+    font-weight: 300;
+  }
+  .project-tags { display: flex; gap: 0.4rem; }
+  .tag {
+    font-size: 0.68rem;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--border);
+    color: var(--dim);
+    letter-spacing: 0.04em;
+  }
+</style>
