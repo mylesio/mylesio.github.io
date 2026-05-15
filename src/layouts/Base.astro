@@ -18,7 +18,13 @@ const isHome = Astro.url.pathname === '/';
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script src="/favicon-anim.js" defer></script>
-    <script src="/dino.js" defer></script>
+    <link rel="stylesheet" href="/trex-runner.css" />
+    <script src="/trex-runner.js" defer></script>
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function() {
+        new Runner('.interstitial-wrapper');
+      });
+    </script>
     <style>
       @font-face {
         font-family: 'OperatorMonoLig';
@@ -113,35 +119,76 @@ const isHome = Astro.url.pathname === '/';
         padding: 0 1.5rem;
       }
 
-      /* Dino canvas strip */
-      .dino-wrap {
-        width: 100%;
-        overflow: hidden;
-        line-height: 0;
-      }
-      #dino-canvas {
-        width: 100%;
-        height: 100px;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-      }
-
-      /* Full-width banner header */
+      /* ─── Banner / Dino Runner ───────────────────── */
       .site-header {
-        background-color: #13202e;
-        background-image:
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='1' cy='1' r='0.9' fill='%237dd3fc' fill-opacity='0.07'/%3E%3C/svg%3E");
-        border-bottom: 1px solid rgba(125,211,252,0.12);
-        width: 100%;
         position: relative;
-        isolation: isolate;
+        width: 100%;
+        height: 200px;
+        background-color: #13202e;
+        border-bottom: 1px solid rgba(125,211,252,0.15);
+        overflow: hidden;
       }
 
+      /* wayou Runner container fills the banner */
+      .site-header .interstitial-wrapper {
+        position: absolute !important;
+        inset: 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 200px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden;
+      }
+
+      /* runner-container: horizontally centered, fills height */
+      .site-header .runner-container {
+        position: absolute !important;
+        top: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 600px !important;
+        max-width: 100% !important;
+        height: 200px !important;
+      }
+
+      /* runner-canvas fills its container */
+      .site-header .runner-canvas {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 600px !important;
+        max-width: 100% !important;
+        height: 200px !important;
+      }
+
+      /* hide the icon-offline element (dino icon placeholder) */
+      .site-header .icon-offline { display: none !important; }
+
+      /* touch controller covers just the banner, not the whole page */
+      .site-header .controller {
+        position: absolute !important;
+        top: 0 !important; left: 0 !important;
+        width: 100% !important;
+        height: 200px !important;
+      }
+
+      /* ─── Navbar floats above the game ───────────── */
       header {
-        padding: 1.5rem 0;
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        z-index: 10;
+        padding: 1rem 0;
         display: flex;
         align-items: center;
         gap: 2rem;
+        max-width: var(--col);
+        margin: 0 auto;
+        /* left/right padding from page-wrap equivalent */
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        /* transparent background so game shows through */
+        background: transparent;
       }
 
       .logo {
@@ -151,15 +198,23 @@ const isHome = Astro.url.pathname === '/';
         border-bottom: none;
         letter-spacing: 0.02em;
         transition: color 0.18s var(--ease-out-expo);
+        text-decoration: none;
       }
-      .logo:hover { color: var(--accent-mid); }
+      .logo:hover { color: var(--accent-mid); text-decoration: none; }
 
       nav { display: flex; gap: 1.5rem; }
 
       /* nav links on dark banner */
-      .site-header a.nav-link { color: #64748b; }
+      .site-header a.nav-link {
+        color: rgba(148,163,184,0.85);
+        text-decoration: none;
+      }
       .site-header a.nav-link:hover { color: #e2e8f0; }
       .site-header a.nav-link.active { color: var(--accent-mid); }
+
+      @media (max-width: 480px) {
+        header { gap: 1rem; padding-left: 1rem; padding-right: 1rem; }
+      }
 
       main {
         padding: 1rem 0 5rem;
@@ -215,20 +270,24 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
-    <div class="site-header">
-      <div class="page-wrap">
-        <header>
-          <a class="logo reveal reveal-1" href="/">mylesio</a>
-          <nav class="reveal reveal-1">
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
-          </nav>
-        </header>
+    <div class="site-header offline">
+      <!-- wayou t-rex runner: fills the full 200px banner -->
+      <div class="interstitial-wrapper">
+        <div id="details-button" style="display:none"></div>
+        <div class="icon icon-offline"></div>
+        <!-- sprite images required by Runner.loadImages() -->
+        <img id="offline-resources-1x" src="/dino-sprite.png" style="display:none" />
+        <img id="offline-resources-2x" src="/dino-sprite.png" style="display:none" />
       </div>
-      <div class="dino-wrap">
-        <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play / Click dino to toggle auto mode"></canvas>
-      </div>
+      <!-- navbar floats above the game via position:absolute + z-index:10 -->
+      <header>
+        <a class="logo reveal reveal-1" href="/">mylesio</a>
+        <nav class="reveal reveal-1">
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
+        </nav>
+      </header>
     </div>
     <div class="page-wrap">
       <main>
