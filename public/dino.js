@@ -296,11 +296,13 @@
     // Game over — always shown when dead
     if (dead) {
       ctx.fillStyle = 'rgba(245,242,236,0.85)'; ctx.fillRect(0, 0, W, H);
+      const isMobile = window.innerWidth < 640;
+      const centerY = H / 2 + (isMobile ? 15 : 0);
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(83,83,83,0.9)'; ctx.font = 'bold 13px monospace';
-      ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
+      ctx.fillText('GAME OVER', W / 2, centerY - 4);
       ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(83,83,83,0.45)';
-      ctx.fillText('click to restart', W / 2, H / 2 + 14);
+      ctx.fillText('click to restart', W / 2, centerY + 14);
       ctx.textAlign = 'left';
     }
   }
