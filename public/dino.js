@@ -455,6 +455,7 @@
           dino.y = GY - D_H;
           dino.vy = 0;
           dino.jumping = false;
+          canvas.style.visibility = 'visible';
           skipFirstFrame = true;
           started = true;
         }
