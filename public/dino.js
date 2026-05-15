@@ -153,14 +153,8 @@
     lastTs = ts;
 
     if (!started) {
-      // idle: draw empty ground + hint, dino lives in navbar logo
+      // idle: blank canvas, dino lives in navbar logo
       ctx.clearRect(0, 0, W, H);
-      drawGround();
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(83,83,83,0.3)';
-      ctx.font = '10px monospace';
-      ctx.fillText('click anywhere to start', W / 2, H / 2 + 4);
-      ctx.textAlign = 'left';
       return;
     }
 
@@ -273,14 +267,6 @@
       ctx.textAlign = 'left';
     }
 
-    // waiting state: show prompt
-    if (!started) {
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(83,83,83,0.35)';
-      ctx.font = '10px monospace';
-      ctx.fillText('click anywhere to start', W / 2, H / 2 + 4);
-      ctx.textAlign = 'left';
-    }
   }
 
   // ── Logo dino (drawn in navbar #dino-logo canvas) ────────────────
