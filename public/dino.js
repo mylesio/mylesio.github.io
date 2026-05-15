@@ -345,11 +345,15 @@
       const parentRect = canvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const sx = rect.width / (canvas.width / dpr);
-      const pad = 6;
-      hitArea.style.left = ((IDLE_X - pad) * sx + rect.left - parentRect.left) + 'px';
-      hitArea.style.top = ((IDLE_Y - pad) * sx + rect.top - parentRect.top) + 'px';
-      hitArea.style.width = ((IDLE_DW + pad * 2) * sx) + 'px';
-      hitArea.style.height = ((IDLE_DH + pad * 2) * sx) + 'px';
+      const pad = 12; // generous padding for mobile tap targets
+      const w = Math.max((IDLE_DW + pad * 2) * sx, 44); // min 44px for touch
+      const h = Math.max((IDLE_DH + pad * 2) * sx, 44);
+      const cx = (IDLE_X + IDLE_DW / 2) * sx + rect.left - parentRect.left;
+      const cy = (IDLE_Y + IDLE_DH / 2) * sx + rect.top - parentRect.top;
+      hitArea.style.left = (cx - w / 2) + 'px';
+      hitArea.style.top = (cy - h / 2) + 'px';
+      hitArea.style.width = w + 'px';
+      hitArea.style.height = h + 'px';
       hitArea.style.display = 'block';
       hitArea.style.cursor = GAMEPAD_CURSOR;
     } else {
@@ -358,7 +362,7 @@
   }
 
   hitArea.addEventListener('click', startGame);
-  hitArea.addEventListener('touchstart', startGame);
+  hitArea.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
 
   // ── Input ────────────────────────────────────────────────────────
   canvas.addEventListener('click', () => {
@@ -418,9 +422,7 @@
     canvas.style.cursor = 'default';
     updateHitArea();
 
-    // re-enable start on click via hit area
-    hitArea.addEventListener('click', startGame);
-    hitArea.addEventListener('touchstart', startGame);
+    // re-enable start on click via hit area (listeners are persistent, no need to re-add)
   }
 
   let lastScrollY = window.scrollY || 0;
