@@ -40,9 +40,20 @@
   const H  = CANVAS_H;
   const GY = H - 16;           // ground y (fixed)
 
-  // idle dino position: vertically centered in navbar area
-  const IDLE_X = 24;
-  const IDLE_Y = Math.round((NAVBAR_H - D_H) / 2);
+  // idle dino position: to the left of "mylesio" logo
+  // computed from #dino-anchor element position relative to canvas
+  function getIdlePos() {
+    const anchor = document.getElementById('dino-anchor');
+    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - D_H) / 2) };
+    const ar = anchor.getBoundingClientRect();
+    const cr = canvas.getBoundingClientRect();
+    const x = Math.round(ar.left - cr.left - D_W - 4);
+    const y = Math.round((NAVBAR_H - D_H) / 2);
+    return { x: Math.max(4, x), y };
+  }
+
+  let IDLE_X = 24;
+  let IDLE_Y = Math.round((NAVBAR_H - D_H) / 2);
 
   function resize() {
     const newW = canvas.parentElement.clientWidth || 800;
@@ -145,17 +156,18 @@
   const GAME_X = 60;
   const GAME_Y = GY - D_H;
 
+  // capture start pos when jump begins
+  let introStartX = IDLE_X, introStartY = IDLE_Y;
+
   function tickIntro(dt) {
     introT = Math.min(introT + dt, INTRO_DURATION);
-    const p    = introT / INTRO_DURATION;
-    const ease = p; // linear — natural arc
+    const p = introT / INTRO_DURATION;
 
-    // Quadratic bezier
-    // Control point: pull arc to the right and downward naturally
-    const ctrlX = IDLE_X + (GAME_X - IDLE_X) * 0.2;
-    const ctrlY = IDLE_Y - 20; // slightly above idle, gives a small upward kick
-    dino.x = Math.round((1-p)*(1-p)*IDLE_X + 2*(1-p)*p*ctrlX + p*p*GAME_X);
-    dino.y = Math.round((1-p)*(1-p)*IDLE_Y + 2*(1-p)*p*ctrlY + p*p*GAME_Y);
+    // Quadratic bezier from intro start → game ground
+    const ctrlX = introStartX + (GAME_X - introStartX) * 0.2;
+    const ctrlY = introStartY - 20;
+    dino.x = Math.round((1-p)*(1-p)*introStartX + 2*(1-p)*p*ctrlX + p*p*GAME_X);
+    dino.y = Math.round((1-p)*(1-p)*introStartY + 2*(1-p)*p*ctrlY + p*p*GAME_Y);
 
     // leg animation during flight
     frameTimer += dt;
@@ -284,6 +296,10 @@
   // ── Start on first interaction ───────────────────────────────────
   function startGame() {
     if (started || jumping) return;
+    // refresh idle pos right before launch (in case layout changed)
+    initIdlePos();
+    introStartX = IDLE_X;
+    introStartY = IDLE_Y;
     jumping = true;
     introT = 0;
     document.removeEventListener('click', startGame, true);
@@ -309,6 +325,22 @@
 
   // ── Init ─────────────────────────────────────────────────────────
   resize();
+
+  function initIdlePos() {
+    const p = getIdlePos();
+    IDLE_X = p.x; IDLE_Y = p.y;
+    dino.x = IDLE_X; dino.y = IDLE_Y;
+  }
+
+  // compute after layout settles
+  if (document.readyState === 'complete') {
+    initIdlePos();
+  } else {
+    window.addEventListener('load', initIdlePos);
+  }
+  // also recompute if font/layout shifts
+  setTimeout(initIdlePos, 300);
+
   new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
   requestAnimationFrame(tick);
 })();
