@@ -49,13 +49,13 @@ const isHome = Astro.url.pathname === '/';
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg:      oklch(8% 0.005 240);
-        --surface: oklch(11% 0.005 240);
-        --border:  oklch(16% 0.005 240);
-        --text:    oklch(84% 0.005 240);
-        --muted:   oklch(38% 0.005 240);
-        --dim:     oklch(22% 0.005 240);
-        --accent:  oklch(75% 0.14 145);
+        --bg:      #111112;
+        --surface: #18181a;
+        --border:  #242428;
+        --text:    #e0e0e2;
+        --muted:   #606068;
+        --dim:     #30303a;
+        --accent:  #7dd3fc;
         --mono:    'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
         --col:     640px;
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -73,7 +73,7 @@ const isHome = Astro.url.pathname === '/';
         -webkit-font-smoothing: antialiased;
       }
 
-      ::selection { background: var(--accent); color: oklch(8% 0.005 240); }
+      ::selection { background: var(--accent); color: #111112; }
 
       /* ─── Links ──────────────────────────────────── */
       a {
