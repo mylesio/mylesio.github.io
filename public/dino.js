@@ -60,6 +60,7 @@
 
   // ── Game state ───────────────────────────────────────────────────
   let started = false;
+  let skipFirstFrame = false;
   let mode = 'auto';   // 'auto' | 'play'
   let score = 0, hiScore = 0, speed = 5, gFrame = 0;
   let dead = false, flashT = 0;
@@ -153,10 +154,11 @@
     lastTs = ts;
 
     if (!started) {
-      // idle: blank canvas, dino lives in navbar logo
       ctx.clearRect(0, 0, W, H);
       return;
     }
+    // skip first frame after started to avoid overlap with fly canvas
+    if (skipFirstFrame) { skipFirstFrame = false; ctx.clearRect(0, 0, W, H); return; }
 
     if (!dead) {
       score += dt * 0.003;
@@ -453,8 +455,8 @@
           dino.y = GY - D_H;
           dino.vy = 0;
           dino.jumping = false;
-          // wait one rAF so fly is fully gone before canvas dino appears
-          requestAnimationFrame(() => { started = true; });
+          skipFirstFrame = true;
+          started = true;
         }
       }
       requestAnimationFrame(flyStep);
