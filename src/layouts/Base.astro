@@ -123,12 +123,10 @@ const isHome = Astro.url.pathname === '/';
         position: relative;
         width: 100%;
         height: 150px;
-        /* top padding so dino game isn't hidden behind fixed navbar */
-        padding-top: 48px;
+        margin-top: 48px; /* space for fixed navbar */
         background-color: #f5f2ec;
         border-bottom: 1px solid #e2ddd6;
         overflow: hidden;
-        box-sizing: border-box;
       }
 
       #dino-canvas {

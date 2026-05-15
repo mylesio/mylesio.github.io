@@ -42,12 +42,20 @@
 
   // ── Canvas layout ────────────────────────────────────────────────
   let W, H, GY;
+  let resizeTimer = null;
 
   function resize() {
-    W = canvas.width  = canvas.parentElement.clientWidth || 800;
+    const newW = canvas.parentElement.clientWidth || 800;
+    if (newW === W) return;  // no change, skip
+    W = canvas.width  = newW;
     H = canvas.height = 150;
     GY = H - 16;
     if (!dead) dino.y = GY - D_H;
+  }
+
+  function resizeDebounced() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 100);
   }
 
   // ── Game state ───────────────────────────────────────────────────
@@ -278,6 +286,6 @@
 
   // ── Init ─────────────────────────────────────────────────────────
   resize();
-  new ResizeObserver(resize).observe(canvas.parentElement);
+  new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
   requestAnimationFrame(tick);
 })();
