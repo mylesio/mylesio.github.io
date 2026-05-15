@@ -284,24 +284,24 @@
       drawTrex(TREX_FRAMES.crashed[0], dino.x, dino.y);
     }
 
-    if (mode === 'play') {
-      ctx.font = '11px monospace'; ctx.textAlign = 'right';
-      if (hiScore > 0) {
-        ctx.fillStyle = 'rgba(83,83,83,0.4)';
-        ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, 22);
-      }
-      ctx.fillStyle = 'rgba(83,83,83,0.8)';
-      ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, 22);
-      ctx.textAlign = 'left';
+    // Score — always visible
+    ctx.font = '11px monospace'; ctx.textAlign = 'right';
+    if (hiScore > 0) {
+      ctx.fillStyle = 'rgba(83,83,83,0.4)';
+      ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, 22);
     }
+    ctx.fillStyle = 'rgba(83,83,83,0.8)';
+    ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, 22);
+    ctx.textAlign = 'left';
 
-    if (dead && mode === 'play') {
+    // Game over — always shown when dead
+    if (dead) {
       ctx.fillStyle = 'rgba(245,242,236,0.85)'; ctx.fillRect(0, 0, W, H);
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(83,83,83,0.9)'; ctx.font = 'bold 13px monospace';
       ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
       ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(83,83,83,0.45)';
-      ctx.fillText('click to restart', W / 2, H / 2 + 14);
+      ctx.fillText(mode === 'play' ? 'click to restart' : 'restarting...', W / 2, H / 2 + 14);
       ctx.textAlign = 'left';
     }
   }
