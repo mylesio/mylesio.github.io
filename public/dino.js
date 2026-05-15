@@ -415,23 +415,34 @@
       const DURATION = 500;
       let t0 = null, legFrame = 0, legTimer = 0;
 
+      let lastLegTs = null;
       function flyStep(ts) {
         if (!t0) t0 = ts;
         const p = Math.min((ts - t0) / DURATION, 1);
-        const ease = p; // linear for natural arc
+
+        // ease-out cubic for smooth deceleration
+        const ease = 1 - Math.pow(1 - p, 3);
 
         const cx = startX + (targetX - startX) * ease - D_W / 2;
-        // parabola: y goes from startY, arcs down, lands at targetY
-        const yLinear = startY + (targetY - startY) * ease;
-        const arcDrop = 60 * Math.sin(Math.PI * ease); // modest arc height
-        const cy = yLinear + arcDrop - D_H / 2;
+
+        // parabola going DOWNWARD: starts at startY (navbar), ends at targetY (canvas ground)
+        // arc bows to the RIGHT/DOWN — subtract a lateral bow using p*(1-p)
+        // y: linear drop + forward lean (arc bows toward bottom-right, not upward)
+        const dy = targetY - startY;  // positive = going down
+        const arcBow = Math.max(dy * 0.3, 30);  // bow magnitude, at least 30px
+        // quadratic bezier: P0=start, P1=control(mid-right,lower), P2=end
+        // using De Casteljau: cy = (1-p)²*startY + 2*(1-p)*p*(startY+arcBow) + p²*targetY
+        const ctrlY = startY + arcBow;  // control point pulls arc downward early
+        const cy = Math.pow(1-p,2)*startY + 2*(1-p)*p*ctrlY + p*p*targetY - D_H/2;
 
         fly.style.left = `${cx}px`;
         fly.style.top  = `${cy}px`;
 
         // animate legs
-        legTimer += ts - (t0 + (p - 1/DURATION) * DURATION);
-        if (legTimer > 80) { legTimer = 0; legFrame = 1 - legFrame; }
+        if (lastLegTs !== null && ts - lastLegTs > 80) {
+          legFrame = 1 - legFrame;
+          lastLegTs = ts;
+        } else if (lastLegTs === null) lastLegTs = ts;
         fctx.clearRect(0, 0, D_W, D_H);
         fctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[legFrame], TREX_BASE_Y, TREX_W, TREX_H, 0, 0, D_W, D_H);
 
@@ -439,11 +450,11 @@
           requestAnimationFrame(flyStep);
         } else {
           fly.remove();
-          // land on ground
+          // now show dino on canvas and start game
           dino.y = GY - D_H;
           dino.vy = 0;
           dino.jumping = false;
-          started = true;
+          started = true;  // canvas dino appears here, after fly animation ends
         }
       }
       requestAnimationFrame(flyStep);
