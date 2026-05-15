@@ -335,6 +335,7 @@
   // ── Dino hit area (clickable region over idle dino) ──────────────
   const hitArea = document.createElement('div');
   hitArea.id = 'dino-hit-area';
+  hitArea.title = 'Click to play';
   hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
   canvas.parentElement.appendChild(hitArea);
 
