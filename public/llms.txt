@@ -1,0 +1,16 @@
+# mylesio
+
+> Myles Liu's personal knowledge base. Frontend engineer, monitoring infra, AI agent practitioner.
+
+## Notes
+
+- [Hello World](/notes/hello-world): Why I built this knowledge base.
+
+## Projects
+
+- [ant-protocol](https://github.com/mylesio/ant-protocol): Portable multi-agent governance protocol
+- [prism](https://github.com/mylesio/prism): AI personal profile engine
+
+## About
+
+- [About](/about): Background and links
