@@ -379,17 +379,72 @@
     document.removeEventListener('click', startGame, true);
     document.removeEventListener('touchstart', startGame, true);
 
-    // 1. hide logo dino
+    // 1. expand banner
+    const siteHeader = canvas.closest('.site-header');
+    if (siteHeader) siteHeader.classList.add('expanded');
+
+    // 2. hide logo dino
     if (lctx) lctx.clearRect(0, 0, 24, 24);
 
-    // 2. show canvas
-    canvas.classList.add('visible');
+    // 3. parabolic fly from logo → canvas landing spot
+    // get logo position
+    const logoEl = document.getElementById('dino-logo');
+    const logoRect = logoEl ? logoEl.getBoundingClientRect() : null;
+    if (!logoRect) { resize(); started = true; return; }
 
-    // 3. drop dino from top — start just above canvas, fall straight down
-    resize();
-    dino.y = -D_H;
-    dino.vy = 4;
-    dino.jumping = true;
+    const startX = logoRect.left + logoRect.width / 2;
+    const startY = logoRect.top  + logoRect.height / 2 + window.scrollY;
+
+    // after banner starts expanding, get target position
+    setTimeout(() => {
+      resize();
+      const canvasRect = canvas.getBoundingClientRect();
+      const targetX = canvasRect.left + dino.x + D_W / 2;
+      const targetY = canvasRect.top  + GY - D_H / 2 + window.scrollY;
+
+      // create overlay canvas for the flying dino
+      const fly = document.createElement('canvas');
+      fly.width = D_W; fly.height = D_H;
+      fly.style.cssText = `position:fixed;pointer-events:none;z-index:999;image-rendering:pixelated;left:${startX - D_W/2}px;top:${startY - D_H/2 - window.scrollY}px;width:${D_W}px;height:${D_H}px;`;
+      document.body.appendChild(fly);
+      const fctx = fly.getContext('2d');
+
+      const DURATION = 500;
+      let t0 = null, legFrame = 0, legTimer = 0;
+
+      function flyStep(ts) {
+        if (!t0) t0 = ts;
+        const p = Math.min((ts - t0) / DURATION, 1);
+        const ease = p; // linear for natural arc
+
+        const cx = startX + (targetX - startX) * ease - D_W / 2;
+        // parabola: y goes from startY, arcs down, lands at targetY
+        const yLinear = startY + (targetY - startY) * ease;
+        const arcDrop = 60 * Math.sin(Math.PI * ease); // modest arc height
+        const cy = yLinear + arcDrop - D_H / 2 - window.scrollY;
+
+        fly.style.left = `${cx}px`;
+        fly.style.top  = `${cy}px`;
+
+        // animate legs
+        legTimer += ts - (t0 + (p - 1/DURATION) * DURATION);
+        if (legTimer > 80) { legTimer = 0; legFrame = 1 - legFrame; }
+        fctx.clearRect(0, 0, D_W, D_H);
+        fctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[legFrame], TREX_BASE_Y, TREX_W, TREX_H, 0, 0, D_W, D_H);
+
+        if (p < 1) {
+          requestAnimationFrame(flyStep);
+        } else {
+          fly.remove();
+          // land on ground
+          dino.y = GY - D_H;
+          dino.vy = 0;
+          dino.jumping = false;
+          started = true;
+        }
+      }
+      requestAnimationFrame(flyStep);
+    }, 50);
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
