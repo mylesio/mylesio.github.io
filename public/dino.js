@@ -50,12 +50,12 @@
     cactL: [332, 2, 25, 50],
   };
 
-  // Dino display size (scale run0 to 44px tall for banner)
-  const DINO_H = 44;
+  // Dino display size — 32px tall keeps it small in 100px banner
+  const DINO_H = 32;
   const DINO_SCALE = DINO_H / F.run0[3];
-  // run0 and run1 both display at same height; width scaled proportionally
-  const RUN0_W = Math.round(F.run0[2] * DINO_SCALE); // ~37px
-  const RUN1_W = Math.round(F.run1[2] * DINO_SCALE); // ~30px
+  // Both frames rendered at run0's width to avoid horizontal jitter
+  const RUN0_W = Math.round(F.run0[2] * DINO_SCALE); // ~27px
+  const RUN1_W = Math.round(F.run1[2] * DINO_SCALE); // ~22px (unused, both use RUN0_W)
 
   // ── Canvas layout ────────────────────────────────────────────────
   let W, H, GY; // canvas width, height, ground y
@@ -100,9 +100,16 @@
   }
 
   // ── Draw sprite helper ───────────────────────────────────────────
-  function drawSpr([sx, sy, sw, sh], dx, dy, dw, dh) {
+  function drawSpr([sx, sy, sw, sh], dx, dy, dw, dh, flipH = false) {
     if (!spr) return;
-    ctx.drawImage(spr, sx, sy, sw, sh, dx, dy, dw, dh);
+    if (flipH) {
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(spr, sx, sy, sw, sh, -(dx + dw), dy, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.drawImage(spr, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
   }
 
   // ── AI: look-ahead jump ──────────────────────────────────────────
@@ -217,13 +224,12 @@
       drawSpr(sp, o.x, o.y, dw, dh);
     });
 
-    // Dino — use same display width for both frames to avoid jitter
+    // Dino — flipH=true to face right (sprite faces left in sheet)
     if (!dead) {
       const fr = animF === 0 ? F.run0 : F.run1;
-      drawSpr(fr, dino.x, dino.y, RUN0_W, DINO_H);
+      drawSpr(fr, dino.x, dino.y, RUN0_W, DINO_H, true);
     } else {
-      // dead: use run0 frozen
-      drawSpr(F.run0, dino.x, dino.y, RUN0_W, DINO_H);
+      drawSpr(F.run0, dino.x, dino.y, RUN0_W, DINO_H, true);
     }
 
     // HUD
