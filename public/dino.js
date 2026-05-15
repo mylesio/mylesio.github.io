@@ -109,14 +109,11 @@
   }
 
   // ── Draw helpers ─────────────────────────────────────────────────
-  // Draw dino frame — sprite faces left, flip to face right
+  // Draw dino frame — sprite already faces right
   function drawTrex(offset, dx, dy) {
     if (!spr) return;
     const sx = TREX_BASE_X + offset;
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.drawImage(spr, sx, TREX_BASE_Y, TREX_W, TREX_H, -(dx + D_W), dy, D_W, D_H);
-    ctx.restore();
+    ctx.drawImage(spr, sx, TREX_BASE_Y, TREX_W, TREX_H, dx, dy, D_W, D_H);
   }
 
   function drawSpr(s, dx, dy, dw, dh) {
