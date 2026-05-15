@@ -1,28 +1,21 @@
 /**
- * Animated favicon — two-phase gravity collapse
+ * Animated favicon — gravity collapse of ">"
  *
- * Each arm of ">" falls in two phases:
- *   Phase 1: left end pivots around right end (23,16), swings DOWN
- *   Phase 2: right end pivots around landed left end, falls DOWN
+ * Upper arm (9,8)→(23,16):
+ *   Phase 1: left end pivots CCW -90° around right end (23,16) → (15,30)
+ *   Phase 2: right end pivots CW ~60° around (15,30) → (31,30)  [horizontal]
  *
- * Upper arm goes first, lower arm follows with a slight delay.
+ * Lower arm (9,24)→(23,16):
+ *   Single phase: right end pivots CW ~52° around left end (9,24) → (24,30) [y-aligned]
+ *   (lower arm delayed ~0.3s after upper starts)
  *
- * Timeline (7s loop):
- *   0.00–0.15  hold at rest
- *   0.15–0.38  upper phase 1 fall  (easeInCubic)
- *   0.38–0.43  upper phase 1 bounce
- *   0.43–0.52  upper phase 2 fall  (easeInCubic)
- *   0.52–0.56  upper phase 2 bounce
- *   0.56–0.62  lower phase 1 fall  (easeInCubic)  [delayed]
- *   0.62–0.65  lower phase 1 bounce
- *   0.65–0.74  lower phase 2 fall  (easeInCubic)
- *   0.74–0.77  lower phase 2 bounce
- *   0.77–0.88  rest on ground
- *   0.88–1.00  snap back (easeOutCubic)
+ * Both arms land at y≈30, creating two near-horizontal lines at the bottom.
+ * After 10s rest, snap back to ">" with easeOutCubic.
+ *
+ * Total loop: ~14s
  */
 (function () {
   const SIZE     = 32;
-  const DURATION = 7000;
   const BG       = '#0f0f11';
   const COLOR    = '#7dd3fc';
   const CORNER   = 6;
@@ -35,11 +28,23 @@
   const LA_L = { x: 9,  y: 24 };
   const LA_R = { x: 23, y: 16 };
 
-  // Rotation angles (radians)
-  const U_P1 = -Math.PI * 80 / 180;  // upper left  swings CCW (down)
-  const U_P2 =  Math.PI * 60 / 180;  // upper right swings CW  (down)
-  const L_P1 = -Math.PI * 55 / 180;  // lower left  swings CCW (down)
-  const L_P2 = -Math.PI * 80 / 180;  // lower right swings CCW (down)
+  // Rotation angles (radians) — computed to land both arms at y≈30
+  const U_P1 = -Math.PI / 2;          // upper left  swings CCW -90° → (15,30)
+  const U_P2 =  1.05165;              // upper right swings CW  ~60° → (31,30) [horizontal]
+  const L_P1 =  0.90059;              // lower right swings CW  ~52° → (24,30)
+
+  // Timeline fractions (total loop = 14 000 ms)
+  // 0.00–0.10  hold at rest
+  // 0.10–0.28  upper P1 fall
+  // 0.28–0.32  upper P1 bounce
+  // 0.32–0.46  upper P2 fall        (lower starts here simultaneously, delayed 0.05)
+  // 0.46–0.49  upper P2 bounce
+  // 0.37–0.50  lower P1 fall
+  // 0.50–0.53  lower P1 bounce
+  // 0.53–0.82  REST ON GROUND (~4s of 14s total)
+  // 0.82–1.00  snap back
+
+  const DURATION = 14000;
 
   function rotScreen(px, py, cx, cy, a) {
     const cos = Math.cos(a), sin = Math.sin(a);
@@ -47,74 +52,65 @@
     return { x: cx + dx*cos - dy*sin, y: cy + dx*sin + dy*cos };
   }
 
-  function easeInCubic(t)  { return t * t * t; }
-  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-  function bounce(t, amount) {
-    return 1 + Math.sin(t * Math.PI) * amount;
-  }
+  function easeIn(t)  { return t * t * t; }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
   function getState(t) {
-    let ua1 = 0, ua2 = 0, la1 = 0, la2 = 0, opacity = 1;
+    let ua1 = 0, ua2 = 0, la1 = 0, opacity = 1;
 
-    if (t < 0.15) {
-      // rest
+    if (t < 0.10) {
+      // hold
 
-    } else if (t < 0.38) {
-      const p = easeInCubic((t - 0.15) / 0.23);
-      ua1 = U_P1 * p;
+    } else if (t < 0.28) {
+      ua1 = U_P1 * easeIn((t - 0.10) / 0.18);
 
-    } else if (t < 0.43) {
-      const p = (t - 0.38) / 0.05;
-      ua1 = U_P1 * bounce(p, 0.07);
+    } else if (t < 0.32) {
+      // upper P1 bounce
+      const p = (t - 0.28) / 0.04;
+      ua1 = U_P1 * (1 + Math.sin(p * Math.PI) * 0.07);
 
-    } else if (t < 0.52) {
+    } else if (t < 0.46) {
       ua1 = U_P1;
-      const p = easeInCubic((t - 0.43) / 0.09);
-      ua2 = U_P2 * p;
+      ua2 = U_P2 * easeIn((t - 0.32) / 0.14);
+      // lower starts 0.05 after upper P2 begins
+      if (t > 0.37) {
+        la1 = L_P1 * easeIn((t - 0.37) / 0.13);
+      }
 
-    } else if (t < 0.56) {
+    } else if (t < 0.50) {
       ua1 = U_P1;
-      const p = (t - 0.52) / 0.04;
-      ua2 = U_P2 * bounce(p, 0.06);
+      // upper P2 bounce
+      const p = (t - 0.46) / 0.04;
+      ua2 = U_P2 * (1 + Math.sin(p * Math.PI) * 0.06);
+      la1 = L_P1 * easeIn(Math.min((t - 0.37) / 0.13, 1));
 
-    } else if (t < 0.65) {
+    } else if (t < 0.53) {
       ua1 = U_P1; ua2 = U_P2;
-      const p = easeInCubic((t - 0.56) / 0.09);
-      la1 = L_P1 * p;
+      const p = (t - 0.50) / 0.03;
+      la1 = L_P1 * (1 + Math.sin(p * Math.PI) * 0.07);
 
-    } else if (t < 0.68) {
-      ua1 = U_P1; ua2 = U_P2;
-      const p = (t - 0.65) / 0.03;
-      la1 = L_P1 * bounce(p, 0.07);
-
-    } else if (t < 0.77) {
+    } else if (t < 0.82) {
+      // REST ~4s
       ua1 = U_P1; ua2 = U_P2; la1 = L_P1;
-      const p = easeInCubic((t - 0.68) / 0.09);
-      la2 = L_P2 * p;
-
-    } else if (t < 0.80) {
-      ua1 = U_P1; ua2 = U_P2; la1 = L_P1;
-      const p = (t - 0.77) / 0.03;
-      la2 = L_P2 * bounce(p, 0.06);
-
-    } else if (t < 0.88) {
-      ua1 = U_P1; ua2 = U_P2; la1 = L_P1; la2 = L_P2;
-      opacity = 0.38;
+      opacity = 0.35;
 
     } else {
-      const p = easeOutCubic((t - 0.88) / 0.12);
-      ua1 = U_P1 * (1 - p); ua2 = U_P2 * (1 - p);
-      la1 = L_P1 * (1 - p); la2 = L_P2 * (1 - p);
-      opacity = 0.38 + 0.62 * p;
+      // snap back
+      const p = easeOut((t - 0.82) / 0.18);
+      ua1 = U_P1 * (1 - p);
+      ua2 = U_P2 * (1 - p);
+      la1 = L_P1 * (1 - p);
+      opacity = 0.35 + 0.65 * p;
     }
 
-    return { ua1, ua2, la1, la2, opacity };
+    return { ua1, ua2, la1, opacity };
   }
 
-  function computeArm(origLeft, pivot, a1, a2) {
-    const left  = rotScreen(origLeft.x, origLeft.y, pivot.x, pivot.y, a1);
-    const right = rotScreen(pivot.x, pivot.y, left.x, left.y, a2);
-    return { left, right };
+  function computeArms({ ua1, ua2, la1 }) {
+    const uLeft  = rotScreen(UA_L.x, UA_L.y, UA_R.x, UA_R.y, ua1);
+    const uRight = rotScreen(UA_R.x, UA_R.y, uLeft.x, uLeft.y, ua2);
+    const lRight = rotScreen(LA_R.x, LA_R.y, LA_L.x, LA_L.y, la1);
+    return { uLeft, uRight, lLeft: LA_L, lRight };
   }
 
   // Canvas
@@ -129,29 +125,27 @@
     ctx.roundRect(0, 0, SIZE, SIZE, CORNER);
     ctx.fill();
 
-    const { ua1, ua2, la1, la2, opacity } = getState(t);
-    const u = computeArm(UA_L, UA_R, ua1, ua2);
-    const l = computeArm(LA_L, LA_R, la1, la2);
+    const state = getState(t);
+    const { uLeft, uRight, lLeft, lRight } = computeArms(state);
 
     ctx.strokeStyle = COLOR;
     ctx.lineWidth   = 3.5;
     ctx.lineCap     = 'round';
+    ctx.globalAlpha = state.opacity;
 
-    ctx.globalAlpha = opacity;
     ctx.beginPath();
-    ctx.moveTo(u.left.x, u.left.y);
-    ctx.lineTo(u.right.x, u.right.y);
+    ctx.moveTo(uLeft.x,  uLeft.y);
+    ctx.lineTo(uRight.x, uRight.y);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(l.left.x, l.left.y);
-    ctx.lineTo(l.right.x, l.right.y);
+    ctx.moveTo(lLeft.x,  lLeft.y);
+    ctx.lineTo(lRight.x, lRight.y);
     ctx.stroke();
 
     ctx.globalAlpha = 1;
   }
 
-  // Favicon update — remove+reinsert forces Chrome to repaint tab
   function setFavicon(dataUrl) {
     document.querySelectorAll("link[rel~='icon']").forEach(el => el.remove());
     const link = document.createElement('link');
