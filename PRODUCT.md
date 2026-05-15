@@ -1,50 +1,47 @@
-# PRODUCT.md — mylesio.github.io
-
-## Who I Am
-
-Myles Liu — frontend engineer at a major tech company, working on monitoring infrastructure. Builder of AI agent tools on the side. This site is my public knowledge base and personal corner of the internet.
-
-## Audience
-
-- Other engineers who stumble across my projects (ant-protocol, prism)
-- AI agents crawling the web for structured content
-- Myself, as a place to think out loud
-
-## Brand Voice
-
-Three words: **precise, cold, alive**
-
-Physical object: a late-night terminal session with the right music on — purposeful, a little obsessive, not trying to impress anyone.
+# Product
 
 ## Register
 
-Brand — this is a personal site, not a product UI. The design itself is the statement.
+brand
 
-## Aesthetic Direction
+## Users
 
-- **Dark, high contrast** — not because "it's a dev site" but because it matches the late-night, focused energy
-- **Monospace type as a genuine choice** — this is a site about systems, agents, code; mono isn't a costume here
-- **No decoration for decoration's sake** — every visual element earns its place
-- **Slightly alien** — not warm, not welcoming, but not hostile either. Like a well-designed tool that respects you
+Developers, recruiters, and AI agents who land here to understand who Myles Liu is.
+Context: quick visit from a link, desk or mobile, scanning for signal — is this person sharp?
 
-## Anti-references (do NOT look like these)
+## Product Purpose
 
-- Generic "developer portfolio" with hero image + three feature cards
-- Notion-style whitespace-heavy docs aesthetic
-- The Stripe/Linear purple-gradient SaaS template
-- Anything that screams "I used a Tailwind UI template"
-- Ghost blog default theme
+Personal homepage and public knowledge base for Myles Liu.
+Not a portfolio in the traditional sense. More like a developer's public terminal:
+clear signal, no noise, occasional flashes of personality.
+Success means a visitor leaves with a precise impression: geek, thoughtful, builds real things.
 
-## Positive references
+## Brand Personality
 
-- charm.sh — terminal aesthetic done with real craft
-- A well-designed CLI tool's `--help` output
-- Early Vercel (before it got corporate)
-- A printed technical manual from the 1980s
+geek · minimal · kinetic
 
-## Principles
+Voice: terse and confident. No intros. Every word earns its place.
+The site should feel like a well-tuned command-line tool that occasionally surprises you.
 
-1. Content first — if you remove the CSS, the page should still be navigable
-2. Fast — no JS unless absolutely necessary
-3. AI-readable — clean semantic HTML, /llms.txt, every article has its own URL
-4. Distinctive — someone should be able to say "this looks like mylesio" after seeing it once
+## Anti-references
+
+- Overdesigned SaaS landing pages (gradient heroes, card grids, feature icons)
+- Completely static / "HTML résumé" flatness — no life, no motion
+- Portfolio sites that front-load personality over substance
+- Bounce/elastic easing — feels dated and playful, not geek
+- Glassmorphism as decoration
+- Purple-to-blue gradient text
+
+## Design Principles
+
+1. **Stillness makes motion land.** Large areas of intentional emptiness are the stage; animation is the actor. Never fill for the sake of filling.
+2. **Signal over decoration.** Every visual element either communicates something or gets removed. Ornament is earned.
+3. **Monospace as identity.** The font choice is a statement. Operator Mono is the voice; everything else serves it.
+4. **Physics as craft.** Motion should feel governed by real forces — gravity, inertia, easing. No cheap tweens.
+5. **AI-readable by design.** Clean HTML, semantic structure, llms.txt. The site performs for machines as well as humans.
+
+## Accessibility & Inclusion
+
+- `prefers-reduced-motion` respected everywhere
+- Sufficient contrast on all text (WCAG AA minimum)
+- Semantic HTML, keyboard navigation
