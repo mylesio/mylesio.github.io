@@ -123,23 +123,22 @@ const isHome = Astro.url.pathname === '/';
         position: sticky;
         top: 0;
         width: 100%;
-        height: 0;
+        height: 48px;           /* navbar height only */
         background-color: #f5f2ec;
-        border-bottom: none;
+        border-bottom: 1px solid #e2ddd6;
         overflow: hidden;
         z-index: 50;
-        transition: height 0.4s ease-out, border-bottom 0s 0.4s;
+        transition: height 0.4s ease-out;
       }
       .site-header.expanded {
-        height: 150px;
-        border-bottom: 1px solid #e2ddd6;
+        height: 198px;          /* 48px navbar + 150px canvas */
       }
 
       #dino-canvas {
         position: absolute;
-        inset: 0;
+        bottom: 0; left: 0; right: 0;
         width: 100%;
-        height: 100%;
+        height: 150px;
         display: block;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
