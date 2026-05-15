@@ -153,14 +153,13 @@
     lastTs = ts;
 
     if (!started) {
-      // idle: just draw static dino + prompt
+      // idle: draw empty ground + hint, dino lives in navbar logo
       ctx.clearRect(0, 0, W, H);
       drawGround();
-      drawTrex(TREX_FRAMES.run[0], dino.x, dino.y);
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(83,83,83,0.3)';
       ctx.font = '10px monospace';
-      ctx.fillText('click anywhere to start', W / 2, 20);
+      ctx.fillText('click anywhere to start', W / 2, H / 2 + 4);
       ctx.textAlign = 'left';
       return;
     }
@@ -284,12 +283,117 @@
     }
   }
 
+  // ── Logo dino (drawn in navbar #dino-logo canvas) ────────────────
+  const logoCanvas = document.getElementById('dino-logo');
+  const lctx = logoCanvas ? logoCanvas.getContext('2d') : null;
+
+  function drawLogoDino() {
+    if (!lctx || !spr.complete) return;
+    lctx.clearRect(0, 0, 24, 24);
+    // scale down: TREX is 44x47, fit into 24x24
+    const scale = 24 / 47;
+    const sw = Math.round(44 * scale), sh = 24;
+    const ox = Math.round((24 - sw) / 2);
+    lctx.drawImage(spr,
+      TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
+      ox, 0, sw, sh);
+  }
+
+  // draw logo dino once sprite loads
+  if (spr.complete) drawLogoDino();
+  else spr.addEventListener('load', drawLogoDino);
+
+  // ── Flying animation from logo to canvas ─────────────────────────
+  function flyDinoToCanvas(onDone) {
+    if (!logoCanvas) { onDone(); return; }
+
+    // get positions
+    const logoRect = logoCanvas.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasTop  = canvasRect.top + window.scrollY;
+    const canvasLeft = canvasRect.left + window.scrollX;
+
+    // target: dino.x on the ground in canvas coords
+    const targetX = canvasLeft + dino.x;
+    const targetY = canvasTop  + GY - D_H;
+
+    // start: center of logo canvas
+    const startX = logoRect.left + window.scrollX + 12;
+    const startY = logoRect.top  + window.scrollY + 12;
+
+    // create flying overlay div
+    const fly = document.createElement('canvas');
+    fly.width  = D_W;
+    fly.height = D_H;
+    fly.style.cssText = `
+      position: absolute;
+      left: ${startX - D_W/2}px;
+      top:  ${startY - D_H/2}px;
+      width: ${D_W}px; height: ${D_H}px;
+      image-rendering: pixelated;
+      pointer-events: none;
+      z-index: 999;
+      transition: none;
+    `;
+    document.body.appendChild(fly);
+    const fctx = fly.getContext('2d');
+
+    // draw dino on fly canvas
+    function drawFly(frame) {
+      fctx.clearRect(0, 0, D_W, D_H);
+      fctx.drawImage(spr,
+        TREX_BASE_X + TREX_FRAMES.run[frame], TREX_BASE_Y, TREX_W, TREX_H,
+        0, 0, D_W, D_H);
+    }
+
+    // animate: parabolic arc from logo to canvas ground
+    const DURATION = 600; // ms
+    let startTime = null;
+    let animFrame = 0;
+    let animTimer = 0;
+
+    // hide logo dino
+    lctx.clearRect(0, 0, 24, 24);
+
+    function animStep(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / DURATION, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+
+      // position: linear X, arc Y (parabola)
+      const x = startX + (targetX - startX) * ease - D_W/2;
+      // Y: goes up first then down to target
+      const arcHeight = Math.abs(targetY - startY) * 1.2 + 60;
+      const yLinear = startY + (targetY - startY) * ease;
+      const yArc = yLinear - arcHeight * 4 * progress * (1 - progress);
+      const y = yArc - D_H/2;
+
+      fly.style.left = `${x}px`;
+      fly.style.top  = `${y}px`;
+
+      // animate legs
+      animTimer += 16;
+      if (animTimer > 80) { animTimer = 0; animFrame = 1 - animFrame; }
+      drawFly(animFrame);
+
+      if (progress < 1) {
+        requestAnimationFrame(animStep);
+      } else {
+        fly.remove();
+        onDone();
+      }
+    }
+    requestAnimationFrame(animStep);
+  }
+
   // ── Start on first interaction anywhere on page ──────────────────
   function startGame() {
     if (started) return;
-    started = true;
     document.removeEventListener('click', startGame, true);
     document.removeEventListener('touchstart', startGame, true);
+    flyDinoToCanvas(() => {
+      started = true;
+    });
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
