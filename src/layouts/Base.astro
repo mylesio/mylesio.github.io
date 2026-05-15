@@ -114,9 +114,6 @@ const isHome = Astro.url.pathname === '/';
       }
 
       /* ─── Banner / Dino canvas ───────────────────── */
-      /* push banner below the fixed navbar (~44px high) */
-      body { padding-top: 44px; }
-
       .site-header {
         position: relative;
         width: 100%;
@@ -138,13 +135,13 @@ const isHome = Astro.url.pathname === '/';
 
       /* ─── Frosted glass navbar (sticky) ─────────── */
       header {
-        position: fixed;
-        top: 0; left: 0; right: 0;
+        position: sticky;
+        top: 0;
         z-index: 100;
-        background: rgba(245, 242, 236, 0.75);
+        background: rgba(245, 242, 236, 0.6);
         backdrop-filter: saturate(180%) blur(20px);
         -webkit-backdrop-filter: saturate(180%) blur(20px);
-        border-bottom: 1px solid rgba(200, 195, 185, 0.45);
+        border-bottom: 1px solid rgba(200, 195, 185, 0.4);
       }
 
       .nav-inner {
@@ -236,20 +233,20 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
+    <!-- sticky frosted-glass navbar sits ABOVE the banner -->
+    <header>
+      <div class="nav-inner">
+        <a class="logo reveal reveal-1" href="/">mylesio</a>
+        <nav class="reveal reveal-1">
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
+        </nav>
+      </div>
+    </header>
+    <!-- dino game banner below navbar -->
     <div class="site-header">
-      <!-- dino game canvas fills the 200px banner -->
       <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play / toggle auto mode"></canvas>
-      <!-- sticky frosted-glass navbar -->
-      <header>
-        <div class="nav-inner">
-          <a class="logo reveal reveal-1" href="/">mylesio</a>
-          <nav class="reveal reveal-1">
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
-          </nav>
-        </div>
-      </header>
     </div>
     <div class="page-wrap">
       <main>
