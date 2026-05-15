@@ -42,18 +42,24 @@
 
   // idle dino position: to the left of "mylesio" logo
   // computed from #dino-anchor element position relative to canvas
+  // idle dino is drawn smaller
+  const IDLE_SCALE = 22 / TREX_H;   // ~22px tall (vs 36px in game)
+  const IDLE_DW = Math.round(TREX_W * IDLE_SCALE);
+  const IDLE_DH = Math.round(TREX_H * IDLE_SCALE);
+
   function getIdlePos() {
     const anchor = document.getElementById('dino-anchor');
-    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - D_H) / 2) };
+    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
     const ar = anchor.getBoundingClientRect();
     const cr = canvas.getBoundingClientRect();
-    const x = Math.round(ar.left - cr.left - D_W - 4);
-    const y = Math.round((NAVBAR_H - D_H) / 2);
+    // place just to the right of anchor (left of mylesio text), +6px gap
+    const x = Math.round(ar.left - cr.left + 6);
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2);
     return { x: Math.max(4, x), y };
   }
 
   let IDLE_X = 24;
-  let IDLE_Y = Math.round((NAVBAR_H - D_H) / 2);
+  let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
 
   function resize() {
     const newW = canvas.parentElement.clientWidth || 800;
@@ -192,10 +198,12 @@
 
     ctx.clearRect(0, 0, W, H);
 
-    // ── IDLE: draw static dino at logo position ───────────────────
+    // ── IDLE: draw small static dino at logo position ────────────
     if (!started && !jumping) {
       if (spr.complete) {
-        drawTrex(TREX_FRAMES.run[0], dino.x, dino.y);
+        ctx.drawImage(spr,
+          TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
+          dino.x, dino.y, IDLE_DW, IDLE_DH);
       }
       return;
     }
