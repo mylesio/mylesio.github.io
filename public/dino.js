@@ -54,7 +54,9 @@
     const cr = canvas.getBoundingClientRect();
     // place just to the right of anchor (left of mylesio text), +6px gap
     const x = Math.round(ar.left - cr.left + 6);
-    const y = Math.round((NAVBAR_H - IDLE_DH) / 2);
+    // on mobile navbar is taller due to different padding — push dino lower
+    const isMobile = window.innerWidth < 640;
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 6 : 0);
     return { x: Math.max(4, x), y };
   }
 
