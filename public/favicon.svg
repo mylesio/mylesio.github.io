@@ -1,29 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <rect width="32" height="32" rx="6" fill="#0f0f11"/>
 
-  <!-- glow layer: breathes slowly -->
-  <polyline points="9,8 23,16 9,24"
-            stroke="#7dd3fc" stroke-width="10"
-            stroke-linecap="round" stroke-linejoin="round">
-    <animate attributeName="opacity"
-             values="0.05;0.18;0.18;0.05"
-             keyTimes="0;0.45;0.55;1"
-             dur="2.8s"
-             repeatCount="indefinite"
-             calcMode="spline"
-             keySplines="0.4 0 0.6 1; 0 0 1 1; 0.4 0 0.6 1"/>
-  </polyline>
+  <!--
+    Animation timeline (4.8s loop):
+    0.00 - 0.20  hold at rest (>)
+    0.20 - 0.55  free-fall, accelerating
+    0.55 - 0.68  land + tiny bounce
+    0.68 - 1.10  rest on ground (faded)
+    1.10 - 1.40  reassemble, fade back in
+    1.40 - 1.00  (loop back)
+  -->
 
-  <!-- main chevron: subtle brightness shift in sync -->
-  <polyline points="9,8 23,16 9,24"
-            stroke="#7dd3fc" stroke-width="3.5"
-            stroke-linecap="round" stroke-linejoin="round">
+  <!-- UPPER ARM: 9,8 -> 23,16  falls more, drifts right -->
+  <line x1="9" y1="8" x2="23" y2="16"
+        stroke="#7dd3fc" stroke-width="3.5" stroke-linecap="round">
+    <!-- translate: x drift + y fall -->
+    <animateTransform attributeName="transform" type="translate"
+      values="0,0; 0,0; 1,5; 4,14; 3,12; 4,14; 0,0"
+      keyTimes="0; 0.2; 0.42; 0.58; 0.64; 0.72; 1"
+      dur="4.8s" repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="
+        0 0 1 1;
+        0.3 0 1 1;
+        0.2 0 0.5 1;
+        0.4 0 0.6 1;
+        0.4 0 0.6 1;
+        0.4 0 0.6 1"/>
     <animate attributeName="opacity"
-             values="0.72;1;1;0.72"
-             keyTimes="0;0.45;0.55;1"
-             dur="2.8s"
-             repeatCount="indefinite"
-             calcMode="spline"
-             keySplines="0.4 0 0.6 1; 0 0 1 1; 0.4 0 0.6 1"/>
-  </polyline>
+      values="1; 1; 0.9; 0.38; 0.38; 0.38; 1"
+      keyTimes="0; 0.2; 0.42; 0.58; 0.64; 0.72; 1"
+      dur="4.8s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- LOWER ARM: 9,24 -> 23,16  falls less, slight left drift -->
+  <line x1="9" y1="24" x2="23" y2="16"
+        stroke="#7dd3fc" stroke-width="3.5" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="translate"
+      values="0,0; 0,0; -0.5,2; -2,5; -1.5,4; -2,5; 0,0"
+      keyTimes="0; 0.26; 0.46; 0.60; 0.66; 0.72; 1"
+      dur="4.8s" repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="
+        0 0 1 1;
+        0.3 0 1 1;
+        0.2 0 0.5 1;
+        0.4 0 0.6 1;
+        0.4 0 0.6 1;
+        0.4 0 0.6 1"/>
+    <animate attributeName="opacity"
+      values="1; 1; 0.92; 0.52; 0.52; 0.52; 1"
+      keyTimes="0; 0.26; 0.46; 0.60; 0.66; 0.72; 1"
+      dur="4.8s" repeatCount="indefinite"/>
+  </line>
 </svg>
