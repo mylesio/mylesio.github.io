@@ -45,8 +45,8 @@
 
   function resize() {
     W = canvas.width  = canvas.parentElement.clientWidth || 800;
-    H = canvas.height = 200;
-    GY = H - 20;
+    H = canvas.height = 150;
+    GY = H - 16;
     if (!dead) dino.y = GY - D_H;
   }
 
@@ -126,10 +126,10 @@
 
   // ── Ground ───────────────────────────────────────────────────────
   function drawGround() {
-    ctx.strokeStyle = 'rgba(125,211,252,0.25)';
+    ctx.strokeStyle = 'rgba(83,83,83,0.4)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, GY); ctx.lineTo(W, GY); ctx.stroke();
-    ctx.fillStyle = 'rgba(125,211,252,0.15)';
+    ctx.fillStyle = 'rgba(83,83,83,0.2)';
     const off = (groundOff | 0) % 20;
     for (let x = -off; x < W; x += 20) {
       ctx.fillRect(x,      GY + 3, 4, 1);
@@ -196,7 +196,7 @@
     ctx.clearRect(0, 0, W, H);
 
     if (flashT > 0) {
-      ctx.fillStyle = 'rgba(125,211,252,0.07)';
+      ctx.fillStyle = 'rgba(83,83,83,0.05)';
       ctx.fillRect(0, 0, W, H);
     }
 
@@ -228,33 +228,33 @@
       ctx.font = '11px monospace';
       ctx.textAlign = 'right';
       if (hiScore > 0) {
-        ctx.fillStyle = 'rgba(125,211,252,0.35)';
+        ctx.fillStyle = 'rgba(83,83,83,0.4)';
         ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, 22);
       }
-      ctx.fillStyle = 'rgba(125,211,252,0.75)';
+      ctx.fillStyle = 'rgba(83,83,83,0.8)';
       ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, 22);
       ctx.textAlign = 'left';
     }
 
     // Game over (play mode)
     if (dead && mode === 'play') {
-      ctx.fillStyle = 'rgba(15,25,38,0.78)';
+      ctx.fillStyle = 'rgba(245,242,236,0.85)';
       ctx.fillRect(0, 0, W, H);
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(125,211,252,0.9)';
+      ctx.fillStyle = 'rgba(83,83,83,0.9)';
       ctx.font = 'bold 13px monospace';
       ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
       ctx.font = '10px monospace';
-      ctx.fillStyle = 'rgba(125,211,252,0.45)';
+      ctx.fillStyle = 'rgba(83,83,83,0.45)';
       ctx.fillText('click to restart', W / 2, H / 2 + 14);
       ctx.textAlign = 'left';
     }
 
     // Mode badge
     const badge = mode === 'auto' ? '▶ PLAY' : '⏸ AUTO';
-    ctx.fillStyle = 'rgba(125,211,252,0.08)';
+    ctx.fillStyle = 'rgba(83,83,83,0.08)';
     ctx.beginPath(); ctx.roundRect(W - 60, H - 20, 54, 15, 3); ctx.fill();
-    ctx.fillStyle = 'rgba(125,211,252,0.4)';
+    ctx.fillStyle = 'rgba(83,83,83,0.4)';
     ctx.font = '9px monospace';
     ctx.textAlign = 'right';
     ctx.fillText(badge, W - 8, H - 8);
