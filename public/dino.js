@@ -392,20 +392,23 @@
     const logoRect = logoEl ? logoEl.getBoundingClientRect() : null;
     if (!logoRect) { resize(); started = true; return; }
 
+    // logoRect is viewport-relative, fly uses position:fixed — no scrollY needed
     const startX = logoRect.left + logoRect.width / 2;
-    const startY = logoRect.top  + logoRect.height / 2 + window.scrollY;
+    const startY = logoRect.top  + logoRect.height / 2;
 
-    // after banner starts expanding, get target position
+    // after banner starts expanding, compute target position
+    // canvas top is always at site-header top (sticky top:0), GY is fixed canvas coord
     setTimeout(() => {
       resize();
-      const canvasRect = canvas.getBoundingClientRect();
-      const targetX = canvasRect.left + dino.x + D_W / 2;
-      const targetY = canvasRect.top  + GY - D_H / 2 + window.scrollY;
+      const siteHeader = canvas.closest('.site-header');
+      const shRect = siteHeader.getBoundingClientRect();
+      const targetX = shRect.left + dino.x + D_W / 2;
+      const targetY = shRect.top  + GY - D_H / 2;  // fixed canvas y, no scrollY needed (fixed viewport)
 
       // create overlay canvas for the flying dino
       const fly = document.createElement('canvas');
       fly.width = D_W; fly.height = D_H;
-      fly.style.cssText = `position:fixed;pointer-events:none;z-index:999;image-rendering:pixelated;left:${startX - D_W/2}px;top:${startY - D_H/2 - window.scrollY}px;width:${D_W}px;height:${D_H}px;`;
+      fly.style.cssText = `position:fixed;pointer-events:none;z-index:999;image-rendering:pixelated;left:${startX - D_W/2}px;top:${startY - D_H/2}px;width:${D_W}px;height:${D_H}px;`;
       document.body.appendChild(fly);
       const fctx = fly.getContext('2d');
 
@@ -421,7 +424,7 @@
         // parabola: y goes from startY, arcs down, lands at targetY
         const yLinear = startY + (targetY - startY) * ease;
         const arcDrop = 60 * Math.sin(Math.PI * ease); // modest arc height
-        const cy = yLinear + arcDrop - D_H / 2 - window.scrollY;
+        const cy = yLinear + arcDrop - D_H / 2;
 
         fly.style.left = `${cx}px`;
         fly.style.top  = `${cy}px`;
