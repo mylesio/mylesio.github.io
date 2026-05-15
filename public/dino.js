@@ -283,14 +283,15 @@
       drawTrex(TREX_FRAMES.crashed[0], dino.x, dino.y);
     }
 
-    // Score — always visible
+    // Score — always visible, positioned below navbar
+    const scoreY = NAVBAR_H + 14;
     ctx.font = '11px monospace'; ctx.textAlign = 'right';
     if (hiScore > 0) {
       ctx.fillStyle = 'rgba(83,83,83,0.4)';
-      ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, 22);
+      ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, scoreY);
     }
     ctx.fillStyle = 'rgba(83,83,83,0.8)';
-    ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, 22);
+    ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, scoreY);
     ctx.textAlign = 'left';
 
     // Game over — always shown when dead
