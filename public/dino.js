@@ -309,8 +309,13 @@
   }
 
   // ── Start on first interaction ───────────────────────────────────
-  function startGame() {
+  function startGame(e) {
     if (started || jumping) return;
+    // ignore clicks on interactive elements (links, buttons, inputs, etc.)
+    if (e && e.target) {
+      const t = e.target.closest('a, button, input, select, textarea, [role="button"], [tabindex]');
+      if (t && !canvas.contains(t)) return;
+    }
     // refresh idle pos right before launch (in case layout changed)
     initIdlePos();
     introStartX = IDLE_X;
