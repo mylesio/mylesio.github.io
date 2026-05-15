@@ -323,7 +323,10 @@
     // expand site-header immediately on click
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.add('expanded');
-    // z-index stays at 20 (canvas above navbar) until dino lands
+    // ignore scroll events briefly (expanding shifts layout → fake scroll delta)
+    scrollCooldown = true;
+    lastScrollY = window.scrollY || 0;
+    setTimeout(() => { scrollCooldown = false; lastScrollY = window.scrollY || 0; }, 600);
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
@@ -396,12 +399,15 @@
   }
 
   let lastScrollY = window.scrollY || 0;
+  let scrollCooldown = false;
+
   window.addEventListener('scroll', () => {
+    if (scrollCooldown) return;
     const sy = window.scrollY || window.pageYOffset;
     const delta = sy - lastScrollY;
     lastScrollY = sy;
-    // collapse only when actively scrolling DOWN (delta > 0)
-    if (delta > 0 && (started || jumping)) {
+    // collapse only when user actively scrolls DOWN
+    if (delta > 3 && (started || jumping)) {
       collapseToIdle();
     }
   }, { passive: true });
