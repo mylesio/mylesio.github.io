@@ -450,11 +450,11 @@
           requestAnimationFrame(flyStep);
         } else {
           fly.remove();
-          // now show dino on canvas and start game
           dino.y = GY - D_H;
           dino.vy = 0;
           dino.jumping = false;
-          started = true;  // canvas dino appears here, after fly animation ends
+          // wait one rAF so fly is fully gone before canvas dino appears
+          requestAnimationFrame(() => { started = true; });
         }
       }
       requestAnimationFrame(flyStep);
