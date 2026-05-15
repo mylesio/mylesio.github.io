@@ -51,17 +51,17 @@ const isHome = Astro.url.pathname === '/';
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg:          #0e0f11;   /* cooler near-black — blue undertone visible */
-        --surface:     #14151a;
-        --border:      #1e2028;   /* blue-shifted border */
-        --text:        #dde0e8;   /* slightly cooler white — harmonizes with accent */
-        --muted:       #6e7280;   /* ~4.6:1 on --bg */
-        --label:       #4a4e5e;   /* uppercase labels, decorative only */
-        --dim:         #252830;   /* non-text only */
-        --accent:      #7dd3fc;   /* sky blue — kinetic + hero */
-        --accent-mid:  #4ba8d8;   /* mid-brightness accent for static elements */
-        --accent-dim:  #2a6a94;   /* low-brightness accent for hairlines, borders */
-        --accent-wash: #1a2530;  /* very subtle blue tint for borders/surfaces */
+        --bg:          #f5f2ec;   /* warm off-white / parchment */
+        --surface:     #eeeae2;   /* slightly deeper warm white for surfaces */
+        --border:      #ddd8ce;   /* warm tan border */
+        --text:        #1a1917;   /* near-black with warm undertone */
+        --muted:       #6b6860;   /* warm gray, ~4.8:1 on --bg */
+        --label:       #9c9890;   /* uppercase labels, decorative only */
+        --dim:         #c8c4ba;   /* non-text only: rules, decorative */
+        --accent:      #0284c7;   /* deeper sky blue — readable on light bg */
+        --accent-mid:  #0ea5e9;   /* mid blue */
+        --accent-dim:  #7dd3fc;   /* light blue for hairlines on light bg */
+        --accent-wash: #e0eef7;   /* very subtle blue tint for borders/surfaces */
         --mono:        'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
         --col:         640px;
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
