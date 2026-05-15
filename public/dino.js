@@ -59,6 +59,7 @@
   }
 
   // ── Game state ───────────────────────────────────────────────────
+  let started = false;
   let mode = 'auto';   // 'auto' | 'play'
   let score = 0, hiScore = 0, speed = 5, gFrame = 0;
   let dead = false, flashT = 0;
@@ -150,6 +151,19 @@
     requestAnimationFrame(tick);
     const dt = Math.min(ts - (lastTs || ts), 50);
     lastTs = ts;
+
+    if (!started) {
+      // idle: just draw static dino + prompt
+      ctx.clearRect(0, 0, W, H);
+      drawGround();
+      drawTrex(TREX_FRAMES.run[0], dino.x, dino.y);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(83,83,83,0.3)';
+      ctx.font = '10px monospace';
+      ctx.fillText('click anywhere to start', W / 2, 20);
+      ctx.textAlign = 'left';
+      return;
+    }
 
     if (!dead) {
       score += dt * 0.003;
@@ -260,30 +274,40 @@
       ctx.textAlign = 'left';
     }
 
-    // Mode badge
-    const badge = mode === 'auto' ? '▶ PLAY' : '⏸ AUTO';
-    ctx.fillStyle = 'rgba(83,83,83,0.08)';
-    ctx.beginPath(); ctx.roundRect(W - 60, H - 20, 54, 15, 3); ctx.fill();
-    ctx.fillStyle = 'rgba(83,83,83,0.4)';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(badge, W - 8, H - 8);
-    ctx.textAlign = 'left';
+    // waiting state: show prompt
+    if (!started) {
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(83,83,83,0.35)';
+      ctx.font = '10px monospace';
+      ctx.fillText('click anywhere to start', W / 2, H / 2 + 4);
+      ctx.textAlign = 'left';
+    }
   }
 
-  // ── Input: click only (no Space — avoids page scroll) ───────────
+  // ── Start on first interaction anywhere on page ──────────────────
+  function startGame() {
+    if (started) return;
+    started = true;
+    document.removeEventListener('click', startGame, true);
+    document.removeEventListener('touchstart', startGame, true);
+  }
+  document.addEventListener('click', startGame, true);
+  document.addEventListener('touchstart', startGame, true);
+
+  // ── Input: click on canvas ───────────────────────────────────────
   canvas.addEventListener('click', () => {
-    if (mode === 'auto') {
-      toggleMode();
-    } else {
+    if (!started) return;
+    if (mode === 'play') {
       dead ? reset() : jump();
     }
   });
 
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    if (mode === 'auto') toggleMode();
-    else dead ? reset() : jump();
+    if (!started) return;
+    if (mode === 'play') {
+      dead ? reset() : jump();
+    }
   }, { passive: false });
 
   // ── Init ─────────────────────────────────────────────────────────
