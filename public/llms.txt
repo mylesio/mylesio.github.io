@@ -8,8 +8,13 @@
 
 ## Projects
 
-- [ant-protocol](https://github.com/mylesio/ant-protocol): Portable multi-agent governance protocol
-- [prism](https://github.com/mylesio/prism): AI personal profile engine
+- [prism](https://github.com/mylesio/prism): AI personal profile engine — parses conversations into structured personality insights
+- [ant-protocol](https://github.com/mylesio/ant-protocol): Portable multi-agent governance protocol — task lifecycle, memory, queen orchestration
+- [oasis-openclaw](https://github.com/mylesio/oasis-openclaw): Full agent intelligence injected into OASIS social simulation platform
+- [worldmind](https://github.com/mylesio/worldmind): Multi-agent world model engine — perceive, reason, predict complex ecosystems
+- [temporal-crystal](https://github.com/mylesio/temporal-crystal): Living memory for AI agents — memories that evolve, compress, crystallize
+- [rumex](https://github.com/mylesio/rumex): Per-agent memory protocol — loop memory + task until done
+- [claw-code](https://github.com/mylesio/claw-code): Multi-agent harness reference implementation
 
 ## About
 
