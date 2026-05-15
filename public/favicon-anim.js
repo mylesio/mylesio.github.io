@@ -45,7 +45,7 @@
   // 0.53–0.82  REST ON GROUND (~4s), full opacity
   // 0.82–1.00  snap back
 
-  const DURATION = 14000;
+  const DURATION = 8000;
 
   function rotScreen(px, py, cx, cy, a) {
     const cos = Math.cos(a), sin = Math.sin(a);
@@ -153,15 +153,22 @@
 
   let startTime = null;
   let lastTick  = null;
+  let done      = false;
 
   function loop(ts) {
+    if (done) return;
     if (!startTime) startTime = ts;
     if (!lastTick)  lastTick  = ts - INTERVAL;
     if (ts - lastTick >= INTERVAL) {
       lastTick = ts;
-      const t = ((ts - startTime) % DURATION) / DURATION;
+      const elapsed = ts - startTime;
+      const t = Math.min(elapsed / DURATION, 0.82); // clamp at rest phase start
       drawFrame(t);
       setFavicon(canvas.toDataURL('image/png'));
+      if (elapsed >= DURATION * 0.82) {
+        done = true; // stop after arms are flat
+        return;
+      }
     }
     requestAnimationFrame(loop);
   }
