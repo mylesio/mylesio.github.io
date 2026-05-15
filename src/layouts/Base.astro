@@ -71,13 +71,18 @@ const isHome = Astro.url.pathname === '/';
       html { font-size: 15px; }
 
       body {
-        background: var(--bg);
+        background: transparent;
         color: var(--text);
         font-family: var(--mono);
         font-size: 1rem;
         line-height: 1.65;
         -webkit-font-smoothing: antialiased;
       }
+
+      html { background: var(--bg); }
+
+      /* offset banner so it starts under the fixed navbar */
+      .site-header { margin-top: 0; }  /* navbar overlaps banner top */
 
       ::selection { background: var(--accent); color: #111112; }
 
@@ -118,9 +123,12 @@ const isHome = Astro.url.pathname === '/';
         position: relative;
         width: 100%;
         height: 150px;
+        /* top padding so dino game isn't hidden behind fixed navbar */
+        padding-top: 48px;
         background-color: #f5f2ec;
         border-bottom: 1px solid #e2ddd6;
         overflow: hidden;
+        box-sizing: border-box;
       }
 
       #dino-canvas {
@@ -133,10 +141,10 @@ const isHome = Astro.url.pathname === '/';
         image-rendering: crisp-edges;
       }
 
-      /* ─── Liquid Glass navbar (sticky) ──────────── */
+      /* ─── Liquid Glass navbar (fixed, floats over banner) ── */
       header {
-        position: sticky;
-        top: 0;
+        position: fixed;
+        top: 0; left: 0; right: 0;
         z-index: 100;
         background: rgba(245, 242, 236, 0.28);
         backdrop-filter: saturate(220%) blur(40px) brightness(1.05);
