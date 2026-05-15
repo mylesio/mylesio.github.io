@@ -395,13 +395,15 @@
     paused = false;
   }
 
-  let lastScrollY = 0;
+  let lastScrollY = window.scrollY || 0;
   window.addEventListener('scroll', () => {
     const sy = window.scrollY || window.pageYOffset;
-    if (sy > lastScrollY && sy > 10 && (started || jumping)) {
+    const delta = sy - lastScrollY;
+    lastScrollY = sy;
+    // collapse only when actively scrolling DOWN (delta > 0)
+    if (delta > 0 && (started || jumping)) {
       collapseToIdle();
     }
-    lastScrollY = sy;
   }, { passive: true });
 
   // ── Init ─────────────────────────────────────────────────────────
