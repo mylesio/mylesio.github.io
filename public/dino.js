@@ -1,171 +1,177 @@
 /**
- * Dino Runner — uses official Chromium sprite (offline-sprite-1x.png)
- * Auto mode: AI runs forever   |   Play mode: Space/tap to jump
- * Click canvas or press Enter to toggle modes
+ * Dino Runner — Chromium offline-sprite-1x.png
  *
- * Sprite layout (1x, 1204×68):
- *   TREX base   x:848  y:2   w:44 h:47  (RUNNING frames at +88, +132 from base x)
- *   TREX jump   x:848  y:2   (frame offset 0 = standing pose used for jump)
- *   CACTUS_SM   x:228  y:2   w:17 h:35
- *   CACTUS_LG   x:332  y:2   w:25 h:50
- *   CLOUD       x:86   y:2   w:46 h:14
- *   GROUND      x:2    y:54  w:1200 h:12  (tiled)
+ * Verified sprite coords (measured from actual PNG):
+ *   trex_run0:  x=840  y=2   w=57  h=63   (right leg back)
+ *   trex_run1:  x=899  y=4   w=41  h=62   (right leg forward)
+ *   trex_stand: x=41   y=4   w=45  h=62   (standing / jump pose)
+ *   trex_dead:  x=941  y=19  w=59  h=44
+ *   cactus_sm:  x=228  y=2   w=20  h=62   (single small cactus)
+ *   cactus_lg:  x=332  y=2   w=30  h=64   (single large cactus)
+ *   cloud:      x=86   y=2   w=64  h=18
+ *   ground:     y=54 (row), tiled
+ *
+ * Sprite is dark-on-black; we invert to draw on dark banner.
  */
 (function () {
-  const SPRITE_SRC = '/dino-sprite.png';
-
-  // Sprite rects [x, y, w, h]
-  const SP = {
-    trexRun0:  [936, 2, 44, 47],   // 848+88
-    trexRun1:  [980, 2, 44, 47],   // 848+132
-    trexJump:  [848, 2, 44, 47],   // standing/jump frame
-    trexCrash: [1068, 2, 44, 47],  // 848+220
-    cactusS:   [228, 2, 17, 35],
-    cactusL:   [332, 2, 25, 50],
-    cloud:     [86,  2, 46, 14],
-    ground:    [2,  54, 1200, 12],
-  };
-
   const canvas = document.getElementById('dino-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // Load sprite
-  const img = new Image();
-  img.src = SPRITE_SRC;
-  let spriteReady = false;
-  img.onload = () => { spriteReady = true; };
+  // ── Load & prepare sprite (invert: black bg → transparent, grey → sky-blue) ──
+  const rawImg = new Image();
+  rawImg.src = '/dino-sprite.png';
 
-  // Canvas palette
-  const TINT = false; // set true to apply blue tint filter
+  let spriteCanvas = null;
 
-  // ── Dims ─────────────────────────────────────────────────────────
+  rawImg.onload = () => {
+    // Draw raw sprite onto offscreen canvas, then recolor
+    const oc = document.createElement('canvas');
+    oc.width  = rawImg.naturalWidth;
+    oc.height = rawImg.naturalHeight;
+    const octx = oc.getContext('2d');
+    octx.drawImage(rawImg, 0, 0);
+
+    const idata = octx.getImageData(0, 0, oc.width, oc.height);
+    const d = idata.data;
+    // Original: bg=black(0,0,0), content=grey(83,83,83) or white(247,247,247)
+    // Remap: black → transparent; grey/white → sky-blue (#7dd3fc = 125,211,252)
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      if (r < 20 && g < 20 && b < 20) {
+        // black background → transparent
+        d[i+3] = 0;
+      } else {
+        // content → sky blue
+        d[i]   = 125;
+        d[i+1] = 211;
+        d[i+2] = 252;
+        d[i+3] = 230;
+      }
+    }
+    octx.putImageData(idata, 0, 0);
+    spriteCanvas = oc;
+  };
+
+  // ── Sprite rects [x, y, w, h] ────────────────────────────────────
+  const SP = {
+    run0:   [840, 2,  57, 63],
+    run1:   [899, 4,  41, 62],
+    stand:  [ 41, 4,  45, 62],
+    dead:   [941, 19, 59, 44],
+    cactS:  [228, 2,  20, 62],
+    cactL:  [332, 2,  30, 64],
+    cloud:  [ 86, 2,  64, 18],
+  };
+
+  // Normalised dino display size (scale to fit 47px tall)
+  const DINO_H = 47;
+  const DINO_SCALE = DINO_H / SP.run0[3]; // ~0.75
+  const DINO_W = Math.round(SP.run0[2] * DINO_SCALE); // display width
+
+  // ── Canvas dims ───────────────────────────────────────────────────
   let W, H, GY;
 
   function resize() {
-    const parent = canvas.parentElement;
-    W = canvas.width  = parent.clientWidth || 800;
-    H = canvas.height = 70;
-    GY = H - 12;
-    dino.y = GY - SP.trexRun0[3];
+    W = canvas.width  = canvas.parentElement.clientWidth || 800;
+    H = canvas.height = 68;
+    GY = H - 10;
+    dino.y = GY - DINO_H;
   }
 
-  // ── Game state ───────────────────────────────────────────────────
-  let mode = 'auto';
-  let score = 0, hiScore = 0, gameFrame = 0, speed = 5;
+  // ── State ─────────────────────────────────────────────────────────
+  let mode = 'auto'; // 'auto' | 'play'
+  let score = 0, hiScore = 0, speed = 5;
+  let gFrame = 0;
   let dead = false, flashT = 0;
-  let animFrame = 0, animT = 0;
-
-  const dino = {
-    x: 60, y: 0,
-    vy: 0,
-    jumping: false,
-    crashed: false,
-  };
-
-  let obstacles = [];
-  let nextObs   = 150; // first obstacle spawns after 150 frames — enough time to settle
-  let clouds    = [
-    { x: 250, y: 10, frame: 0 },
-    { x: 520, y: 18, frame: 0 },
-    { x: 750, y:  8, frame: 0 },
-  ];
+  let animF = 0, animT = 0;
   let groundOffset = 0;
 
-  // ── Jump ─────────────────────────────────────────────────────────
+  const dino = { x: 60, y: 0, vy: 0, jumping: false, crashed: false };
+  let obstacles = [];
+  let nextObs = 150;
+  let clouds = [
+    { x: 200, y: 6  },
+    { x: 480, y: 12 },
+    { x: 720, y: 5  },
+  ];
+
+  // ── Helpers ───────────────────────────────────────────────────────
   function jump() {
     if (dino.jumping || dead) return;
-    dino.vy   = -11;
+    dino.vy = -11.5;
     dino.jumping = true;
   }
 
-  // ── Reset ────────────────────────────────────────────────────────
   function reset() {
-    score = 0; gameFrame = 0; speed = 5;
+    score = 0; gFrame = 0; speed = 5;
     obstacles = []; nextObs = 150;
     dead = false; flashT = 0;
-    dino.y = GY - SP.trexRun0[3];
-    dino.vy = 0;
-    dino.jumping = false;
-    dino.crashed = false;
+    dino.y = GY - DINO_H;
+    dino.vy = 0; dino.jumping = false; dino.crashed = false;
     groundOffset = 0;
   }
 
-  // ── Toggle mode ──────────────────────────────────────────────────
   function toggleMode() {
     mode = mode === 'auto' ? 'play' : 'auto';
     reset();
   }
 
-  // ── Sprite draw helper ───────────────────────────────────────────
-  function spr([sx, sy, sw, sh], dx, dy, dw, dh, flipH) {
-    if (!spriteReady) return;
-    const w = dw ?? sw, h = dh ?? sh;
-    if (flipH) {
-      ctx.save();
-      ctx.translate(dx + w, dy);
-      ctx.scale(-1, 1);
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
-      ctx.restore();
-    } else {
-      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, w, h);
-    }
+  // ── Sprite draw ───────────────────────────────────────────────────
+  function spr([sx, sy, sw, sh], dx, dy, dw, dh) {
+    if (!spriteCanvas) return;
+    ctx.drawImage(spriteCanvas, sx, sy, sw, sh, dx, dy, dw ?? sw, dh ?? sh);
   }
 
-  // ── Auto-jump AI ─────────────────────────────────────────────────
-  // Lookahead: compute time-to-collision, jump early enough
+  // ── AI auto-jump ──────────────────────────────────────────────────
   function autoJump() {
     if (dead || dino.jumping) return;
     for (const o of obstacles) {
-      const dinoRight = dino.x + 34;   // conservative dino right edge
+      const dinoRight = dino.x + DINO_W - 8;
       const obsLeft   = o.x + 2;
       const dx = obsLeft - dinoRight;
-      if (dx < 0) continue;           // already passed
-
-      // Time (frames) to reach obstacle at current speed
-      const timeFrames = dx / speed;
-      // Jump takes ~20 frames to peak and land; trigger when ~22 frames away
-      // Add buffer based on speed: faster = jump earlier
-      const triggerDist = 20 + speed * 2;
-      if (dx < triggerDist) {
-        jump();
-        break;
-      }
+      if (dx < 0) continue;
+      if (dx < 22 + speed * 2.5) { jump(); break; }
     }
   }
 
-  // ── Collision (AABB with inset) ───────────────────────────────────
-  function checkCollision() {
-    const dx = 8, dy = 6; // inset
-    const dr = dino.x + SP.trexRun0[2] - dx * 2;
-    const db = dino.y + SP.trexRun0[3] - dy;
-    const dt = dino.y + dy;
-    const dl = dino.x + dx;
-
+  // ── Collision ─────────────────────────────────────────────────────
+  function checkHit() {
+    const inset = 7;
+    const dl = dino.x + inset, dr = dino.x + DINO_W - inset;
+    const dt = dino.y + inset, db = dino.y + DINO_H - 4;
     for (const o of obstacles) {
-      const sp   = o.large ? SP.cactusL : SP.cactusS;
-      const cnt  = o.count;
-      const ow   = sp[2] * cnt + (cnt - 1) * 2;
-      const oh   = sp[3];
-      const or_  = o.x + ow - 2;
-      const ob   = o.y + oh;
-      const ot   = o.y + 4;
-      const ol   = o.x + 2;
-
+      const sp = o.large ? SP.cactL : SP.cactS;
+      const scale = o.large ? 1 : 0.9;
+      const ow = Math.round(sp[2] * scale);
+      const oh = Math.round(sp[3] * scale);
+      const ol = o.x + 2, or_ = o.x + ow - 2;
+      const ot = o.y + 4, ob  = o.y + oh;
       if (dl < or_ && dr > ol && dt < ob && db > ot) return true;
     }
     return false;
   }
 
-  // ── Main tick ────────────────────────────────────────────────────
+  // ── Ground draw ───────────────────────────────────────────────────
+  function drawGround() {
+    // Simple line + dots (no ground sprite needed)
+    ctx.strokeStyle = 'rgba(125,211,252,0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, GY); ctx.lineTo(W, GY); ctx.stroke();
+    ctx.fillStyle = 'rgba(125,211,252,0.2)';
+    for (let x = (-groundOffset % 20); x < W; x += 20) {
+      ctx.fillRect(x, GY + 2, 3, 1);
+      ctx.fillRect(x + 10, GY + 4, 2, 1);
+    }
+  }
+
+  // ── Main loop ─────────────────────────────────────────────────────
   function tick() {
     requestAnimationFrame(tick);
-    gameFrame++;
-
+    gFrame++;
     if (!dead) {
-      score  += 0.05;
-      speed   = 5 + Math.floor(score / 80) * 0.5;
-      speed   = Math.min(speed, 12);
+      score += 0.05;
+      speed = Math.min(5 + Math.floor(score / 80) * 0.5, 12);
     }
     if (score > hiScore) hiScore = score;
 
@@ -173,59 +179,37 @@
     if (!dead) {
       dino.vy += 0.65;
       dino.y  += dino.vy;
-      const floor = GY - SP.trexRun0[3];
-      if (dino.y >= floor) {
-        dino.y      = floor;
-        dino.vy     = 0;
-        dino.jumping = false;
-      }
+      const floor = GY - DINO_H;
+      if (dino.y >= floor) { dino.y = floor; dino.vy = 0; dino.jumping = false; }
     }
 
     // Walk anim
     animT++;
-    if (animT > 6) { animFrame = 1 - animFrame; animT = 0; }
+    if (animT > 6) { animF = 1 - animF; animT = 0; }
 
-    // Spawn obstacles
-    if (!dead) {
-      nextObs--;
-      if (nextObs <= 0) {
-        const large = Math.random() > 0.5;
-        const count = 1 + Math.floor(Math.random() * (large ? 2 : 3));
-        const sp    = large ? SP.cactusL : SP.cactusS;
-        obstacles.push({
-          x: W + 20,
-          y: GY - sp[3],
-          large, count,
-        });
-        // Gap between obstacles: shrinks as speed increases
-        nextObs = Math.max(50, 110 - Math.floor(speed * 5) + Math.floor(Math.random() * 50));
-      }
+    // Spawn
+    if (!dead && --nextObs <= 0) {
+      const large = Math.random() > 0.55;
+      const sp = large ? SP.cactL : SP.cactS;
+      const scale = large ? 1 : 0.9;
+      obstacles.push({ x: W + 20, y: GY - Math.round(sp[3] * scale), large });
+      nextObs = Math.max(55, 115 - Math.floor(speed * 5) + Math.floor(Math.random() * 55));
     }
 
-    // Move obstacles
-    if (!dead) obstacles.forEach(o => o.x -= speed);
-    obstacles = obstacles.filter(o => {
-      const sp = o.large ? SP.cactusL : SP.cactusS;
-      return o.x + sp[2] * o.count > -20;
-    });
-
-    // Move clouds
-    clouds.forEach(cl => {
-      cl.x -= 0.4;
-      if (cl.x + SP.cloud[2] < 0) cl.x = W + 40;
-    });
-
-    // Ground scroll
-    groundOffset = (groundOffset + speed) % SP.ground[2];
+    // Move
+    if (!dead) {
+      obstacles.forEach(o => o.x -= speed);
+      groundOffset += speed;
+    }
+    obstacles = obstacles.filter(o => o.x > -60);
+    clouds.forEach(cl => { cl.x -= 0.4; if (cl.x + SP.cloud[2] < 0) cl.x = W + 40; });
 
     // AI
-    if (mode === 'auto' && !dead) autoJump();
+    if (mode === 'auto') autoJump();
 
     // Collision
-    if (!dead && checkCollision()) {
-      dead    = true;
-      flashT  = 10;
-      dino.crashed = true;
+    if (!dead && checkHit()) {
+      dead = true; flashT = 10; dino.crashed = true;
       if (mode === 'auto') setTimeout(reset, 800);
     }
     if (flashT > 0) flashT--;
@@ -233,119 +217,96 @@
     // ── Draw ──────────────────────────────────────────────────────
     ctx.clearRect(0, 0, W, H);
 
-    // Flash on death
     if (flashT > 0) {
-      ctx.fillStyle = 'rgba(125,211,252,0.15)';
+      ctx.fillStyle = 'rgba(125,211,252,0.12)';
       ctx.fillRect(0, 0, W, H);
-    }
-
-    if (!spriteReady) {
-      // Loading placeholder
-      ctx.fillStyle = 'rgba(125,211,252,0.3)';
-      ctx.fillRect(0, 0, W, H);
-      return;
     }
 
     // Clouds
-    clouds.forEach(cl => {
-      spr(SP.cloud, cl.x, cl.y);
-    });
+    clouds.forEach(cl => spr(SP.cloud, cl.x, cl.y));
 
-    // Ground (tiled)
-    const gw = SP.ground[2], gh = SP.ground[3];
-    const gx0 = -groundOffset;
-    for (let gx = gx0; gx < W; gx += gw) {
-      spr(SP.ground, gx, GY, gw, gh);
-    }
+    drawGround();
 
     // Obstacles
     obstacles.forEach(o => {
-      const sp = o.large ? SP.cactusL : SP.cactusS;
-      for (let i = 0; i < o.count; i++) {
-        spr(sp, o.x + i * (sp[2] + 2), o.y);
-      }
+      const sp = o.large ? SP.cactL : SP.cactS;
+      const scale = o.large ? 1 : 0.9;
+      const dw = Math.round(sp[2] * scale);
+      const dh = Math.round(sp[3] * scale);
+      spr(sp, o.x, o.y, dw, dh);
     });
 
     // Dino
-    let dinoSp;
-    if (dino.crashed)      dinoSp = SP.trexCrash;
-    else if (dino.jumping) dinoSp = SP.trexJump;
-    else                   dinoSp = animFrame === 0 ? SP.trexRun0 : SP.trexRun1;
-    spr(dinoSp, dino.x, dino.y, undefined, undefined, true);
+    const dinoSp = dino.crashed ? SP.dead
+                 : dino.jumping  ? SP.stand
+                 :                (animF === 0 ? SP.run0 : SP.run1);
+    spr(dinoSp, dino.x, dino.y, DINO_W, DINO_H);
 
-    // HUD — score
+    // HUD
     if (mode === 'play') {
-      ctx.fillStyle = '#4a7a9b';
       ctx.font = '10px monospace';
       ctx.textAlign = 'right';
       if (hiScore > 0) {
-        ctx.fillStyle = '#6b96b4';
-        ctx.fillText(`HI ${String(Math.floor(hiScore)).padStart(5,'0')}`, W - 72, 14);
+        ctx.fillStyle = 'rgba(125,211,252,0.45)';
+        ctx.fillText(`HI ${String(Math.floor(hiScore)).padStart(5,'0')}`, W - 70, 14);
       }
-      ctx.fillStyle = '#7dd3fc';
+      ctx.fillStyle = 'rgba(125,211,252,0.85)';
       ctx.fillText(String(Math.floor(score)).padStart(5,'0'), W - 8, 14);
       ctx.textAlign = 'left';
     }
 
     // Game Over
     if (dead && mode === 'play') {
-      ctx.fillStyle = 'rgba(19,32,46,0.75)';
+      ctx.fillStyle = 'rgba(19,32,46,0.78)';
       ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#7dd3fc';
-      ctx.font = 'bold 12px monospace';
+      ctx.fillStyle = 'rgba(125,211,252,0.9)';
+      ctx.font = 'bold 11px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', W / 2, H / 2 - 2);
-      ctx.font = '9px monospace';
-      ctx.fillStyle = '#4a7a9b';
-      ctx.fillText('Space / tap to restart', W / 2, H / 2 + 12);
+      ctx.fillText('GAME OVER', W/2, H/2 - 2);
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(125,211,252,0.5)';
+      ctx.fillText('Space / tap to restart', W/2, H/2 + 11);
       ctx.textAlign = 'left';
     }
 
     // Mode badge
-    const badge = mode === 'auto' ? '▶ PLAY' : '⏸ AUTO';
-    const bw = 52, bh = 14, bx = W - bw - 6, by = H - bh - 4;
-    ctx.fillStyle = 'rgba(125,211,252,0.12)';
-    ctx.beginPath();
-    ctx.roundRect(bx, by, bw, bh, 3);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(125,211,252,0.55)';
+    const label = mode === 'auto' ? '▶ PLAY' : '⏸ AUTO';
+    const bw = 50, bh = 13, bx = W - bw - 6, by = H - bh - 3;
+    ctx.fillStyle = 'rgba(125,211,252,0.1)';
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 3); ctx.fill();
+    ctx.fillStyle = 'rgba(125,211,252,0.45)';
     ctx.font = '8px monospace';
     ctx.textAlign = 'right';
-    ctx.fillText(badge, W - 8, by + 10);
+    ctx.fillText(label, W - 8, by + 9);
     ctx.textAlign = 'left';
   }
 
-  // ── Input ────────────────────────────────────────────────────────
+  // ── Input ─────────────────────────────────────────────────────────
   window.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
-      // Only prevent default if canvas is in viewport
-      const rect = canvas.getBoundingClientRect();
-      if (rect.bottom > 0) e.preventDefault();
-      if (mode === 'play') { dead ? reset() : jump(); }
+      const r = canvas.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) e.preventDefault();
+      if (mode === 'play') dead ? reset() : jump();
     }
     if (e.code === 'Enter') toggleMode();
   });
 
   canvas.addEventListener('click', e => {
-    const rect = canvas.getBoundingClientRect();
-    const cx = e.clientX - rect.left;
-    const cy = e.clientY - rect.top;
-    // Bottom-right badge area → toggle mode
-    if (cx > W - 65 && cy > H - 22) { toggleMode(); return; }
-    // Left area (dino zone) → toggle mode
-    if (cx < 130) { toggleMode(); return; }
-    // Middle area in play mode → jump / restart
-    if (mode === 'play') { dead ? reset() : jump(); }
+    const r = canvas.getBoundingClientRect();
+    const cx = e.clientX - r.left;
+    const cy = e.clientY - r.top;
+    if (cy > H - 20 || cx < 130) { toggleMode(); return; }
+    if (mode === 'play') dead ? reset() : jump();
     else toggleMode();
   });
 
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    if (mode === 'play') { dead ? reset() : jump(); }
+    if (mode === 'play') dead ? reset() : jump();
     else toggleMode();
   }, { passive: false });
 
-  // ── Boot ─────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────
   resize();
   new ResizeObserver(resize).observe(canvas.parentElement);
   requestAnimationFrame(tick);
