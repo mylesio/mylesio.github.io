@@ -72,7 +72,7 @@
 
   function resizeDebounced() {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 100);
+    resizeTimer = setTimeout(() => { resize(); if (typeof updateHitArea === 'function') updateHitArea(); }, 100);
   }
   let resizeTimer = null;
 
@@ -311,30 +311,55 @@
   // ── Start on first interaction ───────────────────────────────────
   function startGame(e) {
     if (started || jumping) return;
-    // ignore clicks on interactive elements (links, buttons, inputs, etc.)
-    if (e && e.target) {
-      const t = e.target.closest('a, button, input, select, textarea, [role="button"], [tabindex]');
-      if (t && !canvas.contains(t)) return;
-    }
+    // only trigger when clicking on the canvas (dino idle area)
+    if (e && e.target && e.target !== canvas && !canvas.contains(e.target)) return;
     // refresh idle pos right before launch (in case layout changed)
     initIdlePos();
     introStartX = IDLE_X;
     introStartY = IDLE_Y;
     jumping = true;
     introT = 0;
-    document.removeEventListener('click', startGame, true);
-    document.removeEventListener('touchstart', startGame, true);
+    canvas.removeEventListener('click', startGame);
+    canvas.removeEventListener('touchstart', startGame);
 
     // expand site-header immediately on click
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.add('expanded');
+    // enable canvas interaction for game
+    canvas.style.pointerEvents = 'auto';
+    canvas.style.cursor = GAMEPAD_CURSOR;
+    hitArea.style.display = 'none';
     // ignore scroll events briefly (expanding shifts layout → fake scroll delta)
     scrollCooldown = true;
     lastScrollY = window.scrollY || 0;
     setTimeout(() => { scrollCooldown = false; lastScrollY = window.scrollY || 0; }, 600);
   }
-  document.addEventListener('click', startGame, true);
-  document.addEventListener('touchstart', startGame, true);
+  // ── Dino hit area (clickable region over idle dino) ──────────────
+  const hitArea = document.createElement('div');
+  hitArea.id = 'dino-hit-area';
+  hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
+  canvas.parentElement.appendChild(hitArea);
+
+  function updateHitArea() {
+    if (!started && !jumping) {
+      const rect = canvas.getBoundingClientRect();
+      const parentRect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const sx = rect.width / (canvas.width / dpr);
+      const pad = 6;
+      hitArea.style.left = ((IDLE_X - pad) * sx + rect.left - parentRect.left) + 'px';
+      hitArea.style.top = ((IDLE_Y - pad) * sx + rect.top - parentRect.top) + 'px';
+      hitArea.style.width = ((IDLE_DW + pad * 2) * sx) + 'px';
+      hitArea.style.height = ((IDLE_DH + pad * 2) * sx) + 'px';
+      hitArea.style.display = 'block';
+      hitArea.style.cursor = GAMEPAD_CURSOR;
+    } else {
+      hitArea.style.display = 'none';
+    }
+  }
+
+  hitArea.addEventListener('click', startGame);
+  hitArea.addEventListener('touchstart', startGame);
 
   // ── Input ────────────────────────────────────────────────────────
   canvas.addEventListener('click', () => {
@@ -357,15 +382,10 @@
     }
   }, { passive: false });
 
-  // ── Gamepad cursor after game starts ────────────────────────────
+  // ── Gamepad cursor ─────────────────────────────────────────────
   const GAMEPAD_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='22' viewBox='0 0 32 22'><rect x='2' y='5' width='28' height='13' rx='6' fill='%23444'/><rect x='6' y='9' width='2' height='6' rx='1' fill='white'/><rect x='4' y='11' width='6' height='2' rx='1' fill='white'/><circle cx='22' cy='10' r='2' fill='white'/><circle cx='26' cy='13' r='2' fill='white'/></svg>") 16 11, pointer`;
 
-  canvas.addEventListener('mouseenter', () => {
-    if (started) canvas.style.cursor = GAMEPAD_CURSOR;
-  });
-  canvas.addEventListener('mouseleave', () => {
-    canvas.style.cursor = 'pointer';
-  });
+
 
   // ── Scroll: pause game & collapse back to idle ────────────────────
   let paused = false;
@@ -393,12 +413,15 @@
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.remove('expanded');
 
-    // restore z-index
+    // restore z-index and disable canvas pointer events
     canvas.style.zIndex = '20';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.cursor = 'default';
+    updateHitArea();
 
-    // re-enable start on click
-    document.addEventListener('click', startGame, true);
-    document.addEventListener('touchstart', startGame, true);
+    // re-enable start on click via hit area
+    hitArea.addEventListener('click', startGame);
+    hitArea.addEventListener('touchstart', startGame);
   }
 
   let lastScrollY = window.scrollY || 0;
@@ -417,6 +440,7 @@
 
   // ── Init ─────────────────────────────────────────────────────────
   resize();
+  updateHitArea();
 
   function initIdlePos() {
     const p = getIdlePos();

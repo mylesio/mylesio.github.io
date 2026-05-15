@@ -144,9 +144,9 @@ const isHome = Astro.url.pathname === '/';
         image-rendering: crisp-edges;
         z-index: 20;  /* idle: above navbar so dino is visible */
         pointer-events: none;
+        cursor: default;
       }
       .site-header.expanded #dino-canvas {
-        pointer-events: auto;
         cursor: pointer;
         /* z-index switched to 5 by JS when dino lands */
       }
