@@ -63,7 +63,7 @@ const isHome = Astro.url.pathname === '/';
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
       }
 
-      html { font-size: clamp(13px, 3.5vw, 15px); }
+      html { font-size: 15px; }
 
       body {
         background: var(--bg);
@@ -71,7 +71,6 @@ const isHome = Astro.url.pathname === '/';
         font-family: var(--mono);
         font-size: 1rem;
         line-height: 1.65;
-        padding: 0 clamp(1rem, 5vw, 1.5rem);
         -webkit-font-smoothing: antialiased;
       }
 
@@ -97,9 +96,13 @@ const isHome = Astro.url.pathname === '/';
       a.nav-link:hover, a.nav-link.active { color: var(--text); }
 
       /* ─── Layout ─────────────────────────────────── */
-      header {
-        max-width: min(var(--col), 100%);
+      .page-wrap {
+        max-width: var(--col);
         margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      header {
         padding: 2.5rem 0 2rem;
         display: flex;
         align-items: baseline;
@@ -119,14 +122,10 @@ const isHome = Astro.url.pathname === '/';
       nav { display: flex; gap: 1.5rem; }
 
       main {
-        max-width: min(var(--col), 100%);
-        margin: 0 auto;
         padding: 1rem 0 5rem;
       }
 
       footer {
-        max-width: min(var(--col), 100%);
-        margin: 0 auto;
         padding: 1.5rem 0 2.5rem;
         border-top: 1px solid var(--border);
         display: flex;
@@ -139,9 +138,13 @@ const isHome = Astro.url.pathname === '/';
 
       /* ─── Mobile ─────────────────────────────────── */
       @media (max-width: 480px) {
+        html { font-size: 14px; }
+
+        .page-wrap { padding: 0 1rem; }
+
         header {
-          padding: 1.8rem 0 1.5rem;
-          gap: 1.2rem;
+          padding: 1.5rem 0 1.2rem;
+          gap: 1rem;
           flex-wrap: wrap;
         }
 
@@ -172,20 +175,22 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
-    <header>
-      <a class="logo reveal reveal-1" href="/">mylesio</a>
-      <nav class="reveal reveal-1">
-        <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
-        <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
-        <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
-      </nav>
-    </header>
-    <main>
-      <slot />
-    </main>
-    <footer>
-      <span>Myles Liu</span>
-      <span><a href="/llms.txt">llms.txt</a></span>
-    </footer>
+    <div class="page-wrap">
+      <header>
+        <a class="logo reveal reveal-1" href="/">mylesio</a>
+        <nav class="reveal reveal-1">
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
+          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
+        </nav>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer>
+        <span>Myles Liu</span>
+        <span><a href="/llms.txt">llms.txt</a></span>
+      </footer>
+    </div>
   </body>
 </html>
