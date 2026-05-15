@@ -1,70 +1,94 @@
 /**
- * Dino Runner — banner component
- * Auto mode: dino runs forever, AI jumps automatically
- * Interactive mode: click/space/tap to jump, score tracked
- * Click dino or press Enter to toggle modes
+ * Dino Runner — uses official Chromium sprite (offline-sprite-1x.png)
+ * Auto mode: AI runs forever   |   Play mode: Space/tap to jump
+ * Click canvas or press Enter to toggle modes
+ *
+ * Sprite layout (1x, 1204×68):
+ *   TREX base   x:848  y:2   w:44 h:47  (RUNNING frames at +88, +132 from base x)
+ *   TREX jump   x:848  y:2   (frame offset 0 = standing pose used for jump)
+ *   CACTUS_SM   x:228  y:2   w:17 h:35
+ *   CACTUS_LG   x:332  y:2   w:25 h:50
+ *   CLOUD       x:86   y:2   w:46 h:14
+ *   GROUND      x:2    y:54  w:1200 h:12  (tiled)
  */
 (function () {
+  const SPRITE_SRC = '/dino-sprite.png';
+
+  // Sprite rects [x, y, w, h]
+  const SP = {
+    trexRun0:  [936, 2, 44, 47],   // 848+88
+    trexRun1:  [980, 2, 44, 47],   // 848+132
+    trexJump:  [848, 2, 44, 47],   // standing/jump frame
+    trexCrash: [1068, 2, 44, 47],  // 848+220
+    cactusS:   [228, 2, 17, 35],
+    cactusL:   [332, 2, 25, 50],
+    cloud:     [86,  2, 46, 14],
+    ground:    [2,  54, 1200, 12],
+  };
+
   const canvas = document.getElementById('dino-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // ── Colors (matches banner palette) ──────────────────────────────
-  const C = {
-    ground:  '#2a4a6b',
-    dino:    '#7dd3fc',
-    obs:     '#4ba8d8',
-    score:   '#4a7a9b',
-    scoreHi: '#7dd3fc',
-    mode:    '#2a4a6b',
-    modeTxt: '#7dd3fc',
-    flash:   'rgba(125,211,252,0.15)',
+  // Load sprite
+  const img = new Image();
+  img.src = SPRITE_SRC;
+  let spriteReady = false;
+  img.onload = () => { spriteReady = true; };
+
+  // Canvas palette
+  const TINT = false; // set true to apply blue tint filter
+
+  // ── Dims ─────────────────────────────────────────────────────────
+  let W, H, GY;
+
+  function resize() {
+    const parent = canvas.parentElement;
+    W = canvas.width  = parent.clientWidth || 800;
+    H = canvas.height = 70;
+    GY = H - 12;
+    dino.y = GY - SP.trexRun0[3];
+  }
+
+  // ── Game state ───────────────────────────────────────────────────
+  let mode = 'auto';
+  let score = 0, hiScore = 0, gameFrame = 0, speed = 5;
+  let dead = false, flashT = 0;
+  let animFrame = 0, animT = 0;
+
+  const dino = {
+    x: 60, y: 0,
+    vy: 0,
+    jumping: false,
+    crashed: false,
   };
 
-  // ── State ─────────────────────────────────────────────────────────
-  let W, H, GY; // canvas dims, ground Y
-  let mode = 'auto'; // 'auto' | 'play'
-  let score = 0, hiScore = 0, frame = 0, speed = 3.5;
-  let dead = false, flashT = 0;
-
-  // Dino
-  const dino = { x: 60, y: 0, vy: 0, w: 22, h: 26, jumping: false, frame: 0, frameT: 0 };
-
-  // Obstacles
-  let obs = [];
-  let nextObs = 90;
-
-  // Clouds (decorative)
-  let clouds = [
-    { x: 200, y: 12, w: 40, spd: 0.3 },
-    { x: 420, y: 18, w: 28, spd: 0.2 },
-    { x: 600, y: 8,  w: 50, spd: 0.25 },
+  let obstacles = [];
+  let nextObs   = 150; // first obstacle spawns after 150 frames — enough time to settle
+  let clouds    = [
+    { x: 250, y: 10, frame: 0 },
+    { x: 520, y: 18, frame: 0 },
+    { x: 750, y:  8, frame: 0 },
   ];
-
-  // ── Resize ────────────────────────────────────────────────────────
-  function resize() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = canvas.width  = Math.min(rect.width, 900);
-    H = canvas.height = 56;
-    GY = H - 10; // ground y
-    dino.y = GY - dino.h;
-  }
+  let groundOffset = 0;
 
   // ── Jump ─────────────────────────────────────────────────────────
   function jump() {
-    if (dino.jumping) return;
-    dino.vy = -9.2;
+    if (dino.jumping || dead) return;
+    dino.vy   = -11;
     dino.jumping = true;
   }
 
-  // ── Reset game ───────────────────────────────────────────────────
+  // ── Reset ────────────────────────────────────────────────────────
   function reset() {
-    score = 0; frame = 0; speed = 3.5;
-    obs = []; nextObs = 90;
-    dead = false;
-    dino.y = GY - dino.h;
+    score = 0; gameFrame = 0; speed = 5;
+    obstacles = []; nextObs = 150;
+    dead = false; flashT = 0;
+    dino.y = GY - SP.trexRun0[3];
     dino.vy = 0;
     dino.jumping = false;
+    dino.crashed = false;
+    groundOffset = 0;
   }
 
   // ── Toggle mode ──────────────────────────────────────────────────
@@ -73,233 +97,222 @@
     reset();
   }
 
-  // ── Draw dino (pixel art, 2 walk frames + jump) ──────────────────
-  function drawDino(x, y, frameIdx, isJump) {
-    ctx.fillStyle = C.dino;
-    const s = 2; // pixel scale
-
-    // Body pixels [col, row] in a 11×13 grid
-    const body = [
-      [3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-      [2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],
-      [2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],
-      [2,3],[3,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],
-      [2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
-      [1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],
-      [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],
-      [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],
-      [1,8],[2,8],[3,8],[4,8],[5,8],[6,8],
-      [2,9],[3,9],[4,9],[5,9],
-      [2,10],[3,10],[4,10],[5,10],
-    ];
-
-    // Eye
-    const eye = [[7,1]];
-
-    // Legs — 2 walk frames
-    const legs0 = [[3,11],[3,12],[5,11]];
-    const legs1 = [[3,11],[5,11],[5,12]];
-    const legsJump = [[2,11],[4,11],[2,12],[4,12]];
-
-    body.forEach(([c, r]) => {
-      ctx.fillRect(x + c * s, y + r * s, s, s);
-    });
-    ctx.fillStyle = C.mode; // eye is dark
-    eye.forEach(([c, r]) => {
-      ctx.fillRect(x + c * s, y + r * s, s, s);
-    });
-    ctx.fillStyle = C.dino;
-    const legPx = isJump ? legsJump : (frameIdx === 0 ? legs0 : legs1);
-    legPx.forEach(([c, r]) => {
-      ctx.fillRect(x + c * s, y + r * s, s, s);
-    });
+  // ── Sprite draw helper ───────────────────────────────────────────
+  function spr([sx, sy, sw, sh], dx, dy, dw, dh) {
+    if (!spriteReady) return;
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw ?? sw, dh ?? sh);
   }
 
-  // ── Draw cactus ──────────────────────────────────────────────────
-  function drawCactus(x, y, h) {
-    ctx.fillStyle = C.obs;
-    const s = 2;
-    // Stem
-    for (let i = 0; i < h; i++) ctx.fillRect(x + 4, y + i * s, s * 3, s);
-    // Arms
-    ctx.fillRect(x,     y + 4,  s * 4, s * 2);
-    ctx.fillRect(x + 8, y + 6,  s * 4, s * 2);
-    ctx.fillRect(x,     y + 2,  s * 2, s * 4);
-    ctx.fillRect(x + 10,y + 4,  s * 2, s * 4);
-  }
-
-  // ── Draw ground ──────────────────────────────────────────────────
-  function drawGround() {
-    ctx.strokeStyle = C.ground;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, GY);
-    ctx.lineTo(W, GY);
-    ctx.stroke();
-
-    // ground texture dots
-    ctx.fillStyle = C.ground;
-    for (let i = (frame * speed % 20); i < W; i += 20) {
-      ctx.fillRect(i, GY + 2, 3, 1);
-      ctx.fillRect(i + 10, GY + 4, 2, 1);
-    }
-  }
-
-  // ── Draw clouds ──────────────────────────────────────────────────
-  function drawClouds() {
-    ctx.fillStyle = 'rgba(125,211,252,0.08)';
-    clouds.forEach(cl => {
-      ctx.beginPath();
-      ctx.ellipse(cl.x, cl.y, cl.w / 2, 5, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  // ── Draw score / mode badge ───────────────────────────────────────
-  function drawHUD() {
-    if (mode === 'play') {
-      ctx.fillStyle = C.scoreHi;
-      ctx.font = '9px monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(`${String(Math.floor(score)).padStart(5,'0')}`, W - 8, 14);
-      if (hiScore > 0) {
-        ctx.fillStyle = C.score;
-        ctx.fillText(`HI ${String(Math.floor(hiScore)).padStart(5,'0')}`, W - 65, 14);
-      }
-    }
-
-    // Mode toggle hint
-    ctx.fillStyle = mode === 'auto' ? 'rgba(125,211,252,0.18)' : 'rgba(125,211,252,0.28)';
-    ctx.beginPath();
-    ctx.roundRect(W - (mode === 'auto' ? 78 : 68), H - 18, mode === 'auto' ? 70 : 60, 13, 3);
-    ctx.fill();
-    ctx.fillStyle = C.modeTxt;
-    ctx.font = '8px monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(mode === 'auto' ? '▶ PLAY MODE' : '⏸ AUTO MODE', W - 6, H - 8);
-
-    ctx.textAlign = 'left';
-  }
-
-  // ── Auto-jump AI: looks ahead for nearest obstacle ───────────────
+  // ── Auto-jump AI ─────────────────────────────────────────────────
+  // Lookahead: compute time-to-collision, jump early enough
   function autoJump() {
     if (dead || dino.jumping) return;
-    for (const o of obs) {
-      const dx = o.x - (dino.x + dino.w);
-      if (dx > 0 && dx < 90 + speed * 8) {
-        // jump if we'd collide
-        const timeToReach = dx / speed;
-        if (timeToReach < 22) jump();
+    for (const o of obstacles) {
+      const dinoRight = dino.x + 34;   // conservative dino right edge
+      const obsLeft   = o.x + 2;
+      const dx = obsLeft - dinoRight;
+      if (dx < 0) continue;           // already passed
+
+      // Time (frames) to reach obstacle at current speed
+      const timeFrames = dx / speed;
+      // Jump takes ~20 frames to peak and land; trigger when ~22 frames away
+      // Add buffer based on speed: faster = jump earlier
+      const triggerDist = 20 + speed * 2;
+      if (dx < triggerDist) {
+        jump();
         break;
       }
     }
   }
 
-  // ── Collision ────────────────────────────────────────────────────
+  // ── Collision (AABB with inset) ───────────────────────────────────
   function checkCollision() {
-    for (const o of obs) {
-      if (
-        dino.x + 4 < o.x + o.w - 2 &&
-        dino.x + dino.w - 4 > o.x + 2 &&
-        dino.y + 4 < o.y + o.h &&
-        dino.y + dino.h > o.y + 2
-      ) return true;
+    const dx = 8, dy = 6; // inset
+    const dr = dino.x + SP.trexRun0[2] - dx * 2;
+    const db = dino.y + SP.trexRun0[3] - dy;
+    const dt = dino.y + dy;
+    const dl = dino.x + dx;
+
+    for (const o of obstacles) {
+      const sp   = o.large ? SP.cactusL : SP.cactusS;
+      const cnt  = o.count;
+      const ow   = sp[2] * cnt + (cnt - 1) * 2;
+      const oh   = sp[3];
+      const or_  = o.x + ow - 2;
+      const ob   = o.y + oh;
+      const ot   = o.y + 4;
+      const ol   = o.x + 2;
+
+      if (dl < or_ && dr > ol && dt < ob && db > ot) return true;
     }
     return false;
   }
 
-  // ── Main loop ────────────────────────────────────────────────────
-  let raf;
+  // ── Main tick ────────────────────────────────────────────────────
   function tick() {
-    frame++;
-    if (!dead) score += 0.1;
+    requestAnimationFrame(tick);
+    gameFrame++;
+
+    if (!dead) {
+      score  += 0.05;
+      speed   = 5 + Math.floor(score / 80) * 0.5;
+      speed   = Math.min(speed, 12);
+    }
     if (score > hiScore) hiScore = score;
-    speed = 3.5 + Math.floor(score / 100) * 0.4;
 
     // Physics
     if (!dead) {
-      dino.vy += 0.55; // gravity
-      dino.y += dino.vy;
-      if (dino.y >= GY - dino.h) {
-        dino.y = GY - dino.h;
-        dino.vy = 0;
+      dino.vy += 0.65;
+      dino.y  += dino.vy;
+      const floor = GY - SP.trexRun0[3];
+      if (dino.y >= floor) {
+        dino.y      = floor;
+        dino.vy     = 0;
         dino.jumping = false;
       }
     }
 
-    // Walk animation
-    dino.frameT++;
-    if (dino.frameT > 7) { dino.frame = 1 - dino.frame; dino.frameT = 0; }
+    // Walk anim
+    animT++;
+    if (animT > 6) { animFrame = 1 - animFrame; animT = 0; }
 
     // Spawn obstacles
-    nextObs--;
-    if (nextObs <= 0 && !dead) {
-      const h = 12 + Math.floor(Math.random() * 10);
-      obs.push({ x: W + 10, y: GY - h * 2, w: 14, h: h * 2 });
-      nextObs = 70 + Math.floor(Math.random() * 60) - Math.floor(speed * 3);
+    if (!dead) {
+      nextObs--;
+      if (nextObs <= 0) {
+        const large = Math.random() > 0.5;
+        const count = 1 + Math.floor(Math.random() * (large ? 2 : 3));
+        const sp    = large ? SP.cactusL : SP.cactusS;
+        obstacles.push({
+          x: W + 20,
+          y: GY - sp[3],
+          large, count,
+        });
+        // Gap between obstacles: shrinks as speed increases
+        nextObs = Math.max(50, 110 - Math.floor(speed * 5) + Math.floor(Math.random() * 50));
+      }
     }
 
     // Move obstacles
-    obs = obs.filter(o => o.x + o.w > -10);
-    if (!dead) obs.forEach(o => o.x -= speed);
+    if (!dead) obstacles.forEach(o => o.x -= speed);
+    obstacles = obstacles.filter(o => {
+      const sp = o.large ? SP.cactusL : SP.cactusS;
+      return o.x + sp[2] * o.count > -20;
+    });
 
     // Move clouds
     clouds.forEach(cl => {
-      cl.x -= cl.spd;
-      if (cl.x + cl.w < 0) cl.x = W + cl.w;
+      cl.x -= 0.4;
+      if (cl.x + SP.cloud[2] < 0) cl.x = W + 40;
     });
 
-    // Auto mode: AI jumps
-    if (mode === 'auto') autoJump();
+    // Ground scroll
+    groundOffset = (groundOffset + speed) % SP.ground[2];
+
+    // AI
+    if (mode === 'auto' && !dead) autoJump();
 
     // Collision
     if (!dead && checkCollision()) {
-      dead = true;
-      flashT = 8;
-      if (mode === 'auto') setTimeout(reset, 600);
+      dead    = true;
+      flashT  = 10;
+      dino.crashed = true;
+      if (mode === 'auto') setTimeout(reset, 800);
     }
-
     if (flashT > 0) flashT--;
 
     // ── Draw ──────────────────────────────────────────────────────
     ctx.clearRect(0, 0, W, H);
 
+    // Flash on death
     if (flashT > 0) {
-      ctx.fillStyle = C.flash;
+      ctx.fillStyle = 'rgba(125,211,252,0.15)';
       ctx.fillRect(0, 0, W, H);
     }
 
-    drawClouds();
-    drawGround();
+    if (!spriteReady) {
+      // Loading placeholder
+      ctx.fillStyle = 'rgba(125,211,252,0.3)';
+      ctx.fillRect(0, 0, W, H);
+      return;
+    }
 
-    // Draw obstacles
-    obs.forEach(o => drawCactus(o.x, o.y, o.h / 2));
+    // Clouds
+    clouds.forEach(cl => {
+      spr(SP.cloud, cl.x, cl.y);
+    });
 
-    // Draw dino
-    drawDino(dino.x, dino.y, dino.frame, dino.jumping);
+    // Ground (tiled)
+    const gw = SP.ground[2], gh = SP.ground[3];
+    const gx0 = -groundOffset;
+    for (let gx = gx0; gx < W; gx += gw) {
+      spr(SP.ground, gx, GY, gw, gh);
+    }
 
-    // Dead screen (play mode)
-    if (dead && mode === 'play') {
-      ctx.fillStyle = 'rgba(125,211,252,0.9)';
-      ctx.font = 'bold 11px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER  — press Space or tap to restart', W / 2, H / 2 + 3);
+    // Obstacles
+    obstacles.forEach(o => {
+      const sp = o.large ? SP.cactusL : SP.cactusS;
+      for (let i = 0; i < o.count; i++) {
+        spr(sp, o.x + i * (sp[2] + 2), o.y);
+      }
+    });
+
+    // Dino
+    let dinoSp;
+    if (dino.crashed)      dinoSp = SP.trexCrash;
+    else if (dino.jumping) dinoSp = SP.trexJump;
+    else                   dinoSp = animFrame === 0 ? SP.trexRun0 : SP.trexRun1;
+    spr(dinoSp, dino.x, dino.y);
+
+    // HUD — score
+    if (mode === 'play') {
+      ctx.fillStyle = '#4a7a9b';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'right';
+      if (hiScore > 0) {
+        ctx.fillStyle = '#6b96b4';
+        ctx.fillText(`HI ${String(Math.floor(hiScore)).padStart(5,'0')}`, W - 72, 14);
+      }
+      ctx.fillStyle = '#7dd3fc';
+      ctx.fillText(String(Math.floor(score)).padStart(5,'0'), W - 8, 14);
       ctx.textAlign = 'left';
     }
 
-    drawHUD();
+    // Game Over
+    if (dead && mode === 'play') {
+      ctx.fillStyle = 'rgba(19,32,46,0.75)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#7dd3fc';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', W / 2, H / 2 - 2);
+      ctx.font = '9px monospace';
+      ctx.fillStyle = '#4a7a9b';
+      ctx.fillText('Space / tap to restart', W / 2, H / 2 + 12);
+      ctx.textAlign = 'left';
+    }
 
-    raf = requestAnimationFrame(tick);
+    // Mode badge
+    const badge = mode === 'auto' ? '▶ PLAY' : '⏸ AUTO';
+    const bw = 52, bh = 14, bx = W - bw - 6, by = H - bh - 4;
+    ctx.fillStyle = 'rgba(125,211,252,0.12)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 3);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(125,211,252,0.55)';
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(badge, W - 8, by + 10);
+    ctx.textAlign = 'left';
   }
 
   // ── Input ────────────────────────────────────────────────────────
   window.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') {
-      e.preventDefault();
-      if (mode === 'play') {
-        if (dead) reset();
-        else jump();
-      }
+      // Only prevent default if canvas is in viewport
+      const rect = canvas.getBoundingClientRect();
+      if (rect.bottom > 0) e.preventDefault();
+      if (mode === 'play') { dead ? reset() : jump(); }
     }
     if (e.code === 'Enter') toggleMode();
   });
@@ -308,28 +321,23 @@
     const rect = canvas.getBoundingClientRect();
     const cx = e.clientX - rect.left;
     const cy = e.clientY - rect.top;
-    // Click on mode badge → toggle
-    if (cy > H - 20) { toggleMode(); return; }
-    // Click on dino area → toggle or jump
-    if (cx < 120) { toggleMode(); return; }
-    if (mode === 'play') {
-      if (dead) reset();
-      else jump();
-    }
+    // Bottom-right badge area → toggle mode
+    if (cx > W - 65 && cy > H - 22) { toggleMode(); return; }
+    // Left area (dino zone) → toggle mode
+    if (cx < 130) { toggleMode(); return; }
+    // Middle area in play mode → jump / restart
+    if (mode === 'play') { dead ? reset() : jump(); }
+    else toggleMode();
   });
 
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    if (mode === 'play') {
-      if (dead) reset();
-      else jump();
-    } else {
-      toggleMode();
-    }
+    if (mode === 'play') { dead ? reset() : jump(); }
+    else toggleMode();
   }, { passive: false });
 
-  // ── Init ─────────────────────────────────────────────────────────
+  // ── Boot ─────────────────────────────────────────────────────────
   resize();
-  window.addEventListener('resize', () => { resize(); });
-  tick();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+  requestAnimationFrame(tick);
 })();
