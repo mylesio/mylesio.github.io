@@ -34,16 +34,14 @@
   const U_P2 =  0.51917;   // upper right CW  +29.7° → (25,24) [horizontal]
   const L_P1 =  0.51836;   // lower right CW  +29.7° → (25,24)
 
-  // Timeline fractions (total loop = 14 000 ms)
+  // Timeline fractions (total = 8000 ms)
   // 0.00–0.10  hold at rest
-  // 0.10–0.28  upper P1 fall
+  // 0.10–0.28  upper P1 fall (upper left swings down)
   // 0.28–0.32  upper P1 settle
-  // 0.32–0.46  upper P2 fall  (lower starts at 0.37)
-  // 0.46–0.50  upper P2 settle
-  // 0.37–0.50  lower P1 fall
-  // 0.50–0.53  lower P1 settle
-  // 0.53–0.82  REST ON GROUND (~4s), full opacity
-  // 0.82–1.00  snap back
+  // 0.32–0.53  upper P2 + lower P1 fall simultaneously (both arms lie flat together)
+  // 0.53–0.57  both settle
+  // 0.57–0.82  REST ON GROUND, full opacity
+  // 0.82–1.00  (unused, anim stops at 0.82)
 
   const DURATION = 8000;
 
@@ -70,22 +68,18 @@
       const p = (t - 0.28) / 0.04;
       ua1 = U_P1 * (1 + Math.sin(p * Math.PI) * 0.05);
 
-    } else if (t < 0.46) {
-      ua1 = U_P1;
-      ua2 = U_P2 * easeIn((t - 0.32) / 0.14);
-      if (t > 0.37) {
-        la1 = L_P1 * easeIn((t - 0.37) / 0.13);
-      }
-
-    } else if (t < 0.50) {
-      ua1 = U_P1;
-      const p = (t - 0.46) / 0.04;
-      ua2 = U_P2 * (1 + Math.sin(p * Math.PI) * 0.05);
-      la1 = L_P1 * easeIn(Math.min((t - 0.37) / 0.13, 1));
-
     } else if (t < 0.53) {
-      ua1 = U_P1; ua2 = U_P2;
-      const p = (t - 0.50) / 0.03;
+      // both arms fall simultaneously
+      ua1 = U_P1;
+      const p = easeIn((t - 0.32) / 0.21);
+      ua2 = U_P2 * p;
+      la1 = L_P1 * p;
+
+    } else if (t < 0.57) {
+      // both settle together
+      ua1 = U_P1;
+      const p = (t - 0.53) / 0.04;
+      ua2 = U_P2 * (1 + Math.sin(p * Math.PI) * 0.05);
       la1 = L_P1 * (1 + Math.sin(p * Math.PI) * 0.05);
 
     } else if (t < 0.82) {
