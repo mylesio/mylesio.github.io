@@ -208,10 +208,12 @@
       ctx.fillRect(0, 0, W, H);
     }
 
-    // Clouds
+    // Clouds — boost opacity so they're visible
+    ctx.globalAlpha = 0.7;
     clouds.forEach(cl => {
       drawSpr(CLOUD, cl.x, cl.y, Math.round(CLOUD.w * 0.85), Math.round(CLOUD.h * 0.85));
     });
+    ctx.globalAlpha = 1.0;
 
     drawGround();
 
