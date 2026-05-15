@@ -1,0 +1,87 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = "Myles Liu's personal knowledge base" } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · mylesio</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      :root {
+        --color-bg: #0f0f0f;
+        --color-surface: #1a1a1a;
+        --color-border: #2a2a2a;
+        --color-text: #e8e8e8;
+        --color-muted: #888;
+        --color-accent: #7c9ef8;
+        --font-mono: 'Fira Code', 'Cascadia Code', monospace;
+        --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --max-width: 720px;
+      }
+      body {
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+        font-size: 16px;
+        line-height: 1.7;
+        padding: 0 1.5rem;
+      }
+      a { color: var(--color-accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      header {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 2rem 0 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+      }
+      header .logo { font-weight: 700; font-size: 1.1rem; color: var(--color-text); }
+      nav { display: flex; gap: 1.5rem; font-size: 0.9rem; color: var(--color-muted); }
+      main {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 2.5rem 0 4rem;
+      }
+      footer {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--color-border);
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="/">mylesio</a>
+      <nav>
+        <a href="/notes">Notes</a>
+        <a href="/projects">Projects</a>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <span>Myles Liu</span>
+      <span><a href="/llms.txt">llms.txt</a> · <a href="/sitemap-index.xml">sitemap</a></span>
+    </footer>
+  </body>
+</html>

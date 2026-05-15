@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+---
+
+<Base title="Home">
+  <section>
+    <h1 style="font-size:2rem; font-weight:700; margin-bottom:0.5rem;">Myles Liu</h1>
+    <p style="color:var(--color-muted); margin-bottom:2.5rem;">
+      Frontend engineer · Monitoring infra · Building things with AI
+    </p>
+  </section>
+
+  <section style="margin-bottom:3rem;">
+    <h2 style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Recent Notes</h2>
+    {notes.length === 0 && <p style="color:var(--color-muted);">Notes coming soon.</p>}
+    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.75rem;">
+      {notes.map(note => (
+        <li style="display:flex; justify-content:space-between; align-items:baseline; gap:1rem;">
+          <a href={`/notes/${note.slug}`}>{note.data.title}</a>
+          <time datetime={note.data.date.toISOString()} style="color:var(--color-muted); font-size:0.85rem; white-space:nowrap;">
+            {note.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </time>
+        </li>
+      ))}
+    </ul>
+    {notes.length > 0 && <p style="margin-top:1rem;"><a href="/notes">All notes →</a></p>}
+  </section>
+
+  <section>
+    <h2 style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-muted); margin-bottom:1.25rem;">Projects</h2>
+    <ul style="list-style:none; display:flex; flex-direction:column; gap:0.75rem;">
+      <li><a href="https://github.com/mylesio/ant-protocol">ant-protocol</a> — Portable multi-agent governance protocol</li>
+      <li><a href="https://github.com/mylesio/prism">prism</a> — AI personal profile engine</li>
+    </ul>
+  </section>
+</Base>

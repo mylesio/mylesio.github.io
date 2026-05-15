@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+
+const projects = [
+  {
+    name: 'ant-protocol',
+    url: 'https://github.com/mylesio/ant-protocol',
+    description: 'Portable multi-agent governance protocol. Defines task lifecycle, agent coordination, and memory contracts for AI agent teams.',
+    tags: ['AI', 'multi-agent', 'protocol'],
+  },
+  {
+    name: 'prism',
+    url: 'https://github.com/mylesio/prism',
+    description: 'AI personal profile engine. Parses agent conversation logs and memory files to generate structured personality profiles.',
+    tags: ['AI', 'Python', 'LLM'],
+  },
+];
+---
+
+<Base title="Projects" description="Open source projects by Myles Liu.">
+  <h1 style="font-size:1.5rem; font-weight:700; margin-bottom:2rem;">Projects</h1>
+  <ul style="list-style:none; display:flex; flex-direction:column; gap:1.5rem;">
+    {projects.map(p => (
+      <li style="padding:1.25rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px;">
+        <a href={p.url} style="font-weight:600; font-size:1.05rem;">{p.name}</a>
+        <p style="color:var(--color-muted); margin:0.5rem 0;">{p.description}</p>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          {p.tags.map(tag => (
+            <span style="font-size:0.75rem; padding:0.2rem 0.6rem; background:var(--color-bg); border:1px solid var(--color-border); border-radius:9999px; color:var(--color-muted);">{tag}</span>
+          ))}
+        </div>
+      </li>
+    ))}
+  </ul>
+</Base>
