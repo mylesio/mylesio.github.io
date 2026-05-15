@@ -46,11 +46,12 @@
 
   function resize() {
     const newW = canvas.parentElement.clientWidth || 800;
-    if (newW === W) return;  // no change, skip
+    const newH = canvas.parentElement.clientHeight || 48;
+    if (newW === W && newH === H) return;
     W = canvas.width  = newW;
-    H = canvas.height = 150;
+    H = canvas.height = newH;
     GY = H - 16;
-    if (!dead) dino.y = GY - D_H;
+    if (started && !dead) dino.y = GY - D_H;
   }
 
   function resizeDebounced() {
@@ -375,11 +376,26 @@
   // ── Start on first interaction anywhere on page ──────────────────
   function startGame() {
     if (started) return;
+    started = true;
     document.removeEventListener('click', startGame, true);
     document.removeEventListener('touchstart', startGame, true);
-    flyDinoToCanvas(() => {
-      started = true;
-    });
+
+    // 1. hide logo dino
+    if (lctx) lctx.clearRect(0, 0, 24, 24);
+
+    // 2. expand banner
+    const siteHeader = canvas.closest('.site-header');
+    if (siteHeader) siteHeader.classList.add('expanded');
+
+    // 3. drop dino from top as banner expands
+    setTimeout(() => {
+      resize();
+      dino.y = -D_H - 10;  // above canvas
+      dino.vy = 3;
+      dino.jumping = true;
+    }, 50);
+    // 4. after expansion completes, final resize
+    setTimeout(resize, 560);
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
