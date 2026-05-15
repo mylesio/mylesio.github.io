@@ -146,8 +146,8 @@ const isHome = Astro.url.pathname === '/';
         pointer-events: none;
       }
       .site-header.expanded #dino-canvas {
-        z-index: 5;   /* game: navbar covers canvas with liquid glass */
         pointer-events: auto;
+        /* z-index switched to 5 by JS when dino lands */
       }
 
       /* ─── Liquid Glass navbar (absolute inside banner) ── */

@@ -52,8 +52,8 @@
     if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
     const ar = anchor.getBoundingClientRect();
     const cr = canvas.getBoundingClientRect();
-    // place just to the right of anchor (left of mylesio text), +6px gap
-    const x = Math.round(ar.left - cr.left + 6);
+    // place just to the right of anchor (left of mylesio text), +4px gap
+    const x = Math.round(ar.left - cr.left + 4);
     // on mobile navbar is taller due to different padding — push dino lower
     const isMobile = window.innerWidth < 640;
     const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 6 : 0);
@@ -182,7 +182,10 @@
     if (frameTimer >= FRAME_MS) { frameTimer -= FRAME_MS; frameIdx = 1 - frameIdx; }
 
     if (introT >= INTRO_DURATION) {
-      // landed
+      // landed — now switch z-index so navbar covers canvas
+      const siteHeader = canvas.closest('.site-header');
+      if (siteHeader) siteHeader.classList.add('expanded');
+      canvas.style.zIndex = '5';
       dino.x = GAME_X;
       dino.y = GAME_Y;
       dino.vy = 0;
@@ -315,9 +318,10 @@
     document.removeEventListener('click', startGame, true);
     document.removeEventListener('touchstart', startGame, true);
 
-    // expand site-header
+    // expand site-header immediately on click
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.add('expanded');
+    // z-index stays at 20 (canvas above navbar) until dino lands
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
