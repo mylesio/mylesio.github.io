@@ -52,11 +52,11 @@
     if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
     const ar = anchor.getBoundingClientRect();
     const cr = canvas.getBoundingClientRect();
-    // place just to the right of anchor (left of mylesio text), +4px gap
-    const x = Math.round(ar.left - cr.left + 4);
+    // place just to the right of anchor (left of mylesio text), +2px gap
+    const x = Math.round(ar.left - cr.left + 2);
     // on mobile navbar is taller due to different padding — push dino lower
     const isMobile = window.innerWidth < 640;
-    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 6 : 0);
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
     return { x: Math.max(4, x), y };
   }
 
