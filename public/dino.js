@@ -343,17 +343,18 @@
     if (!started && !jumping) {
       const rect = canvas.getBoundingClientRect();
       const parentRect = canvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const sx = rect.width / (canvas.width / dpr);
-      const pad = 4;
+      // canvas.width === CSS px (no DPR scaling), so scale = 1:1
+      const sx = rect.width / canvas.width;
+      const sy = rect.height / canvas.height;
+      const pad = 8;
       const w = (IDLE_DW + pad * 2) * sx;
-      const h = (IDLE_DH + pad * 2) * sx;
-      const cx = (IDLE_X + IDLE_DW / 2) * sx + rect.left - parentRect.left;
-      const cy = (IDLE_Y + IDLE_DH / 2) * sx + rect.top - parentRect.top;
-      hitArea.style.left = (cx - w / 2) + 'px';
-      hitArea.style.top = (cy - h / 2) + 'px';
-      hitArea.style.width = w + 'px';
-      hitArea.style.height = h + 'px';
+      const h = (IDLE_DH + pad * 2) * sy;
+      const left = (IDLE_X - pad) * sx + rect.left - parentRect.left;
+      const top = (IDLE_Y - pad) * sy + rect.top - parentRect.top;
+      hitArea.style.left = left + 'px';
+      hitArea.style.top = top + 'px';
+      hitArea.style.width = Math.max(w, 36) + 'px';
+      hitArea.style.height = Math.max(h, 36) + 'px';
       hitArea.style.display = 'block';
       hitArea.style.cursor = GAMEPAD_CURSOR;
     } else {
