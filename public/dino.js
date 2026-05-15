@@ -297,7 +297,7 @@
     if (dead) {
       ctx.fillStyle = 'rgba(245,242,236,0.85)'; ctx.fillRect(0, 0, W, H);
       const isMobile = window.innerWidth < 640;
-      const centerY = H / 2 + (isMobile ? 15 : 0);
+      const centerY = H / 2 + (isMobile ? 25 : 0);
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(83,83,83,0.9)'; ctx.font = 'bold 13px monospace';
       ctx.fillText('GAME OVER', W / 2, centerY - 4);
