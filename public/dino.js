@@ -385,10 +385,10 @@
     // 2. show canvas
     canvas.classList.add('visible');
 
-    // 3. drop dino from top
+    // 3. drop dino from top — start just above canvas, fall straight down
     resize();
-    dino.y = -D_H - 10;
-    dino.vy = 3;
+    dino.y = -D_H;
+    dino.vy = 4;
     dino.jumping = true;
   }
   document.addEventListener('click', startGame, true);

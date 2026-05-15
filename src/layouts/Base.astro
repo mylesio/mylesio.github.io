@@ -135,14 +135,12 @@ const isHome = Astro.url.pathname === '/';
         inset: 0;
         width: 100%;
         height: 100%;
-        display: block;
+        display: none;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
-        opacity: 0;
-        transition: opacity 0.3s ease;
       }
       #dino-canvas.visible {
-        opacity: 1;
+        display: block;
       }
 
       /* ─── Liquid Glass navbar (absolute inside banner) ── */
