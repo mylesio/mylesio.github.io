@@ -36,9 +36,9 @@
     for (let i = 0; i < d.length; i += 4) {
       const r = d[i], g = d[i+1], b = d[i+2];
       if (r > 200 && g > 200 && b > 200) {
-        d[i+3] = 0;                                           // white → transparent
-      } else if (r < 130) {
-        d[i] = 125; d[i+1] = 211; d[i+2] = 252; d[i+3] = 210; // grey → sky blue
+        d[i+3] = 0;                                      // near-white bg → transparent
+      } else if (r < 120) {
+        d[i] = 255; d[i+1] = 255; d[i+2] = 255; d[i+3] = 220; // dark → white
       }
     }
     oc2.putImageData(id, 0, 0);
