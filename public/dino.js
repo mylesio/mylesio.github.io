@@ -98,9 +98,18 @@
   }
 
   // ── Sprite draw helper ───────────────────────────────────────────
-  function spr([sx, sy, sw, sh], dx, dy, dw, dh) {
+  function spr([sx, sy, sw, sh], dx, dy, dw, dh, flipH) {
     if (!spriteReady) return;
-    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw ?? sw, dh ?? sh);
+    const w = dw ?? sw, h = dh ?? sh;
+    if (flipH) {
+      ctx.save();
+      ctx.translate(dx + w, dy);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+      ctx.restore();
+    } else {
+      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, w, h);
+    }
   }
 
   // ── Auto-jump AI ─────────────────────────────────────────────────
@@ -262,7 +271,7 @@
     if (dino.crashed)      dinoSp = SP.trexCrash;
     else if (dino.jumping) dinoSp = SP.trexJump;
     else                   dinoSp = animFrame === 0 ? SP.trexRun0 : SP.trexRun1;
-    spr(dinoSp, dino.x, dino.y);
+    spr(dinoSp, dino.x, dino.y, undefined, undefined, true);
 
     // HUD — score
     if (mode === 'play') {
