@@ -345,9 +345,9 @@
       const parentRect = canvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const sx = rect.width / (canvas.width / dpr);
-      const pad = 12; // generous padding for mobile tap targets
-      const w = Math.max((IDLE_DW + pad * 2) * sx, 44); // min 44px for touch
-      const h = Math.max((IDLE_DH + pad * 2) * sx, 44);
+      const pad = 4;
+      const w = (IDLE_DW + pad * 2) * sx;
+      const h = (IDLE_DH + pad * 2) * sx;
       const cx = (IDLE_X + IDLE_DW / 2) * sx + rect.left - parentRect.left;
       const cy = (IDLE_Y + IDLE_DH / 2) * sx + rect.top - parentRect.top;
       hitArea.style.left = (cx - w / 2) + 'px';
