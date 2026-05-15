@@ -51,16 +51,17 @@ const isHome = Astro.url.pathname === '/';
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg:          #111112;
-        --surface:     #18181a;
-        --border:      #242428;
-        --rule:        #1e1e22;   /* hairline dividers only — too dark for text */
-        --text:        #e0e0e2;
-        --muted:       #72727c;   /* was #606068 — bumped to ~4.6:1 on --bg */
-        --label:       #52525e;   /* section labels: uppercase small, ~3.5:1 — decorative use only */
-        --dim:         #30303a;   /* non-text only: borders, rules */
-        --accent:      #7dd3fc;
-        --accent-dim:  #3a8ab5;   /* subdued accent for static presence */
+        --bg:          #0e0f11;   /* cooler near-black — blue undertone visible */
+        --surface:     #14151a;
+        --border:      #1e2028;   /* blue-shifted border */
+        --text:        #dde0e8;   /* slightly cooler white — harmonizes with accent */
+        --muted:       #6e7280;   /* ~4.6:1 on --bg */
+        --label:       #4a4e5e;   /* uppercase labels, decorative only */
+        --dim:         #252830;   /* non-text only */
+        --accent:      #7dd3fc;   /* sky blue — kinetic + hero */
+        --accent-mid:  #4ba8d8;   /* mid-brightness accent for static elements */
+        --accent-dim:  #2a6a94;   /* low-brightness accent for hairlines, borders */
+        --accent-wash: #1a2530;  /* very subtle blue tint for borders/surfaces */
         --mono:        'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
         --col:         640px;
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -83,7 +84,7 @@ const isHome = Astro.url.pathname === '/';
       a {
         color: inherit;
         text-decoration: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--dim);
         transition: color 0.18s var(--ease-out-expo),
                     border-color 0.18s var(--ease-out-expo);
       }
@@ -131,7 +132,7 @@ const isHome = Astro.url.pathname === '/';
 
       footer {
         padding: 1.5rem 0 2.5rem;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--accent-wash);
         display: flex;
         justify-content: space-between;
         font-size: 0.78rem;
