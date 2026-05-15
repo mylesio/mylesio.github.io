@@ -63,7 +63,7 @@ const isHome = Astro.url.pathname === '/';
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
       }
 
-      html { font-size: 15px; }
+      html { font-size: clamp(13px, 3.5vw, 15px); }
 
       body {
         background: var(--bg);
@@ -71,7 +71,7 @@ const isHome = Astro.url.pathname === '/';
         font-family: var(--mono);
         font-size: 1rem;
         line-height: 1.65;
-        padding: 0 1.5rem;
+        padding: 0 clamp(1rem, 5vw, 1.5rem);
         -webkit-font-smoothing: antialiased;
       }
 
@@ -98,7 +98,7 @@ const isHome = Astro.url.pathname === '/';
 
       /* ─── Layout ─────────────────────────────────── */
       header {
-        max-width: var(--col);
+        max-width: min(var(--col), 100%);
         margin: 0 auto;
         padding: 2.5rem 0 2rem;
         display: flex;
@@ -119,13 +119,13 @@ const isHome = Astro.url.pathname === '/';
       nav { display: flex; gap: 1.5rem; }
 
       main {
-        max-width: var(--col);
+        max-width: min(var(--col), 100%);
         margin: 0 auto;
         padding: 1rem 0 5rem;
       }
 
       footer {
-        max-width: var(--col);
+        max-width: min(var(--col), 100%);
         margin: 0 auto;
         padding: 1.5rem 0 2.5rem;
         border-top: 1px solid var(--border);
@@ -139,10 +139,6 @@ const isHome = Astro.url.pathname === '/';
 
       /* ─── Mobile ─────────────────────────────────── */
       @media (max-width: 480px) {
-        html { font-size: 14px; }
-
-        body { padding: 0 1.2rem; }
-
         header {
           padding: 1.8rem 0 1.5rem;
           gap: 1.2rem;
