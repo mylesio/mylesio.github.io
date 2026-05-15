@@ -33,8 +33,14 @@
   const ctx = canvas.getContext('2d');
 
   // Find / create the favicon link element
+  // IMPORTANT: must set type="image/png" before writing a data:image/png href.
+  // Chrome 99+ validates that type matches the actual content and will silently
+  // ignore the link if they don't match (keeping the cached SVG instead).
   let link = document.querySelector("link[rel~='icon'][type='image/svg+xml']");
-  if (!link) {
+  if (link) {
+    // fix type in-place so Chrome doesn't discard our data URL
+    link.type = 'image/png';
+  } else {
     link = document.createElement('link');
     link.rel  = 'icon';
     link.type = 'image/png';
