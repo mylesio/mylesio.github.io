@@ -32,19 +32,20 @@
   canvas.width = canvas.height = SIZE;
   const ctx = canvas.getContext('2d');
 
-  // Find / create the favicon link element
-  // IMPORTANT: must set type="image/png" before writing a data:image/png href.
-  // Chrome 99+ validates that type matches the actual content and will silently
-  // ignore the link if they don't match (keeping the cached SVG instead).
-  let link = document.querySelector("link[rel~='icon'][type='image/svg+xml']");
-  if (link) {
-    // fix type in-place so Chrome doesn't discard our data URL
-    link.type = 'image/png';
-  } else {
-    link = document.createElement('link');
-    link.rel  = 'icon';
-    link.type = 'image/png';
-    document.head.appendChild(link);
+  // Remove any existing favicon links — we'll manage it entirely
+  document.querySelectorAll("link[rel~='icon']").forEach(el => el.remove());
+
+  // Chrome won't update the tab favicon by mutating link.href in place.
+  // The only reliable way is to remove the old link and insert a fresh one
+  // each frame. We keep a reference and swap it out every tick.
+  function setFavicon(dataUrl) {
+    const old = document.querySelector("link[rel='icon']");
+    if (old) old.remove();
+    const next = document.createElement('link');
+    next.rel  = 'icon';
+    next.type = 'image/png';
+    next.href = dataUrl;
+    document.head.appendChild(next);
   }
 
   // ── Easing helpers ──────────────────────────────────────────────────────────
@@ -142,15 +143,25 @@
   }
 
   // ── RAF loop ─────────────────────────────────────────────────────────────────
+  // 12 fps is plenty for a favicon — and Chrome is more likely to honour
+  // DOM updates at this rate than at full 60fps (where it batches/skips them).
+  const FPS      = 12;
+  const INTERVAL = 1000 / FPS;
+
   let startTime = null;
+  let lastTick  = null;
 
   function loop(ts) {
     if (!startTime) startTime = ts;
-    const elapsed = (ts - startTime) % DURATION;
-    const t = elapsed / DURATION;
+    if (!lastTick)  lastTick  = ts;
 
-    drawFrame(t);
-    link.href = canvas.toDataURL('image/png');
+    if (ts - lastTick >= INTERVAL) {
+      lastTick = ts;
+      const elapsed = (ts - startTime) % DURATION;
+      const t = elapsed / DURATION;
+      drawFrame(t);
+      setFavicon(canvas.toDataURL('image/png'));
+    }
 
     requestAnimationFrame(loop);
   }
