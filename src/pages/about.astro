@@ -20,12 +20,47 @@ import Base from '../layouts/Base.astro';
 
 <style>
   .page-header { padding: 2rem 0 2.5rem; }
-  .page-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  .page-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .page-title::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 1px;
+    background: var(--accent-dim);
+    flex-shrink: 0;
+  }
   .about-prose { font-size: 0.9rem; }
-  .about-prose p { margin-bottom: 1.25rem; line-height: 1.75; color: var(--text); }
+  .about-prose p { margin-bottom: 1.35rem; line-height: 1.75; color: var(--text); }
   .about-prose a { color: var(--accent); border-color: transparent; }
   .about-prose a:hover { border-color: var(--accent); }
-  .about-prose h2 { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin: 2rem 0 0.75rem; }
+  .about-prose h2 {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+    font-weight: 400;
+    margin: 2.5rem 0 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .about-prose h2::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 1px;
+    background: var(--accent-dim);
+    flex-shrink: 0;
+  }
   .about-prose ul { list-style: none; }
-  .about-prose li { padding: 0.3rem 0; font-size: 0.85rem; }
+  .about-prose li { padding: 0.35rem 0; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
 </style>

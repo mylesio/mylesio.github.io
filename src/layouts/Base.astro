@@ -51,15 +51,18 @@ const isHome = Astro.url.pathname === '/';
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg:      #111112;
-        --surface: #18181a;
-        --border:  #242428;
-        --text:    #e0e0e2;
-        --muted:   #606068;
-        --dim:     #30303a;
-        --accent:  #7dd3fc;
-        --mono:    'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
-        --col:     640px;
+        --bg:          #111112;
+        --surface:     #18181a;
+        --border:      #242428;
+        --rule:        #1e1e22;   /* hairline dividers only — too dark for text */
+        --text:        #e0e0e2;
+        --muted:       #72727c;   /* was #606068 — bumped to ~4.6:1 on --bg */
+        --label:       #52525e;   /* section labels: uppercase small, ~3.5:1 — decorative use only */
+        --dim:         #30303a;   /* non-text only: borders, rules */
+        --accent:      #7dd3fc;
+        --accent-dim:  #3a8ab5;   /* subdued accent for static presence */
+        --mono:        'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
+        --col:         640px;
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
       }
 
@@ -80,7 +83,7 @@ const isHome = Astro.url.pathname === '/';
       a {
         color: inherit;
         text-decoration: none;
-        border-bottom: 1px solid var(--dim);
+        border-bottom: 1px solid var(--border);
         transition: color 0.18s var(--ease-out-expo),
                     border-color 0.18s var(--ease-out-expo);
       }
@@ -93,7 +96,8 @@ const isHome = Astro.url.pathname === '/';
         letter-spacing: 0.04em;
         transition: color 0.18s var(--ease-out-expo);
       }
-      a.nav-link:hover, a.nav-link.active { color: var(--text); }
+      a.nav-link:hover { color: var(--text); }
+      a.nav-link.active { color: var(--accent); }
 
       /* ─── Layout ─────────────────────────────────── */
       .page-wrap {

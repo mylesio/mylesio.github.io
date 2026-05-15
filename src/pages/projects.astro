@@ -42,7 +42,24 @@ const projects = [
 
 <style>
   .page-header { padding: 2rem 0 2.5rem; }
-  .page-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  .page-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .page-title::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 1px;
+    background: var(--accent-dim);
+    flex-shrink: 0;
+  }
 
   .projects { list-style: none; }
   .project {
@@ -55,34 +72,34 @@ const projects = [
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
   }
   .project-name {
     font-size: 0.95rem;
-    font-weight: 500;
-    color: #fff;
+    font-weight: 400;
+    color: var(--text);
     border-color: transparent;
   }
   .project-name:hover { color: var(--accent); }
   .project-status {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
+    font-size: 0.68rem;
+    color: var(--accent-dim);
+    letter-spacing: 0.08em;
   }
   .project-desc {
     font-size: 0.85rem;
     color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 0.75rem;
+    line-height: 1.65;
+    margin-bottom: 0.85rem;
     font-weight: 300;
   }
-  .project-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .project-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; }
   .tag {
-    font-size: 0.68rem;
-    padding: 0.15rem 0.45rem;
+    font-size: 0.65rem;
+    padding: 0.12rem 0.5rem;
     border: 1px solid var(--border);
-    color: var(--dim);
-    letter-spacing: 0.04em;
+    color: var(--muted);
+    letter-spacing: 0.05em;
   }
 
   @media (max-width: 480px) {

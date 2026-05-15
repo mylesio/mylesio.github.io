@@ -13,14 +13,17 @@ Strategy: **Restrained + one kinetic accent**
 |-------|-------|-----|
 | `--bg` | `oklch(12% 0.008 260)` ≈ `#111112` | Page background |
 | `--surface` | `oklch(14% 0.008 260)` ≈ `#18181a` | Elevated surfaces |
-| `--border` | `oklch(18% 0.008 260)` ≈ `#242428` | Dividers, borders |
-| `--text` | `oklch(88% 0.005 260)` ≈ `#e0e0e2` | Body text |
-| `--muted` | `oklch(45% 0.008 260)` ≈ `#606068` | Secondary text, timestamps |
-| `--dim` | `oklch(24% 0.010 260)` ≈ `#30303a` | Deeply muted text |
-| `--accent` | `oklch(83% 0.14 220)` ≈ `#7dd3fc` | Sky blue — links, cursor, interactive states, animation highlights |
+| `--border` | `oklch(18% 0.008 260)` ≈ `#242428` | Dividers, full-perimeter borders |
+| `--rule` | `oklch(15% 0.008 260)` ≈ `#1e1e22` | Hairline dividers only — not for text |
+| `--text` | `oklch(88% 0.005 260)` ≈ `#e0e0e2` | Body text (~13:1 on --bg) |
+| `--muted` | `oklch(48% 0.008 260)` ≈ `#72727c` | Secondary text, timestamps (~4.6:1 on --bg, WCAG AA) |
+| `--label` | `oklch(35% 0.010 260)` ≈ `#52525e` | Uppercase section labels only — decorative, not body text |
+| `--dim` | `oklch(24% 0.010 260)` ≈ `#30303a` | Non-text: borders, rules only. Never for text. |
+| `--accent` | `oklch(83% 0.14 220)` ≈ `#7dd3fc` | Sky blue — hover states, cursor, selection, interactive highlights |
+| `--accent-dim` | `oklch(56% 0.10 220)` ≈ `#3a8ab5` | Subdued accent — static presence (section label bars, status badges) |
 
-Accent use: sparingly. Maximum 10% of any surface. Its job is to make motion visible and links feel alive.
-When accent appears in animation, it should feel like electricity — not decoration.
+Accent strategy: `--accent` is the kinetic color — it appears in motion and hover states.
+`--accent-dim` is the static presence — small doses (12px hairlines, status text) that anchor the palette without competing with body text.
 
 ## Typography
 
