@@ -114,6 +114,9 @@ const isHome = Astro.url.pathname === '/';
       }
 
       /* ─── Banner / Dino canvas ───────────────────── */
+      /* push banner below the fixed navbar (~44px high) */
+      body { padding-top: 44px; }
+
       .site-header {
         position: relative;
         width: 100%;
@@ -133,21 +136,24 @@ const isHome = Astro.url.pathname === '/';
         image-rendering: crisp-edges;
       }
 
-      /* ─── Navbar floats above the game ───────────── */
-      /* ─── iOS-style frosted glass navbar ────────── */
+      /* ─── Frosted glass navbar (sticky) ─────────── */
       header {
-        position: absolute;
+        position: fixed;
         top: 0; left: 0; right: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        padding: 0.75rem 1.5rem;
-        /* frosted glass */
-        background: rgba(245, 242, 236, 0.72);
+        z-index: 100;
+        background: rgba(245, 242, 236, 0.75);
         backdrop-filter: saturate(180%) blur(20px);
         -webkit-backdrop-filter: saturate(180%) blur(20px);
         border-bottom: 1px solid rgba(200, 195, 185, 0.45);
+      }
+
+      .nav-inner {
+        max-width: var(--col);
+        margin: 0 auto;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
       }
 
       .logo {
@@ -163,14 +169,14 @@ const isHome = Astro.url.pathname === '/';
 
       nav { display: flex; gap: 1.5rem; }
 
-      .site-header a.nav-link {
+      header a.nav-link {
         color: #888;
         text-decoration: none;
         font-size: 0.85rem;
         transition: color 0.15s;
       }
-      .site-header a.nav-link:hover { color: #333; }
-      .site-header a.nav-link.active { color: var(--accent); font-weight: 500; }
+      header a.nav-link:hover { color: #333; }
+      header a.nav-link.active { color: var(--accent); font-weight: 500; }
 
       @media (max-width: 480px) {
         header { gap: 1rem; padding-left: 1rem; padding-right: 1rem; }
@@ -233,14 +239,16 @@ const isHome = Astro.url.pathname === '/';
     <div class="site-header">
       <!-- dino game canvas fills the 200px banner -->
       <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play / toggle auto mode"></canvas>
-      <!-- navbar floats above via position:absolute + z-index:10 -->
+      <!-- sticky frosted-glass navbar -->
       <header>
-        <a class="logo reveal reveal-1" href="/">mylesio</a>
-        <nav class="reveal reveal-1">
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
-        </nav>
+        <div class="nav-inner">
+          <a class="logo reveal reveal-1" href="/">mylesio</a>
+          <nav class="reveal reveal-1">
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
+          </nav>
+        </div>
       </header>
     </div>
     <div class="page-wrap">
