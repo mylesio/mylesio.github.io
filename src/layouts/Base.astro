@@ -142,10 +142,11 @@ const isHome = Astro.url.pathname === '/';
         display: block;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
-        z-index: 5;   /* below navbar (z-index:10) */
+        z-index: 20;  /* idle: above navbar so dino is visible */
         pointer-events: none;
       }
       .site-header.expanded #dino-canvas {
+        z-index: 5;   /* game: navbar covers canvas with liquid glass */
         pointer-events: auto;
       }
 
