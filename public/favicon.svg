@@ -1,4 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0f0f0f"/>
-  <text x="16" y="23" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#f5f5f5" text-anchor="middle" letter-spacing="-0.5">M</text>
+  <rect width="32" height="32" rx="6" fill="#0f0f11"/>
+  <!-- glow layer -->
+  <polyline points="9,8 23,16 9,24"
+            stroke="#7dd3fc" stroke-width="7"
+            stroke-linecap="round" stroke-linejoin="round"
+            opacity="0.08"/>
+  <!-- main stroke -->
+  <polyline points="9,8 23,16 9,24"
+            stroke="#7dd3fc" stroke-width="3.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
