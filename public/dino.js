@@ -36,9 +36,9 @@
     for (let i = 0; i < d.length; i += 4) {
       const r = d[i], g = d[i+1], b = d[i+2];
       if (r > 200 && g > 200 && b > 200) {
-        d[i+3] = 0;                                      // near-white bg → transparent
-      } else if (r < 120) {
-        d[i] = 255; d[i+1] = 255; d[i+2] = 255; d[i+3] = 220; // dark → white
+        d[i+3] = 0;                                           // near-white bg → transparent
+      } else {
+        d[i] = 255; d[i+1] = 255; d[i+2] = 255; d[i+3] = 220; // everything else → white
       }
     }
     oc2.putImageData(id, 0, 0);
@@ -109,14 +109,11 @@
   }
 
   // ── Draw helpers ─────────────────────────────────────────────────
-  // Draw dino frame — flip horizontally so dino faces right
+  // Draw dino frame — no flip, sprite already faces right
   function drawTrex(offset, dx, dy) {
     if (!spr) return;
     const sx = TREX_BASE_X + offset;
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.drawImage(spr, sx, TREX_BASE_Y, TREX_W, TREX_H, -(dx + D_W), dy, D_W, D_H);
-    ctx.restore();
+    ctx.drawImage(spr, sx, TREX_BASE_Y, TREX_W, TREX_H, dx, dy, D_W, D_H);
   }
 
   function drawSpr(s, dx, dy, dw, dh) {
