@@ -345,6 +345,16 @@
     }
   }, { passive: false });
 
+  // ── Gamepad cursor after game starts ────────────────────────────
+  const GAMEPAD_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='22' viewBox='0 0 32 22'><rect x='2' y='5' width='28' height='13' rx='6' fill='%23444'/><rect x='6' y='9' width='2' height='6' rx='1' fill='white'/><rect x='4' y='11' width='6' height='2' rx='1' fill='white'/><circle cx='22' cy='10' r='2' fill='white'/><circle cx='26' cy='13' r='2' fill='white'/></svg>") 16 11, pointer`;
+
+  canvas.addEventListener('mouseenter', () => {
+    if (started) canvas.style.cursor = GAMEPAD_CURSOR;
+  });
+  canvas.addEventListener('mouseleave', () => {
+    canvas.style.cursor = 'pointer';
+  });
+
   // ── Init ─────────────────────────────────────────────────────────
   resize();
 
