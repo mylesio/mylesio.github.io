@@ -16,6 +16,7 @@ const isHome = Astro.url.pathname === '/';
     <title>{isHome ? 'mylesio' : `${title} — mylesio`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       @font-face {
         font-family: 'OperatorMonoLig';
