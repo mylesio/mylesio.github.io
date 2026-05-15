@@ -19,31 +19,9 @@
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // ── Load & recolor sprite ────────────────────────────────────────
-  // Original: dark grey on white. Remap: white→transparent, grey→sky-blue #7dd3fc
-  const rawImg = new Image();
-  rawImg.src = '/dino-sprite.png';
-  let spr = null;
-
-  rawImg.onload = () => {
-    const oc = document.createElement('canvas');
-    oc.width = rawImg.naturalWidth;
-    oc.height = rawImg.naturalHeight;
-    const oc2 = oc.getContext('2d');
-    oc2.drawImage(rawImg, 0, 0);
-    const id = oc2.getImageData(0, 0, oc.width, oc.height);
-    const d = id.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const r = d[i], g = d[i+1], b = d[i+2];
-      if (r > 200 && g > 200 && b > 200) {
-        d[i+3] = 0;                                           // near-white bg → transparent
-      } else {
-        d[i] = 255; d[i+1] = 255; d[i+2] = 255; d[i+3] = 220; // everything else → white
-      }
-    }
-    oc2.putImageData(id, 0, 0);
-    spr = oc;
-  };
+  // ── Load sprite (pre-processed PNG: white content + transparent bg) ──
+  const spr = new Image();
+  spr.src = '/dino-sprite-white.png';
 
   // ── Official LDPI sprite coords ──────────────────────────────────
   const TREX_BASE_X = 848, TREX_BASE_Y = 2;
@@ -111,13 +89,13 @@
   // ── Draw helpers ─────────────────────────────────────────────────
   // Draw dino frame — no flip, sprite already faces right
   function drawTrex(offset, dx, dy) {
-    if (!spr) return;
+    if (!spr.complete) return;
     const sx = TREX_BASE_X + offset;
     ctx.drawImage(spr, sx, TREX_BASE_Y, TREX_W, TREX_H, dx, dy, D_W, D_H);
   }
 
   function drawSpr(s, dx, dy, dw, dh) {
-    if (!spr) return;
+    if (!spr.complete) return;
     ctx.drawImage(spr, s.x, s.y, s.w, s.h, dx, dy, dw, dh);
   }
 
