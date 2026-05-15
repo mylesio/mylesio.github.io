@@ -261,7 +261,6 @@
 
     if (!dead && checkHit()) {
       dead = true; flashT = 8;
-      if (mode === 'auto') setTimeout(reset, 650);
     }
     if (flashT > 0) flashT--;
 
@@ -301,7 +300,7 @@
       ctx.fillStyle = 'rgba(83,83,83,0.9)'; ctx.font = 'bold 13px monospace';
       ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
       ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(83,83,83,0.45)';
-      ctx.fillText(mode === 'play' ? 'click to restart' : 'restarting...', W / 2, H / 2 + 14);
+      ctx.fillText('click to restart', W / 2, H / 2 + 14);
       ctx.textAlign = 'left';
     }
   }
@@ -329,19 +328,21 @@
   // ── Input ────────────────────────────────────────────────────────
   canvas.addEventListener('click', () => {
     if (!started) return;
+    if (dead) { reset(); return; }
     if (mode === 'auto') {
-      mode = 'play'; reset();
+      mode = 'play';
     } else {
-      dead ? reset() : jump();
+      jump();
     }
   });
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     if (!started) return;
+    if (dead) { reset(); return; }
     if (mode === 'auto') {
-      mode = 'play'; reset();
+      mode = 'play';
     } else {
-      dead ? reset() : jump();
+      jump();
     }
   }, { passive: false });
 
