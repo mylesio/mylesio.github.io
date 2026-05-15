@@ -71,6 +71,7 @@ const isHome = Astro.url.pathname === '/';
 
       body {
         background: var(--bg);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='1' cy='1' r='0.8' fill='%23b8b4aa' fill-opacity='0.35'/%3E%3C/svg%3E");
         color: var(--text);
         font-family: var(--mono);
         font-size: 1rem;
@@ -107,24 +108,38 @@ const isHome = Astro.url.pathname === '/';
         padding: 0 1.5rem;
       }
 
+      /* Full-width banner header */
+      .site-header {
+        background: #0f1923;
+        background-image:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='0.7' fill='%237dd3fc' fill-opacity='0.08'/%3E%3C/svg%3E");
+        border-bottom: 1px solid #1e3448;
+        width: 100%;
+      }
+
       header {
-        padding: 2.5rem 0 2rem;
+        padding: 1.5rem 0;
         display: flex;
-        align-items: baseline;
+        align-items: center;
         gap: 2rem;
       }
 
       .logo {
         font-size: 0.9rem;
         font-weight: 400;
-        color: var(--text);
+        color: #e2e8f0;
         border-bottom: none;
         letter-spacing: 0.02em;
         transition: color 0.18s var(--ease-out-expo);
       }
-      .logo:hover { color: var(--accent); }
+      .logo:hover { color: var(--accent-mid); }
 
       nav { display: flex; gap: 1.5rem; }
+
+      /* nav links on dark banner */
+      .site-header a.nav-link { color: #64748b; }
+      .site-header a.nav-link:hover { color: #e2e8f0; }
+      .site-header a.nav-link.active { color: var(--accent-mid); }
 
       main {
         padding: 1rem 0 5rem;
@@ -148,7 +163,7 @@ const isHome = Astro.url.pathname === '/';
         .page-wrap { padding: 0 1rem; }
 
         header {
-          padding: 1.5rem 0 1.2rem;
+          padding: 1rem 0;
           gap: 1rem;
           flex-wrap: wrap;
         }
@@ -180,15 +195,19 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
+    <div class="site-header">
+      <div class="page-wrap">
+        <header>
+          <a class="logo reveal reveal-1" href="/">mylesio</a>
+          <nav class="reveal reveal-1">
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
+          </nav>
+        </header>
+      </div>
+    </div>
     <div class="page-wrap">
-      <header>
-        <a class="logo reveal reveal-1" href="/">mylesio</a>
-        <nav class="reveal reveal-1">
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes">notes</a>
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects">projects</a>
-          <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about">about</a>
-        </nav>
-      </header>
       <main>
         <slot />
       </main>
