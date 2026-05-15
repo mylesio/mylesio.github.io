@@ -359,6 +359,51 @@
     canvas.style.cursor = 'pointer';
   });
 
+  // ── Scroll: pause game & collapse back to idle ────────────────────
+  let paused = false;
+
+  function collapseToIdle() {
+    if (!started && !jumping) return;
+    paused = true;
+    started = false;
+    jumping = false;
+
+    // reset dino to idle position
+    initIdlePos();
+    dino.x = IDLE_X;
+    dino.y = IDLE_Y;
+    dino.vy = 0;
+    dino.jumping = false;
+
+    // reset game state
+    score = 0; hiScore = 0; speed = 5;
+    obstacles = []; nextObs = 180;
+    dead = false; flashT = 0;
+    groundOff = 0; frameIdx = 0; frameTimer = 0;
+
+    // collapse site-header
+    const siteHeader = canvas.closest('.site-header');
+    if (siteHeader) siteHeader.classList.remove('expanded');
+
+    // restore z-index (canvas above navbar for idle dino)
+    canvas.style.zIndex = '20';
+
+    // re-enable start on click
+    document.addEventListener('click', startGame, true);
+    document.addEventListener('touchstart', startGame, true);
+
+    paused = false;
+  }
+
+  let lastScrollY = 0;
+  window.addEventListener('scroll', () => {
+    const sy = window.scrollY || window.pageYOffset;
+    if (sy > lastScrollY && sy > 10 && (started || jumping)) {
+      collapseToIdle();
+    }
+    lastScrollY = sy;
+  }, { passive: true });
+
   // ── Init ─────────────────────────────────────────────────────────
   resize();
 
