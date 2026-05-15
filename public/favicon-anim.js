@@ -1,139 +1,157 @@
 /**
- * Animated favicon — gravity rotation
+ * Animated favicon — two-phase gravity collapse
  *
- * Each arm of ">" pivots from its left endpoint and falls like a rod
- * released from rest. Physics: angle accelerates (ease-in), hits ground,
- * tiny bounce, rests, snaps back.
+ * Each arm of ">" falls in two phases:
+ *   Phase 1: left end pivots around right end (23,16), swings DOWN
+ *   Phase 2: right end pivots around landed left end, falls DOWN
  *
- * Upper arm pivot: (9, 8)  — falls clockwise   (max ~70°)
- * Lower arm pivot: (9, 24) — falls counter-clockwise (max ~-65°)
+ * Upper arm goes first, lower arm follows with a slight delay.
  *
- * Timeline (6s loop):
- *   0.00–0.20  hold at rest
- *   0.20–0.52  fall (ease-in²  — gravity acceleration)
- *   0.52–0.58  bounce (overshoot + rebound)
- *   0.58–0.75  rest on ground
- *   0.75–0.90  snap back (ease-out)
- *   0.90–1.00  hold at rest
+ * Timeline (7s loop):
+ *   0.00–0.15  hold at rest
+ *   0.15–0.38  upper phase 1 fall  (easeInCubic)
+ *   0.38–0.43  upper phase 1 bounce
+ *   0.43–0.52  upper phase 2 fall  (easeInCubic)
+ *   0.52–0.56  upper phase 2 bounce
+ *   0.56–0.62  lower phase 1 fall  (easeInCubic)  [delayed]
+ *   0.62–0.65  lower phase 1 bounce
+ *   0.65–0.74  lower phase 2 fall  (easeInCubic)
+ *   0.74–0.77  lower phase 2 bounce
+ *   0.77–0.88  rest on ground
+ *   0.88–1.00  snap back (easeOutCubic)
  */
 (function () {
   const SIZE     = 32;
-  const DURATION = 6000;
+  const DURATION = 7000;
   const BG       = '#0f0f11';
   const COLOR    = '#7dd3fc';
   const CORNER   = 6;
   const FPS      = 16;
   const INTERVAL = 1000 / FPS;
 
-  // Arm definitions: pivot + far endpoint (original positions)
-  // upper: pivot=(9,8),  tip=(23,16)
-  // lower: pivot=(9,24), tip=(23,16)
-  const UPPER_PIVOT = { x: 9, y: 8  };
-  const LOWER_PIVOT = { x: 9, y: 24 };
-  const UPPER_TIP   = { x: 23, y: 16 };
-  const LOWER_TIP   = { x: 23, y: 16 };
+  // Arm geometry
+  const UA_L = { x: 9,  y: 8  };
+  const UA_R = { x: 23, y: 16 };
+  const LA_L = { x: 9,  y: 24 };
+  const LA_R = { x: 23, y: 16 };
 
-  // Max rotation angles (radians) — upper falls CW, lower falls CCW
-  const UPPER_MAX_ANGLE =  1.22; //  ~70° clockwise
-  const LOWER_MAX_ANGLE = -1.15; // ~66° counter-clockwise
+  // Rotation angles (radians)
+  const U_P1 = -Math.PI * 80 / 180;  // upper left  swings CCW (down)
+  const U_P2 =  Math.PI * 60 / 180;  // upper right swings CW  (down)
+  const L_P1 = -Math.PI * 55 / 180;  // lower left  swings CCW (down)
+  const L_P2 = -Math.PI * 80 / 180;  // lower right swings CCW (down)
 
-  // ── Easing ──────────────────────────────────────────────────────────────────
-  // easeInCubic: slow start, accelerates hard (gravity feel)
+  function rotScreen(px, py, cx, cy, a) {
+    const cos = Math.cos(a), sin = Math.sin(a);
+    const dx = px - cx, dy = py - cy;
+    return { x: cx + dx*cos - dy*sin, y: cy + dx*sin + dy*cos };
+  }
+
   function easeInCubic(t)  { return t * t * t; }
-  // easeOutCubic: fast start, decelerates (snap-back feel)
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function bounce(t, amount) {
+    return 1 + Math.sin(t * Math.PI) * amount;
+  }
 
-  // ── State at normalised time t ∈ [0,1] ─────────────────────────────────────
-  function getAngles(t) {
-    let uAngle = 0, lAngle = 0, opacity = 1;
+  function getState(t) {
+    let ua1 = 0, ua2 = 0, la1 = 0, la2 = 0, opacity = 1;
 
-    if (t < 0.20) {
-      // at rest
-      uAngle = 0; lAngle = 0; opacity = 1;
+    if (t < 0.15) {
+      // rest
+
+    } else if (t < 0.38) {
+      const p = easeInCubic((t - 0.15) / 0.23);
+      ua1 = U_P1 * p;
+
+    } else if (t < 0.43) {
+      const p = (t - 0.38) / 0.05;
+      ua1 = U_P1 * bounce(p, 0.07);
 
     } else if (t < 0.52) {
-      // free-fall — ease-in cubic (gravity acceleration)
-      const p = easeInCubic((t - 0.20) / (0.52 - 0.20));
-      uAngle  = UPPER_MAX_ANGLE * p;
-      lAngle  = LOWER_MAX_ANGLE * p;
-      opacity = 1 - p * 0.55;
+      ua1 = U_P1;
+      const p = easeInCubic((t - 0.43) / 0.09);
+      ua2 = U_P2 * p;
 
-    } else if (t < 0.58) {
-      // bounce: overshoot slightly then rebound
-      const p = (t - 0.52) / (0.58 - 0.52); // 0→1
-      const bounce = Math.sin(p * Math.PI);   // 0→1→0
-      uAngle  = UPPER_MAX_ANGLE * (1 + bounce * 0.12);
-      lAngle  = LOWER_MAX_ANGLE * (1 + bounce * 0.10);
-      opacity = 0.45;
+    } else if (t < 0.56) {
+      ua1 = U_P1;
+      const p = (t - 0.52) / 0.04;
+      ua2 = U_P2 * bounce(p, 0.06);
 
-    } else if (t < 0.75) {
-      // rest on ground
-      uAngle  = UPPER_MAX_ANGLE;
-      lAngle  = LOWER_MAX_ANGLE;
-      opacity = 0.40;
+    } else if (t < 0.65) {
+      ua1 = U_P1; ua2 = U_P2;
+      const p = easeInCubic((t - 0.56) / 0.09);
+      la1 = L_P1 * p;
 
-    } else if (t < 0.90) {
-      // snap back — ease-out cubic
-      const p = easeOutCubic((t - 0.75) / (0.90 - 0.75));
-      uAngle  = UPPER_MAX_ANGLE * (1 - p);
-      lAngle  = LOWER_MAX_ANGLE * (1 - p);
-      opacity = 0.40 + 0.60 * p;
+    } else if (t < 0.68) {
+      ua1 = U_P1; ua2 = U_P2;
+      const p = (t - 0.65) / 0.03;
+      la1 = L_P1 * bounce(p, 0.07);
+
+    } else if (t < 0.77) {
+      ua1 = U_P1; ua2 = U_P2; la1 = L_P1;
+      const p = easeInCubic((t - 0.68) / 0.09);
+      la2 = L_P2 * p;
+
+    } else if (t < 0.80) {
+      ua1 = U_P1; ua2 = U_P2; la1 = L_P1;
+      const p = (t - 0.77) / 0.03;
+      la2 = L_P2 * bounce(p, 0.06);
+
+    } else if (t < 0.88) {
+      ua1 = U_P1; ua2 = U_P2; la1 = L_P1; la2 = L_P2;
+      opacity = 0.38;
 
     } else {
-      // hold at rest
-      uAngle = 0; lAngle = 0; opacity = 1;
+      const p = easeOutCubic((t - 0.88) / 0.12);
+      ua1 = U_P1 * (1 - p); ua2 = U_P2 * (1 - p);
+      la1 = L_P1 * (1 - p); la2 = L_P2 * (1 - p);
+      opacity = 0.38 + 0.62 * p;
     }
 
-    return { uAngle, lAngle, opacity };
+    return { ua1, ua2, la1, la2, opacity };
   }
 
-  // ── Rotate a point around a pivot ─────────────────────────────────────────
-  function rotate(px, py, pivot, angle) {
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    const dx  = px - pivot.x;
-    const dy  = py - pivot.y;
-    return {
-      x: pivot.x + dx * cos - dy * sin,
-      y: pivot.y + dx * sin + dy * cos,
-    };
+  function computeArm(origLeft, pivot, a1, a2) {
+    const left  = rotScreen(origLeft.x, origLeft.y, pivot.x, pivot.y, a1);
+    const right = rotScreen(pivot.x, pivot.y, left.x, left.y, a2);
+    return { left, right };
   }
 
-  // ── Canvas setup ────────────────────────────────────────────────────────────
+  // Canvas
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = SIZE;
   const ctx = canvas.getContext('2d');
 
-  // ── Draw ────────────────────────────────────────────────────────────────────
-  function drawArm(pivot, tip, angle, opacity) {
-    const rotatedTip = rotate(tip.x, tip.y, pivot, angle);
-    ctx.save();
-    ctx.globalAlpha  = opacity;
-    ctx.strokeStyle  = COLOR;
-    ctx.lineWidth    = 3.5;
-    ctx.lineCap      = 'round';
-    ctx.beginPath();
-    ctx.moveTo(pivot.x, pivot.y);
-    ctx.lineTo(rotatedTip.x, rotatedTip.y);
-    ctx.stroke();
-    ctx.restore();
-  }
-
   function drawFrame(t) {
     ctx.clearRect(0, 0, SIZE, SIZE);
-
-    // background
     ctx.fillStyle = BG;
     ctx.beginPath();
     ctx.roundRect(0, 0, SIZE, SIZE, CORNER);
     ctx.fill();
 
-    const { uAngle, lAngle, opacity } = getAngles(t);
-    drawArm(UPPER_PIVOT, UPPER_TIP, uAngle, opacity);
-    drawArm(LOWER_PIVOT, LOWER_TIP, lAngle, opacity);
+    const { ua1, ua2, la1, la2, opacity } = getState(t);
+    const u = computeArm(UA_L, UA_R, ua1, ua2);
+    const l = computeArm(LA_L, LA_R, la1, la2);
+
+    ctx.strokeStyle = COLOR;
+    ctx.lineWidth   = 3.5;
+    ctx.lineCap     = 'round';
+
+    ctx.globalAlpha = opacity;
+    ctx.beginPath();
+    ctx.moveTo(u.left.x, u.left.y);
+    ctx.lineTo(u.right.x, u.right.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(l.left.x, l.left.y);
+    ctx.lineTo(l.right.x, l.right.y);
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
   }
 
-  // ── Favicon update (remove+reinsert forces Chrome to repaint tab) ───────────
+  // Favicon update — remove+reinsert forces Chrome to repaint tab
   function setFavicon(dataUrl) {
     document.querySelectorAll("link[rel~='icon']").forEach(el => el.remove());
     const link = document.createElement('link');
@@ -143,24 +161,20 @@
     document.head.appendChild(link);
   }
 
-  // Remove static SVG favicon upfront
   document.querySelectorAll("link[rel~='icon']").forEach(el => el.remove());
 
-  // ── RAF loop ────────────────────────────────────────────────────────────────
   let startTime = null;
   let lastTick  = null;
 
   function loop(ts) {
     if (!startTime) startTime = ts;
     if (!lastTick)  lastTick  = ts - INTERVAL;
-
     if (ts - lastTick >= INTERVAL) {
       lastTick = ts;
       const t = ((ts - startTime) % DURATION) / DURATION;
       drawFrame(t);
       setFavicon(canvas.toDataURL('image/png'));
     }
-
     requestAnimationFrame(loop);
   }
 
