@@ -311,8 +311,6 @@
   // ── Start on first interaction ───────────────────────────────────
   function startGame(e) {
     if (started || jumping) return;
-    // only trigger when clicking on the canvas (dino idle area)
-    if (e && e.target && e.target !== canvas && !canvas.contains(e.target)) return;
     // refresh idle pos right before launch (in case layout changed)
     initIdlePos();
     introStartX = IDLE_X;
@@ -446,6 +444,7 @@
     const p = getIdlePos();
     IDLE_X = p.x; IDLE_Y = p.y;
     dino.x = IDLE_X; dino.y = IDLE_Y;
+    updateHitArea();
   }
 
   // compute after layout settles
