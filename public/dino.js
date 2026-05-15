@@ -203,21 +203,6 @@
 
     ctx.clearRect(0, 0, W, H);
 
-    // ── COLLAPSING: dino flying back to logo ─────────────────────
-    if (collapsing) {
-      tickCollapse(dt);
-      // draw dino at current position (shrink as it approaches idle)
-      const p = collapseT / COLLAPSE_DURATION;
-      const curW = Math.round(D_W + (IDLE_DW - D_W) * p);
-      const curH = Math.round(D_H + (IDLE_DH - D_H) * p);
-      if (spr.complete) {
-        ctx.drawImage(spr,
-          TREX_BASE_X + TREX_FRAMES.run[frameIdx], TREX_BASE_Y, TREX_W, TREX_H,
-          dino.x, dino.y, curW, curH);
-      }
-      return;
-    }
-
     // ── IDLE: draw small static dino at logo position ────────────
     if (!started && !jumping) {
       if (spr.complete) {
@@ -380,16 +365,9 @@
   // ── Scroll: pause game & collapse back to idle ────────────────────
   let paused = false;
 
-  let collapsing = false;
-  let collapseT = 0;
-  const COLLAPSE_DURATION = 400;
-  let collapseStartX = 0, collapseStartY = 0;
-
   function collapseToIdle() {
     if (!started && !jumping) return;
-    if (collapsing) return;
 
-    // stop game
     started = false;
     jumping = false;
     dead = false;
@@ -399,53 +377,23 @@
     obstacles = []; nextObs = 180;
     flashT = 0; groundOff = 0; frameIdx = 0; frameTimer = 0;
 
-    // start collapse animation
+    // reset dino to idle position
     initIdlePos();
-    collapseStartX = dino.x;
-    collapseStartY = dino.y;
-    collapseT = 0;
-    collapsing = true;
+    dino.x = IDLE_X;
+    dino.y = IDLE_Y;
+    dino.vy = 0;
+    dino.jumping = false;
 
-    // restore z-index (canvas above navbar so dino visible during flight back)
+    // collapse site-header
+    const siteHeader = canvas.closest('.site-header');
+    if (siteHeader) siteHeader.classList.remove('expanded');
+
+    // restore z-index
     canvas.style.zIndex = '20';
 
-    // collapse site-header with delay to let dino fly back
-    const siteHeader = canvas.closest('.site-header');
-    setTimeout(() => {
-      if (siteHeader) siteHeader.classList.remove('expanded');
-    }, COLLAPSE_DURATION);
-
-    // re-enable start on click after collapse finishes
-    setTimeout(() => {
-      document.addEventListener('click', startGame, true);
-      document.addEventListener('touchstart', startGame, true);
-    }, COLLAPSE_DURATION + 100);
-  }
-
-  function tickCollapse(dt) {
-    collapseT = Math.min(collapseT + dt, COLLAPSE_DURATION);
-    const p = collapseT / COLLAPSE_DURATION;
-
-    // reverse bezier: from game position back to idle (logo) position
-    const ctrlX = IDLE_X + (collapseStartX - IDLE_X) * 0.8;
-    const ctrlY = IDLE_Y - 20;
-    // reverse direction: start → ctrl → end  becomes end(game) → ctrl → start(idle)
-    // using (1-p) as progress from game to idle
-    const rp = 1 - p;
-    dino.x = Math.round(rp*rp*collapseStartX + 2*rp*p*ctrlX + p*p*IDLE_X);
-    dino.y = Math.round(rp*rp*collapseStartY + 2*rp*p*ctrlY + p*p*IDLE_Y);
-
-    // animate legs
-    frameTimer += dt;
-    if (frameTimer >= FRAME_MS) { frameTimer -= FRAME_MS; frameIdx = 1 - frameIdx; }
-
-    if (collapseT >= COLLAPSE_DURATION) {
-      dino.x = IDLE_X;
-      dino.y = IDLE_Y;
-      dino.vy = 0;
-      dino.jumping = false;
-      collapsing = false;
-    }
+    // re-enable start on click
+    document.addEventListener('click', startGame, true);
+    document.addEventListener('touchstart', startGame, true);
   }
 
   let lastScrollY = window.scrollY || 0;
