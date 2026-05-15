@@ -137,6 +137,24 @@ const isHome = Astro.url.pathname === '/';
       footer a { color: var(--muted); border-color: transparent; }
       footer a:hover { color: var(--text); border-color: transparent; }
 
+      /* ─── Mobile ─────────────────────────────────── */
+      @media (max-width: 480px) {
+        html { font-size: 14px; }
+
+        body { padding: 0 1.2rem; }
+
+        header {
+          padding: 1.8rem 0 1.5rem;
+          gap: 1.2rem;
+          flex-wrap: wrap;
+        }
+
+        footer {
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+      }
+
       /* ─── Page entrance ──────────────────────────── */
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(10px); }

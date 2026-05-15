@@ -76,12 +76,19 @@ const projects = [
     margin-bottom: 0.75rem;
     font-weight: 300;
   }
-  .project-tags { display: flex; gap: 0.4rem; }
+  .project-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .tag {
     font-size: 0.68rem;
     padding: 0.15rem 0.45rem;
     border: 1px solid var(--border);
     color: var(--dim);
     letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 480px) {
+    .project-top {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
   }
 </style>
