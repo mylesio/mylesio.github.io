@@ -329,12 +329,20 @@
   // ── Input ────────────────────────────────────────────────────────
   canvas.addEventListener('click', () => {
     if (!started) return;
-    if (mode === 'play') { dead ? reset() : jump(); }
+    if (mode === 'auto') {
+      mode = 'play'; reset();
+    } else {
+      dead ? reset() : jump();
+    }
   });
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     if (!started) return;
-    if (mode === 'play') { dead ? reset() : jump(); }
+    if (mode === 'auto') {
+      mode = 'play'; reset();
+    } else {
+      dead ? reset() : jump();
+    }
   }, { passive: false });
 
   // ── Init ─────────────────────────────────────────────────────────
