@@ -16,21 +16,47 @@ const isHome = Astro.url.pathname === '/';
     <title>{isHome ? 'mylesio' : `${title} — mylesio`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+      @font-face {
+        font-family: 'OperatorMonoLig';
+        src: url('/fonts/OperatorMonoLig-Light.otf') format('opentype');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'OperatorMonoLig';
+        src: url('/fonts/OperatorMonoLig-LightItalic.otf') format('opentype');
+        font-weight: 300;
+        font-style: italic;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'OperatorMonoLig';
+        src: url('/fonts/OperatorMonoLig-Book.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'OperatorMonoLig';
+        src: url('/fonts/OperatorMonoLig-BookItalic.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+      }
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg:       #090909;
+        --bg:       #0a0a0a;
         --surface:  #111;
-        --border:   #1e1e1e;
-        --text:     #e2e2e2;
-        --muted:    #555;
-        --dim:      #333;
-        --accent:   #cc88ff;
-        --mono:     'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+        --border:   #1c1c1c;
+        --text:     #d4d4d4;
+        --muted:    #4a4a4a;
+        --dim:      #2a2a2a;
+        --accent:   #4ade80;
+        --mono:     'OperatorMonoLig', 'Operator Mono', 'Fira Code', monospace;
         --col:      640px;
       }
 
