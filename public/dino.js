@@ -46,10 +46,9 @@
 
   function resize() {
     const newW = canvas.parentElement.clientWidth || 800;
-    const newH = canvas.parentElement.clientHeight || 48;
-    if (newW === W && newH === H) return;
+    if (newW === W) return;
     W = canvas.width  = newW;
-    H = canvas.height = newH;
+    H = canvas.height = 150;
     GY = H - 16;
     if (started && !dead) dino.y = GY - D_H;
   }
@@ -383,19 +382,14 @@
     // 1. hide logo dino
     if (lctx) lctx.clearRect(0, 0, 24, 24);
 
-    // 2. expand banner
-    const siteHeader = canvas.closest('.site-header');
-    if (siteHeader) siteHeader.classList.add('expanded');
+    // 2. show canvas
+    canvas.classList.add('visible');
 
-    // 3. drop dino from top as banner expands
-    setTimeout(() => {
-      resize();
-      dino.y = -D_H - 10;  // above canvas
-      dino.vy = 3;
-      dino.jumping = true;
-    }, 50);
-    // 4. after expansion completes, final resize
-    setTimeout(resize, 560);
+    // 3. drop dino from top
+    resize();
+    dino.y = -D_H - 10;
+    dino.vy = 3;
+    dino.jumping = true;
   }
   document.addEventListener('click', startGame, true);
   document.addEventListener('touchstart', startGame, true);
