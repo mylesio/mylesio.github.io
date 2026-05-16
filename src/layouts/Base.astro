@@ -161,7 +161,7 @@ const isHome = Astro.url.pathname === '/';
       header {
         position: absolute;
         top: 0; left: 0; right: 0;
-        z-index: 10;
+        z-index: 200; /* above lang-divider SVG (z-index:10) */
         background: rgba(245, 242, 236, 0.15);
         backdrop-filter: saturate(180%) blur(16px);
         -webkit-backdrop-filter: saturate(180%) blur(16px);
@@ -247,20 +247,22 @@ const isHome = Astro.url.pathname === '/';
         pointer-events: none; /* EN layer handles clicks unless ZH is dominant */
       }
 
-      /* EN / 中 labels at top corners */
+      /* EN / 中 labels — positioned by JS near the line, clipped by stage overflow:hidden */
       .lang-label-en,
       .lang-label-zh {
         position: absolute;
-        top: 1.5rem;
+        top: 1.2rem;
         font-size: 0.6rem;
         letter-spacing: 0.12em;
         color: #d946a8;
         pointer-events: none;
         user-select: none;
-        z-index: 5;
-        opacity: 0.6;
+        z-index: 12;
+        opacity: 0.55;
         text-transform: uppercase;
+        transition: left 0.05s, right 0.05s;
       }
+      /* initial positions overridden by JS */
       .lang-label-en { left: 1rem; }
       .lang-label-zh { right: 1rem; }
 
@@ -337,10 +339,6 @@ const isHome = Astro.url.pathname === '/';
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes" data-en="notes" data-zh="笔记">notes</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects" data-en="projects" data-zh="项目">projects</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about" data-en="about" data-zh="关于">about</a>
-          </nav>
-        </div>
-      </header>
-    </div>
     <div class="page-wrap">
       <!-- lang-stage: wraps main, hosts the split divider -->
       <div class="lang-stage" id="lang-stage">
@@ -348,16 +346,18 @@ const isHome = Astro.url.pathname === '/';
           <slot />
         </main>
 
-        <!-- ZH layer: same slot content but zh versions, injected per-page -->
+        <!-- ZH layer -->
         <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
 
-        <!-- Divider SVG: fixed to viewport, always visible while scrolling -->
-        <svg id="lang-divider" aria-hidden="true" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:100;overflow:visible;">
+        <!-- Divider SVG: absolute inside stage, clipped by overflow:hidden -->
+        <svg id="lang-divider" aria-hidden="true"
+             style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;overflow:hidden;">
           <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
         </svg>
 
-        <span class="lang-label-en">EN</span>
-        <span class="lang-label-zh">中</span>
+        <!-- Labels: absolute, clipped by stage overflow:hidden -->
+        <span class="lang-label-en" id="lang-label-en">EN</span>
+        <span class="lang-label-zh" id="lang-label-zh">中</span>
       </div>
 
       <footer>
@@ -366,106 +366,139 @@ const isHome = Astro.url.pathname === '/';
       </footer>
     </div>
     <script>
-    <script>
       // ── Language split-view divider ──────────────────────────────────────
       (function () {
         const SPLIT_KEY = 'lang-split-x';
-        const stage   = document.getElementById('lang-stage');
-        const enLayer = document.getElementById('lang-en-layer');
-        const zhLayer = document.getElementById('lang-zh-layer');
-        const divLine = document.getElementById('lang-divider-line');
+        const stage    = document.getElementById('lang-stage');
+        const enLayer  = document.getElementById('lang-en-layer');
+        const zhLayer  = document.getElementById('lang-zh-layer');
+        const divLine  = document.getElementById('lang-divider-line');
+        const labelEN  = document.getElementById('lang-label-en');
+        const labelZH  = document.getElementById('lang-label-zh');
         if (!stage || !divLine) return;
 
-        const SKEW_DEG = 12;
-        const SKEW_RAD = SKEW_DEG * Math.PI / 180;
-        const HIT_DIST = 24;
+        const SKEW_DEG  = 12;
+        const SKEW_RAD  = SKEW_DEG * Math.PI / 180;
+        const HIT_DIST  = 24;   // px proximity to grab line
+        const MIN_RATIO = 0.03; // drag can go here (allows edge-to-edge feel)
+        const MAX_RATIO = 0.97;
+        const SNAP_MIN  = 0.05; // snaps back to here on mouseup if out of bounds
+        const SNAP_MAX  = 0.95;
 
-        // splitRatio: 0~1, fraction of VIEWPORT width for line mid-point
-        // Range widened to 0.03~0.97 so skewed corners are always reachable
         let splitRatio = 0.80;
         try {
           const s = parseFloat(localStorage.getItem(SPLIT_KEY));
-          if (!isNaN(s)) splitRatio = Math.max(0.03, Math.min(0.97, s));
+          if (!isNaN(s)) splitRatio = Math.max(SNAP_MIN, Math.min(SNAP_MAX, s));
         } catch(_) {}
 
-        // Viewport-coord line endpoints (fixed SVG, y=0..VH)
-        function lineEndpoints() {
-          const VW = window.innerWidth;
-          const VH = window.innerHeight;
-          const offset = Math.tan(SKEW_RAD) * VH / 2;
-          const midX = splitRatio * VW;
-          return { x1: midX - offset, x2: midX + offset, VW, VH };
+        // ── Geometry: all in stage-local px ──────────────────────────────
+        // Line mid-point is at (splitRatio * SW, SH/2) in stage coords.
+        // Skew: top x = mid - offset, bottom x = mid + offset
+        function stageSize() {
+          return { SW: stage.offsetWidth, SH: stage.offsetHeight };
         }
 
-        // Line x (viewport coords) at viewport y
-        function lineXatVY(vy) {
-          const { x1, x2, VH } = lineEndpoints();
-          return x1 + (x2 - x1) * (vy / VH);
+        function lineCoords(ratio) {
+          const { SW, SH } = stageSize();
+          const offset = Math.tan(SKEW_RAD) * SH / 2;
+          const midX = ratio * SW;
+          return { x1: midX - offset, x2: midX + offset, SH, SW };
         }
 
-        // ── Core update ──────────────────────────────────────────────────
-        function updateSplit(ratio) {
-          splitRatio = Math.max(0.03, Math.min(0.97, ratio));
-          const { x1, x2, VH } = lineEndpoints();
+        // x of line at stage-local y
+        function lineXatY(y, ratio) {
+          const { x1, x2, SH } = lineCoords(ratio);
+          return x1 + (x2 - x1) * (y / SH);
+        }
 
-          // SVG line: pure viewport coords (fixed overlay)
+        // ── Spring / snap back ────────────────────────────────────────────
+        let snapAnim = null;
+        function snapTo(target) {
+          if (snapAnim) cancelAnimationFrame(snapAnim);
+          const start = splitRatio;
+          const dist  = target - start;
+          const t0 = performance.now();
+          const DUR = 320; // ms
+          function step(now) {
+            const p = Math.min((now - t0) / DUR, 1);
+            // ease out cubic
+            const e = 1 - Math.pow(1 - p, 3);
+            render(start + dist * e, false);
+            if (p < 1) snapAnim = requestAnimationFrame(step);
+            else { splitRatio = target; try { localStorage.setItem(SPLIT_KEY, target); } catch(_){} }
+          }
+          snapAnim = requestAnimationFrame(step);
+        }
+
+        // ── Render ────────────────────────────────────────────────────────
+        function render(ratio, persist) {
+          const { x1, x2, SH, SW } = lineCoords(ratio);
+
+          // SVG line (stage-absolute, overflow:hidden clips it)
           divLine.setAttribute('x1', x1.toFixed(1));
           divLine.setAttribute('y1', '0');
           divLine.setAttribute('x2', x2.toFixed(1));
-          divLine.setAttribute('y2', VH.toFixed(1));
+          divLine.setAttribute('y2', SH.toFixed(1));
 
-          // Convert to stage-relative clip-path
-          const rect = stage.getBoundingClientRect();
-          const SL = rect.left, ST = rect.top;
-          const SW = rect.width, SH = rect.height;
+          // clip-path percentages
+          const p1 = ((x1 / SW) * 100).toFixed(3);
+          const p2 = ((x2 / SW) * 100).toFixed(3);
 
-          // Line x at stage top/bottom (viewport y = ST and ST+SH)
-          const sxTop = lineXatVY(ST) - SL;
-          const sxBot = lineXatVY(ST + SH) - SL;
-          const p1 = ((sxTop / SW) * 100).toFixed(3); // % at y=0
-          const p2 = ((sxBot / SW) * 100).toFixed(3); // % at y=100%
-
-          // Where the fixed viewport line exits (vy=VH → stage y = VH-ST)
-          const syExit = Math.min(SH, VH - ST);
-          const exitPct = ((syExit / SH) * 100).toFixed(3);
-          const sxExit = lineXatVY(Math.min(ST + SH, VH)) - SL;
-          const pExit  = ((sxExit / SW) * 100).toFixed(3);
-
-          // EN: left of line above exit, full width below exit
           if (enLayer) enLayer.style.clipPath =
-            `polygon(0% 0%, ${p1}% 0%, ${pExit}% ${exitPct}%, 100% ${exitPct}%, 100% 100%, 0% 100%)`;
-
-          // ZH: right of line, only above exit
+            `polygon(0% 0%, ${p1}% 0%, ${p2}% 100%, 0% 100%)`;
           if (zhLayer) zhLayer.style.clipPath =
-            `polygon(${p1}% 0%, 100% 0%, 100% ${exitPct}%, ${pExit}% ${exitPct}%)`;
+            `polygon(${p1}% 0%, 100% 0%, 100% 100%, ${p2}% 100%)`;
 
-          try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
+          // Labels: clipped by the same overflow:hidden as the line.
+          // Position them just inside the visible zone on each side.
+          // EN label stays left of the line mid-point; ZH stays right.
+          const midX = ratio * SW;
+          if (labelEN) {
+            labelEN.style.left = Math.max(8, midX - 48) + 'px';
+          }
+          if (labelZH) {
+            labelZH.style.right = Math.max(8, SW - midX - 32) + 'px';
+          }
+
+          if (persist) {
+            splitRatio = ratio;
+            try { localStorage.setItem(SPLIT_KEY, ratio); } catch(_) {}
+          }
         }
 
-        // ── Cursor & drag ────────────────────────────────────────────────
+        // ── Drag ─────────────────────────────────────────────────────────
         let dragging = false;
-        let dragStartX = 0, dragStartRatio = 0;
+        let dragStartClientX = 0, dragStartRatio = 0;
 
-        function nearLine(cx, cy) {
-          if (cy < 0 || cy > window.innerHeight) return false;
-          return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
+        function clientToStage(clientX, clientY) {
+          const r = stage.getBoundingClientRect();
+          return { sx: clientX - r.left, sy: clientY - r.top };
+        }
+
+        function nearLine(clientX, clientY) {
+          const { sx, sy } = clientToStage(clientX, clientY);
+          const { SH } = stageSize();
+          if (sy < -HIT_DIST || sy > SH + HIT_DIST) return false;
+          const clampedY = Math.max(0, Math.min(SH, sy));
+          return Math.abs(sx - lineXatY(clampedY, splitRatio)) < HIT_DIST;
         }
 
         window.addEventListener('mousemove', (e) => {
           if (dragging) {
-            updateSplit(dragStartRatio + (e.clientX - dragStartX) / window.innerWidth);
+            if (snapAnim) { cancelAnimationFrame(snapAnim); snapAnim = null; }
+            const dx = e.clientX - dragStartClientX;
+            const raw = dragStartRatio + dx / stage.offsetWidth;
+            render(Math.max(MIN_RATIO, Math.min(MAX_RATIO, raw)), true);
             document.body.style.cursor = 'grabbing';
-          } else if (nearLine(e.clientX, e.clientY)) {
-            document.body.style.cursor = 'ew-resize';
           } else {
-            document.body.style.cursor = '';
+            document.body.style.cursor = nearLine(e.clientX, e.clientY) ? 'ew-resize' : '';
           }
         }, { passive: true });
 
         window.addEventListener('mousedown', (e) => {
           if (nearLine(e.clientX, e.clientY)) {
             dragging = true;
-            dragStartX = e.clientX;
+            dragStartClientX = e.clientX;
             dragStartRatio = splitRatio;
             document.body.style.cursor = 'grabbing';
             e.preventDefault();
@@ -473,31 +506,42 @@ const isHome = Astro.url.pathname === '/';
         }, { passive: false });
 
         window.addEventListener('mouseup', () => {
+          if (!dragging) return;
           dragging = false;
           document.body.style.cursor = '';
+          // Snap back if dragged out of comfortable bounds
+          if (splitRatio < SNAP_MIN) snapTo(SNAP_MIN);
+          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
         });
 
         // Touch
         window.addEventListener('touchstart', (e) => {
           const t = e.touches[0];
-          if (Math.abs(t.clientX - lineXatVY(t.clientY)) < HIT_DIST + 16) {
+          if (nearLine(t.clientX, t.clientY)) {
             dragging = true;
-            dragStartX = t.clientX;
+            dragStartClientX = t.clientX;
             dragStartRatio = splitRatio;
           }
         }, { passive: true });
+
         window.addEventListener('touchmove', (e) => {
           if (!dragging) return;
-          updateSplit(dragStartRatio + (e.touches[0].clientX - dragStartX) / window.innerWidth);
+          const dx = e.touches[0].clientX - dragStartClientX;
+          const raw = dragStartRatio + dx / stage.offsetWidth;
+          render(Math.max(MIN_RATIO, Math.min(MAX_RATIO, raw)), true);
         }, { passive: true });
-        window.addEventListener('touchend', () => { dragging = false; });
 
-        // Re-render on scroll (stageRect changes) and resize
-        updateSplit(splitRatio);
-        window.addEventListener('resize', () => updateSplit(splitRatio), { passive: true });
-        window.addEventListener('scroll', () => updateSplit(splitRatio), { passive: true });
+        window.addEventListener('touchend', () => {
+          if (!dragging) return;
+          dragging = false;
+          if (splitRatio < SNAP_MIN) snapTo(SNAP_MIN);
+          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
+        });
+
+        // Init + resize
+        render(splitRatio, false);
+        window.addEventListener('resize', () => render(splitRatio, false), { passive: true });
       })();
-    </script>
     </script>
   </body>
 </html>
