@@ -412,9 +412,10 @@ const showDivider = path === '/about' || path === '/about/'
       </footer>
     </div>
     <script>
-    <script>
       // ── Language split-view divider ──────────────────────────────────────
+      // Only initialize on pages with showDivider (about + notes slugs)
       (function () {
+        if (!document.getElementById('lang-divider')) return; // not a divider page, exit immediately
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
         const enLayer = document.getElementById('lang-en-layer');
