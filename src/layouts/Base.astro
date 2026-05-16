@@ -429,31 +429,40 @@ const isHome = Astro.url.pathname === '/';
         function render() {
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
 
-          // Line in viewport coords (SVG is fixed, spans full viewport)
-          divLine.setAttribute('x1', vx0.toFixed(1));
+          // Clamp SVG line endpoints to stage horizontal bounds (viewport px)
+          const stageL = rect.left;
+          const stageR = rect.left + SW;
+          const cx0 = Math.max(stageL, Math.min(stageR, vx0));
+          const cx1 = Math.max(stageL, Math.min(stageR, vx1));
+
+          divLine.setAttribute('x1', cx0.toFixed(1));
           divLine.setAttribute('y1', '0');
-          divLine.setAttribute('x2', vx1.toFixed(1));
+          divLine.setAttribute('x2', cx1.toFixed(1));
           divLine.setAttribute('y2', VH.toFixed(1));
 
-          // clip-path in stage-local % — convert viewport line to stage coords
-          // At stage y=0 → viewport y = rect.top
-          // At stage y=SH → viewport y = rect.top + SH
-          const sxTop = lineXatVY(rect.top)        - rect.left;
-          const sxBot = lineXatVY(rect.top + SH)   - rect.left;
+          // clip-path: use unclamped line (content split extends beyond viewport)
+          const sxTop = lineXatVY(rect.top)      - rect.left;
+          const sxBot = lineXatVY(rect.top + SH) - rect.left;
           const p0 = ((sxTop / SW) * 100).toFixed(3) + '%';
           const p1 = ((sxBot / SW) * 100).toFixed(3) + '%';
           if (enLayer) enLayer.style.clipPath =
             `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // ── Labels: CSS top:1.5rem fixed, only left is updated ──
-          // Label x follows line at stage top (viewport y = rect.top)
-          const labelVX = lineXatVY(rect.top);
-          const labelX  = labelVX - rect.left; // stage-local x
+          // ── Labels: CSS top:1.5rem, only left updated ──
+          // Label x follows CLAMPED line position at stage top, sticks to edge
+          const labelVX   = Math.max(stageL, Math.min(stageR, lineXatVY(rect.top)));
+          const labelX    = labelVX - rect.left; // stage-local x
+          const LABEL_W   = 32; // approx label width px
+
           if (splitRatio <= 0.5) {
-            if (labelEN) { labelEN.style.left = (labelX + 14) + 'px'; labelEN.style.opacity = '0.7'; }
+            // EN dominant → EN label right of line, clamped inside stage
+            const enLeft = Math.min(SW - LABEL_W, Math.max(4, labelX + 14));
+            if (labelEN) { labelEN.style.left = enLeft + 'px'; labelEN.style.opacity = '0.7'; }
             if (labelZH) { labelZH.style.opacity = '0'; }
           } else {
-            if (labelZH) { labelZH.style.left = Math.max(4, labelX - 52) + 'px'; labelZH.style.opacity = '0.7'; }
+            // ZH dominant → ZH label left of line, clamped inside stage
+            const zhLeft = Math.min(SW - LABEL_W, Math.max(4, labelX - 52));
+            if (labelZH) { labelZH.style.left = zhLeft + 'px'; labelZH.style.opacity = '0.7'; }
             if (labelEN) { labelEN.style.opacity = '0'; }
           }
         }
