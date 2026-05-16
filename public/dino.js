@@ -354,6 +354,7 @@
     IDLE_X = p.x; IDLE_Y = p.y;
     dino.x = IDLE_X; dino.y = IDLE_Y;
     updateHitArea();
+    if (!started && !jumping) drawIdle(); // redraw at correct position
   }
 
   if (document.readyState === 'complete') { initIdlePos(); }
