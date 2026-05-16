@@ -139,12 +139,9 @@ const showDivider = path === '/about' || path === '/about/'
         overflow: hidden;
         z-index: 50;
         transition: height 0.4s ease-out;
-        /* isolate stacking context so canvas GPU layer doesn't affect page */
-        isolation: isolate;
       }
       .site-header.expanded {
         height: 170px;
-        overflow: visible; /* allow canvas to composite independently */
       }
 
       #dino-canvas {
@@ -158,8 +155,6 @@ const showDivider = path === '/about' || path === '/about/'
         z-index: 20;  /* idle: above navbar so dino is visible */
         pointer-events: none;
         cursor: default;
-        will-change: transform; /* promote to GPU composite layer */
-        transform: translateZ(0);
       }
       .site-header.expanded #dino-canvas {
         cursor: pointer;
