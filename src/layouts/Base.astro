@@ -477,6 +477,17 @@ const showDivider = path === '/about' || path === '/about/'
         }
 
         function alignSections() {
+          // Mobile: two layers overlap — min-height would push ZH sections out of sync.
+          // On mobile, clear any previously set min-heights and bail out.
+          if (window.innerWidth <= 480) {
+            enSectionDivs.forEach(el => { el.style.minHeight = ''; });
+            zhSectionDivs.forEach(el => { el.style.minHeight = ''; });
+            const _enH = document.querySelector('#lang-en-layer .post-header');
+            const _zhH = document.querySelector('#lang-zh-layer .post-header');
+            if (_enH) _enH.style.minHeight = '';
+            if (_zhH) _zhH.style.minHeight = '';
+            return;
+          }
           const enLayer2 = document.getElementById('lang-en-layer');
           const zhLayer2 = document.getElementById('lang-zh-layer');
           if (!enLayer2 || !zhLayer2) return;
