@@ -438,10 +438,20 @@ const isHome = Astro.url.pathname === '/';
             `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
           // Labels: ZH on left of line, EN on right of line
-          const labelSY = SH * 0.18; // near top of stage, inside viewport
+          // Place labels at viewport-center height within stage (always visible)
+          const rect    = stage.getBoundingClientRect();
+          const labelSY = Math.max(0, Math.min(SH, window.innerHeight / 2 - rect.top));
           const labelX  = lineXatSY(labelSY);
-          if (labelZH) labelZH.style.left = Math.max(4, labelX - 44) + 'px';
-          if (labelEN) labelEN.style.left = (labelX + 12) + 'px';
+          // ZH label: left of line (ZH content is on the left)
+          if (labelZH) {
+            labelZH.style.left = Math.max(4, labelX - 52) + 'px';
+            labelZH.style.top  = (labelSY - 10) + 'px';
+          }
+          // EN label: right of line (EN content is on the right)
+          if (labelEN) {
+            labelEN.style.left = (labelX + 14) + 'px';
+            labelEN.style.top  = (labelSY + 10) + 'px';
+          }
         }
 
         // ── Snap animation ────────────────────────────────────────────────
@@ -533,9 +543,25 @@ const isHome = Astro.url.pathname === '/';
           else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         });
 
-        // Init + resize only — geometry is scroll-independent, no scroll listener needed
+        // Labels need scroll update (their viewport position changes); line geometry does not
+        function renderLabels() {
+          const { SH } = getGeom();
+          const rect    = stage.getBoundingClientRect();
+          const labelSY = Math.max(0, Math.min(SH, window.innerHeight / 2 - rect.top));
+          const labelX  = lineXatSY(labelSY);
+          if (labelZH) {
+            labelZH.style.left = Math.max(4, labelX - 52) + 'px';
+            labelZH.style.top  = (labelSY - 10) + 'px';
+          }
+          if (labelEN) {
+            labelEN.style.left = (labelX + 14) + 'px';
+            labelEN.style.top  = (labelSY + 10) + 'px';
+          }
+        }
+
         render();
         window.addEventListener('resize', render, { passive: true });
+        window.addEventListener('scroll', renderLabels, { passive: true });
       })();
     </script>
     </script>
