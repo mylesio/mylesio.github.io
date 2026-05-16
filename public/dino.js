@@ -33,13 +33,14 @@
 
   function getIdlePos() {
     const anchor = document.getElementById('dino-anchor');
-    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
-    const ar = anchor.getBoundingClientRect();
-    const cr = canvas.getBoundingClientRect();
-    const x = Math.round(ar.left - cr.left + 2);
     const isMobile = window.innerWidth < 640;
     const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
-    return { x: Math.max(4, x), y };
+    if (!anchor) return { x: 24, y };
+    const ar = anchor.getBoundingClientRect();
+    // canvas is position:absolute inside #dino-stage which is position:fixed top:0 left:0
+    // so canvas left edge = 0 in viewport coords → ar.left is directly the canvas-local x
+    const x = Math.round(ar.left + 2);
+    return { x: Math.max(4, Math.min(x, W - IDLE_DW - 4)), y };
   }
 
   let IDLE_X = 24;
@@ -145,9 +146,8 @@
     frameTimer += dt;
     if (frameTimer >= FRAME_MS) { frameTimer -= FRAME_MS; frameIdx = 1 - frameIdx; }
     if (introT >= INTRO_DURATION) {
-      const siteHeader = canvas.closest('.site-header');
+      const siteHeader = document.getElementById('dino-stage');
       if (siteHeader) siteHeader.classList.add('expanded');
-      canvas.style.zIndex = '5';
       dino.x = GAME_X; dino.y = GAME_Y; dino.vy = 0; dino.jumping = false;
       jumping = false; started = true;
     }
@@ -290,7 +290,7 @@
     initIdlePos();
     introStartX = IDLE_X; introStartY = IDLE_Y;
     jumping = true; introT = 0;
-    const siteHeader = canvas.closest('.site-header');
+    const siteHeader = document.getElementById('dino-stage');
     if (siteHeader) siteHeader.classList.add('expanded');
     canvas.style.pointerEvents = 'auto';
     canvas.style.cursor = GAMEPAD_CURSOR;
@@ -326,9 +326,8 @@
     flashT = 0; groundOff = 0; frameIdx = 0; frameTimer = 0;
     initIdlePos();
     dino.x = IDLE_X; dino.y = IDLE_Y; dino.vy = 0; dino.jumping = false;
-    const siteHeader = canvas.closest('.site-header');
+    const siteHeader = document.getElementById('dino-stage');
     if (siteHeader) siteHeader.classList.remove('expanded');
-    canvas.style.zIndex = '20';
     canvas.style.pointerEvents = 'none';
     canvas.style.cursor = 'default';
     updateHitArea();
