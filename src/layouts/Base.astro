@@ -6,6 +6,10 @@ interface Props {
 const { title, description = "Myles Liu — frontend engineer, AI agent practitioner." } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isHome = Astro.url.pathname === '/';
+const path = Astro.url.pathname;
+// Divider only on note detail pages (/notes/<slug>) and /about
+const showDivider = path === '/about' || path === '/about/'
+  || (path.startsWith('/notes/') && path.replace(/\/$/, '') !== '/notes');
 ---
 
 <!doctype html>
@@ -233,6 +237,9 @@ const isHome = Astro.url.pathname === '/';
         position: relative;
         overflow: hidden; /* clips the diagonal line at stage boundaries */
       }
+      .lang-stage--plain {
+        overflow: visible; /* no divider, no need to clip */
+      }
       #lang-en-layer {
         position: relative;
         will-change: clip-path;
@@ -368,32 +375,36 @@ const isHome = Astro.url.pathname === '/';
       </header>
     </div>
     <div class="page-wrap">
-      <!-- lang-stage: wraps main, hosts the split divider -->
-      <div class="lang-stage" id="lang-stage">
-        <!-- ZH layer BELOW EN layer; EN clips itself so ZH shows through on right side -->
-        <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
+      <!-- lang-stage: wraps main, hosts the split divider (divider only on note/about pages) -->
+      <div class:list={["lang-stage", { "lang-stage--plain": !showDivider }]} id="lang-stage">
+        {showDivider && (
+          <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
+        )}
 
         <main id="lang-en-layer">
           <slot />
         </main>
 
-        <!-- Divider SVG: fixed to viewport so line only appears within current view -->
-        <svg id="lang-divider" aria-hidden="true"
-             style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:visible;pointer-events:none;z-index:10;">
-          <!-- solid segment: within stage bounds -->
-          <line id="lang-divider-solid" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
-          <!-- dashed segments: outside stage bounds (left overflow + right overflow) -->
-          <line id="lang-divider-dash-l" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
-          <line id="lang-divider-dash-r" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
-        </svg>
-
-        <span class="lang-label-en" id="lang-label-en">EN</span>
-        <span class="lang-label-zh" id="lang-label-zh">中</span>
+        {showDivider && (
+          <>
+            <svg id="lang-divider" aria-hidden="true"
+                 style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:visible;pointer-events:none;z-index:10;">
+              <line id="lang-divider-solid" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
+              <line id="lang-divider-dash-l" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
+              <line id="lang-divider-dash-r" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
+            </svg>
+            <span class="lang-label-en" id="lang-label-en">EN</span>
+            <span class="lang-label-zh" id="lang-label-zh">中</span>
+          </>
+        )}
       </div>
 
-      <!-- Frosted glass wings: cover area outside content stage on left/right -->
-      <div id="lang-wing-l" aria-hidden="true"></div>
-      <div id="lang-wing-r" aria-hidden="true"></div>
+      {showDivider && (
+        <>
+          <div id="lang-wing-l" aria-hidden="true"></div>
+          <div id="lang-wing-r" aria-hidden="true"></div>
+        </>
+      )}
 
       <footer>
         <span>Myles Liu</span>
