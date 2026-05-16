@@ -589,14 +589,20 @@ const showDivider = path === '/about' || path === '/about/'
           return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
         }
 
+        let mouseMoveRaf = null;
         window.addEventListener('mousemove', (e) => {
+          const cx = e.clientX, cy = e.clientY;
           if (dragging) {
             if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null; }
-            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth; // stage width = drag reference
-            render();
+            splitRatio = dragStartRatio + (cx - dragStartCX) / stage.offsetWidth;
+            if (!mouseMoveRaf) mouseMoveRaf = requestAnimationFrame(() => { mouseMoveRaf = null; render(); });
             document.body.style.cursor = 'grabbing';
           } else {
-            document.body.style.cursor = nearLine(e.clientX, e.clientY) ? 'ew-resize' : '';
+            // throttle cursor check — no getBoundingClientRect every mousemove
+            if (!mouseMoveRaf) mouseMoveRaf = requestAnimationFrame(() => {
+              mouseMoveRaf = null;
+              document.body.style.cursor = nearLine(cx, cy) ? 'ew-resize' : '';
+            });
           }
         }, { passive: true });
 
