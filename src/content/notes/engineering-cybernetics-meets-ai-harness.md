@@ -3,6 +3,8 @@ title: "Engineering Cybernetics Meets AI Harness"
 description: How Qian Xuesen's 1954 control theory maps to the problem of making AI agents follow instructions reliably.
 date: 2026-05-16
 tags: [ai-agents, harness, control-theory]
+lang: en
+zhSlug: engineering-cybernetics-meets-ai-harness-zh
 ---
 
 Qian Xuesen published *Engineering Cybernetics* in 1954. It took Norbert Wiener's abstract control theory and made it usable for real engineering problems — rockets, missiles, automated systems. The core idea: any system with a measurable output and a controllable input can be made to converge toward a goal, given feedback.

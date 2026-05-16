@@ -3,6 +3,8 @@ title: Hello World
 description: First note — why I built this knowledge base.
 date: 2026-05-15
 tags: [meta]
+lang: en
+zhSlug: hello-world-zh
 ---
 
 This is my public knowledge base. I built it because:

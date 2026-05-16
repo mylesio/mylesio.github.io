@@ -13,10 +13,15 @@ export async function getStaticPaths() {
 const { note } = Astro.props;
 const { Content } = await note.render();
 const dateStr = note.data.date.toISOString().slice(0, 10);
+
+// Determine en/zh counterpart slug
+const isZh = note.data.lang === 'zh';
+const enSlug = isZh ? (note.data.enSlug ?? note.slug) : note.slug;
+const zhSlug = isZh ? note.slug : (note.data.zhSlug ?? null);
 ---
 
 <Base title={note.data.title} description={note.data.description}>
-  <article>
+  <article data-en-slug={enSlug} data-zh-slug={zhSlug ?? ''}>
     <header class="post-header">
       <p class="post-meta">
         <a href="/notes" data-en="notes" data-zh="笔记">notes</a>
@@ -91,14 +96,16 @@ const dateStr = note.data.date.toISOString().slice(0, 10);
     border: 1px solid var(--border);
   }
   .prose pre {
-    background: var(--surface) !important;
-    border: 1px solid var(--border);
+    background: #1e1e2e !important;
+    border: 1px solid #2d2d3f;
     padding: 1.25rem;
     overflow-x: auto;
     margin-bottom: 1.5rem;
     font-size: 0.85em;
+    color: #cdd6f4;
+    border-radius: 4px;
   }
-  .prose pre code { background: none; border: none; padding: 0; }
+  .prose pre code { background: none; border: none; padding: 0; color: inherit; }
   .prose blockquote {
     border-left: 2px solid var(--dim);
     padding-left: 1.25rem;
@@ -109,4 +116,34 @@ const dateStr = note.data.date.toISOString().slice(0, 10);
   }
   .prose hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
   .prose strong { color: var(--text); font-weight: 500; }
+
+  /* prose table */
+  .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.85em; }
+  .prose th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 400; letter-spacing: 0.04em; font-size: 0.8em; text-transform: uppercase; }
+  .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 </style>
+
+<script>
+  // On notes detail page: redirect to zh/en counterpart when lang toggles
+  (function () {
+    const article = document.querySelector('article[data-en-slug]');
+    if (!article) return;
+    const enSlug = article.getAttribute('data-en-slug');
+    const zhSlug = article.getAttribute('data-zh-slug');
+
+    function handleLangChange() {
+      const lang = document.documentElement.getAttribute('data-lang') || 'en';
+      const targetSlug = lang === 'zh' ? zhSlug : enSlug;
+      if (!targetSlug) return;   // no translation available, stay put
+      const targetPath = `/notes/${targetSlug}`;
+      const currentPath = window.location.pathname.replace(/\/$/, '');
+      if (targetPath !== currentPath) {
+        window.location.href = targetPath;
+      }
+    }
+
+    // Watch for data-lang attribute changes on <html>
+    const observer = new MutationObserver(() => handleLangChange());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+  })();
+</script>
