@@ -88,12 +88,19 @@
   hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
   canvas.parentElement.appendChild(hitArea);
 
+  const CANVAS_H = 170; // known constant, canvas attribute inaccessible after transferControlToOffscreen
+
   function updateHitArea() {
     if (!started && !jumping) {
       const rect = canvas.getBoundingClientRect();
       const parentRect = canvas.parentElement.getBoundingClientRect();
-      const sx = rect.width / (canvas.width || rect.width);
-      const sy = rect.height / (canvas.height || rect.height);
+      // canvas CSS size vs internal resolution — use known constants after offscreen transfer
+      const cssW = rect.width;
+      const cssH = rect.height;
+      const intW = canvas.parentElement.clientWidth || window.innerWidth;
+      const intH = CANVAS_H;
+      const sx = cssW / intW;
+      const sy = cssH / intH;
       const pad = 8;
       const w = (IDLE_DW + pad * 2) * sx;
       const h = (IDLE_DH + pad * 2) * sy;
