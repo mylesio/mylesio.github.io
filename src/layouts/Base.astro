@@ -467,7 +467,7 @@ const showDivider = path === '/about' || path === '/about/'
           const midVX = cachedRect.left + splitRatio * SW;
           const vx0 = midVX + off;   // top-right
           const vx1 = midVX - off;   // bottom-left  (/ direction)
-          return { vx0, vx1, VH, SW, SH, off };
+          return { vx0, vx1, VH, SW, SH };
         }
 
         function lineXatVY(vy, g) {
@@ -479,7 +479,7 @@ const showDivider = path === '/about' || path === '/about/'
         function render() {
           cachedRect = stage.getBoundingClientRect(); // refresh only here
           const g = getGeom();
-          const { vx0, vx1, VH, SW, SH, off } = g;
+          const { vx0, vx1, VH, SW, SH } = g;
           const stageL = cachedRect.left;
           const stageR = stageL + SW;
 
