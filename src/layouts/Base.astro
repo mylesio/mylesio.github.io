@@ -252,7 +252,8 @@ const showDivider = path === '/about' || path === '/about/'
       }
       #lang-en-layer {
         position: relative;
-        will-change: clip-path;
+        will-change: clip-path, transform;
+        transform: translateZ(0); /* promote to independent GPU layer */
         background: var(--bg); /* cover ZH layer on the left side */
       }
       /* ZH layer sits BELOW EN layer; EN clips left side exposing ZH on right */
@@ -262,6 +263,8 @@ const showDivider = path === '/about' || path === '/about/'
         width: 100%;
         min-height: 100%;
         /* no clip-path needed — ZH is always fully rendered, EN covers it on the left */
+        will-change: transform;
+        transform: translateZ(0); /* promote to independent GPU layer */
       }
 
       /* EN / 中 labels at top corners */
