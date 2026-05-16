@@ -1,115 +1,281 @@
 /**
- * Dino Runner — main thread coordinator
- * Rendering runs in dino-worker.js via OffscreenCanvas.
- * This file handles: DOM interaction, hitArea, scroll, resize, idle pos.
+ * Dino Runner — main thread, no OffscreenCanvas
+ * Favicon animation permanently disabled for performance.
  */
 (function () {
   const canvas = document.getElementById('dino-canvas');
   if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-  // ── OffscreenCanvas support check ────────────────────────────────
-  if (!canvas.transferControlToOffscreen) {
-    // Fallback: load classic dino.js behavior inline (not implemented here)
-    console.warn('OffscreenCanvas not supported, game unavailable');
-    return;
-  }
+  const spr = new Image();
+  spr.src = '/dino-sprite-white.png';
 
+  const TREX_BASE_X = 848, TREX_BASE_Y = 2;
+  const TREX_W = 44, TREX_H = 47;
+  const TREX_FRAMES = { run: [88, 132], jump: [0], crashed: [220] };
+  const CACTUS_S = { x: 228, y: 2, w: 17, h: 35 };
+  const CACTUS_L = { x: 332, y: 2, w: 25, h: 50 };
+  const CLOUD    = { x:  86, y: 2, w: 46, h: 14 };
+
+  const SCALE = 36 / TREX_H;
+  const D_W   = Math.round(TREX_W * SCALE);
+  const D_H   = Math.round(TREX_H * SCALE);
+
+  const CANVAS_H = 170;
   const NAVBAR_H = 48;
-  const TREX_H = 47, TREX_W = 44;
+  let W = 0;
+  const H  = CANVAS_H;
+  const GY = H - 16;
+
   const IDLE_SCALE = 22 / TREX_H;
   const IDLE_DW = Math.round(TREX_W * IDLE_SCALE);
   const IDLE_DH = Math.round(TREX_H * IDLE_SCALE);
 
-  let IDLE_X = 24;
-  let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
-  let started = false;
-  let jumping = false;
-
-  // ── Spawn worker ─────────────────────────────────────────────────
-  const worker = new Worker('/dino-worker.js');
-  const offscreen = canvas.transferControlToOffscreen();
-
-  worker.postMessage({
-    type: 'init',
-    canvas: offscreen,
-    width: canvas.parentElement.clientWidth || window.innerWidth,
-  }, [offscreen]);
-
-  // ── Worker messages ───────────────────────────────────────────────
-  worker.onmessage = function(e) {
-    if (e.data.type === 'intro-done') {
-      // Dino landed — expand header, shift canvas z so navbar covers it
-      const siteHeader = canvas.closest('.site-header');
-      if (siteHeader) siteHeader.classList.add('expanded');
-      canvas.style.zIndex = '5';
-      started = true;
-      jumping = false;
-    }
-  };
-
-  // ── Idle pos: computed from anchor element ────────────────────────
   function getIdlePos() {
     const anchor = document.getElementById('dino-anchor');
-    const isMobile = window.innerWidth < 640;
-    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
-    if (!anchor) return { x: 24, y };
+    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
     const ar = anchor.getBoundingClientRect();
     const cr = canvas.getBoundingClientRect();
     const x = Math.round(ar.left - cr.left + 2);
+    const isMobile = window.innerWidth < 640;
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
     return { x: Math.max(4, x), y };
   }
 
-  function sendIdlePos() {
-    const p = getIdlePos();
-    IDLE_X = p.x; IDLE_Y = p.y;
-    worker.postMessage({ type: 'idle-pos', x: IDLE_X, y: IDLE_Y });
-    updateHitArea();
+  let IDLE_X = 24;
+  let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
+
+  function resize() {
+    const newW = canvas.parentElement.clientWidth || 800;
+    if (newW === W) return;
+    W = canvas.width  = newW;
+    canvas.height = CANVAS_H;
   }
 
-  // ── Resize ───────────────────────────────────────────────────────
   let resizeTimer = null;
-  function onResize() {
+  function resizeDebounced() {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      const w = canvas.parentElement.clientWidth || window.innerWidth;
-      worker.postMessage({ type: 'resize', width: w });
-      sendIdlePos();
-    }, 100);
+    resizeTimer = setTimeout(() => { resize(); if (typeof updateHitArea === 'function') updateHitArea(); }, 100);
   }
-  new ResizeObserver(onResize).observe(canvas.parentElement);
 
-  // ── Gamepad cursor ────────────────────────────────────────────────
+  let started = false, jumping = false;
+  let mode = 'auto';
+  let score = 0, hiScore = 0, speed = 5, gFrame = 0;
+  let dead = false, flashT = 0;
+  let frameIdx = 0, frameTimer = 0;
+  const FRAME_MS = 1000 / 12;
+  let lastTs = 0, groundOff = 0;
+  let fpsFrames = 0, fpsLast = 0, fpsDisplay = 0;
+
+  const dino = { x: IDLE_X, y: IDLE_Y, vy: 0, jumping: false };
+  let obstacles = [], nextObs = 180;
+  let clouds = [
+    { x: 160, y: 30 }, { x: 380, y: 22 }, { x: 600, y: 38 }, { x: 820, y: 18 },
+  ];
+
+  function jump() {
+    if (dino.jumping || dead) return;
+    dino.vy = -11; dino.jumping = true;
+  }
+
+  function reset() {
+    score = 0; gFrame = 0; speed = 5;
+    obstacles = []; nextObs = 180;
+    dead = false; flashT = 0;
+    dino.y = GY - D_H; dino.vy = 0; dino.jumping = false;
+    groundOff = 0; frameIdx = 0; frameTimer = 0;
+  }
+
+  function drawTrex(offset, dx, dy) {
+    if (!spr.complete) return;
+    ctx.drawImage(spr, TREX_BASE_X + offset, TREX_BASE_Y, TREX_W, TREX_H, dx, dy, D_W, D_H);
+  }
+
+  function drawSpr(s, dx, dy, dw, dh) {
+    if (!spr.complete) return;
+    ctx.drawImage(spr, s.x, s.y, s.w, s.h, dx, dy, dw, dh);
+  }
+
+  function autoJump() {
+    if (dead || dino.jumping) return;
+    for (const o of obstacles) {
+      const gap = o.x + 2 - (dino.x + D_W - 4);
+      if (gap < 0) continue;
+      if (gap < 22 + speed * 3) { jump(); break; }
+    }
+  }
+
+  function checkHit() {
+    const pad = 5;
+    const dl = dino.x + pad, dr = dino.x + D_W - pad;
+    const dt = dino.y + pad, db = dino.y + D_H - 4;
+    for (const o of obstacles) {
+      const sp = o.large ? CACTUS_L : CACTUS_S;
+      const ow = Math.round(sp.w * o.scale), oh = Math.round(sp.h * o.scale);
+      if (dl < o.x + ow - 2 && dr > o.x + 2 && dt < o.y + oh && db > o.y + 4) return true;
+    }
+    return false;
+  }
+
+  function drawGround() {
+    ctx.strokeStyle = 'rgba(83,83,83,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, GY); ctx.lineTo(W, GY); ctx.stroke();
+    ctx.fillStyle = 'rgba(83,83,83,0.2)';
+    const off = (groundOff | 0) % 20;
+    for (let x = -off; x < W; x += 20) {
+      ctx.fillRect(x,      GY + 3, 4, 1);
+      ctx.fillRect(x + 10, GY + 6, 3, 1);
+    }
+  }
+
+  let introT = 0;
+  const INTRO_DURATION = 600;
+  const GAME_X = 60;
+  const GAME_Y = GY - D_H;
+  let introStartX = IDLE_X, introStartY = IDLE_Y;
+
+  function tickIntro(dt) {
+    introT = Math.min(introT + dt, INTRO_DURATION);
+    const p = introT / INTRO_DURATION;
+    const ctrlX = introStartX + (GAME_X - introStartX) * 0.2;
+    const ctrlY = introStartY - 20;
+    dino.x = Math.round((1-p)*(1-p)*introStartX + 2*(1-p)*p*ctrlX + p*p*GAME_X);
+    dino.y = Math.round((1-p)*(1-p)*introStartY + 2*(1-p)*p*ctrlY + p*p*GAME_Y);
+    frameTimer += dt;
+    if (frameTimer >= FRAME_MS) { frameTimer -= FRAME_MS; frameIdx = 1 - frameIdx; }
+    if (introT >= INTRO_DURATION) {
+      const siteHeader = canvas.closest('.site-header');
+      if (siteHeader) siteHeader.classList.add('expanded');
+      canvas.style.zIndex = '5';
+      dino.x = GAME_X; dino.y = GAME_Y; dino.vy = 0; dino.jumping = false;
+      jumping = false; started = true;
+    }
+  }
+
+  function tick(ts) {
+    requestAnimationFrame(tick);
+    const dt = Math.min(ts - (lastTs || ts), 50);
+    lastTs = ts;
+    ctx.clearRect(0, 0, W, H);
+
+    if (!started && !jumping) {
+      if (spr.complete) {
+        ctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
+          dino.x, dino.y, IDLE_DW, IDLE_DH);
+      }
+      return;
+    }
+
+    if (jumping) {
+      tickIntro(dt);
+      drawGround();
+      drawTrex(TREX_FRAMES.run[frameIdx], dino.x, dino.y);
+      return;
+    }
+
+    if (!dead) {
+      score += dt * 0.003;
+      speed = Math.min(5 + Math.floor(score / 100) * 0.5, 14);
+    }
+    if (score > hiScore) hiScore = score;
+
+    if (!dead) {
+      dino.vy += 0.65; dino.y += dino.vy;
+      if (dino.y >= GAME_Y) { dino.y = GAME_Y; dino.vy = 0; dino.jumping = false; }
+    }
+
+    if (!dead && !dino.jumping) {
+      frameTimer += dt;
+      if (frameTimer >= FRAME_MS) { frameTimer -= FRAME_MS; frameIdx = 1 - frameIdx; }
+    }
+
+    if (!dead && --nextObs <= 0) {
+      const large = Math.random() > 0.5;
+      const sp = large ? CACTUS_L : CACTUS_S;
+      const scale = 0.9 + Math.random() * 0.4;
+      obstacles.push({ x: W + 10, y: GY - Math.round(sp.h * scale), large, scale });
+      nextObs = Math.max(55, Math.round(100 + Math.random() * 60 - speed * 3));
+    }
+
+    if (!dead) { obstacles.forEach(o => o.x -= speed); groundOff += speed; }
+    obstacles = obstacles.filter(o => o.x > -60);
+    clouds.forEach(cl => { cl.x -= 0.4; if (cl.x + 50 < 0) cl.x = W + 40; });
+
+    if (mode === 'auto') autoJump();
+    if (!dead && checkHit()) { dead = true; flashT = 8; }
+    if (flashT > 0) flashT--;
+
+    if (flashT > 0) { ctx.fillStyle = 'rgba(83,83,83,0.05)'; ctx.fillRect(0, 0, W, H); }
+
+    ctx.globalAlpha = 0.7;
+    clouds.forEach(cl => drawSpr(CLOUD, cl.x, cl.y, Math.round(CLOUD.w * 0.85), Math.round(CLOUD.h * 0.85)));
+    ctx.globalAlpha = 1.0;
+
+    drawGround();
+    obstacles.forEach(o => {
+      const sp = o.large ? CACTUS_L : CACTUS_S;
+      drawSpr(sp, o.x, o.y, Math.round(sp.w * o.scale), Math.round(sp.h * o.scale));
+    });
+
+    if (!dead) {
+      drawTrex(dino.jumping ? TREX_FRAMES.jump[0] : TREX_FRAMES.run[frameIdx], dino.x, dino.y);
+    } else {
+      drawTrex(TREX_FRAMES.crashed[0], dino.x, dino.y);
+    }
+
+    // FPS
+    fpsFrames++;
+    const fpsNow = performance.now();
+    if (fpsNow - fpsLast >= 500) {
+      fpsDisplay = Math.round(fpsFrames * 1000 / (fpsNow - fpsLast));
+      fpsFrames = 0; fpsLast = fpsNow;
+    }
+
+    const scoreY = NAVBAR_H + 14;
+    ctx.font = '11px monospace'; ctx.textAlign = 'right';
+    if (hiScore > 0) {
+      ctx.fillStyle = 'rgba(83,83,83,0.4)';
+      ctx.fillText('HI ' + String(Math.floor(hiScore)).padStart(5, '0'), W - 72, scoreY);
+    }
+    ctx.fillStyle = 'rgba(83,83,83,0.8)';
+    ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, scoreY);
+    ctx.fillStyle = 'rgba(83,83,83,0.35)';
+    ctx.fillText(fpsDisplay + 'fps', W - 8, scoreY + 14);
+    ctx.textAlign = 'left';
+
+    if (dead) {
+      ctx.fillStyle = 'rgba(245,242,236,0.85)'; ctx.fillRect(0, 0, W, H);
+      const isMobile = window.innerWidth < 640;
+      const centerY = H / 2 + (isMobile ? 25 : 10);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(83,83,83,0.9)'; ctx.font = 'bold 13px monospace';
+      ctx.fillText('GAME OVER', W / 2, centerY - 4);
+      ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(83,83,83,0.45)';
+      ctx.fillText('click to restart', W / 2, centerY + 14);
+      ctx.textAlign = 'left';
+    }
+  }
+
   const GAMEPAD_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='22' viewBox='0 0 32 22'><rect x='2' y='5' width='28' height='13' rx='6' fill='%23444'/><rect x='6' y='9' width='2' height='6' rx='1' fill='white'/><rect x='4' y='11' width='6' height='2' rx='1' fill='white'/><circle cx='22' cy='10' r='2' fill='white'/><circle cx='26' cy='13' r='2' fill='white'/></svg>") 16 11, pointer`;
 
-  // ── HitArea ───────────────────────────────────────────────────────
   const hitArea = document.createElement('div');
   hitArea.id = 'dino-hit-area';
   hitArea.title = 'Click to open game zone';
   hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
   canvas.parentElement.appendChild(hitArea);
 
-  const CANVAS_H = 170; // known constant, canvas attribute inaccessible after transferControlToOffscreen
-
   function updateHitArea() {
     if (!started && !jumping) {
       const rect = canvas.getBoundingClientRect();
       const parentRect = canvas.parentElement.getBoundingClientRect();
-      // canvas CSS size vs internal resolution — use known constants after offscreen transfer
-      const cssW = rect.width;
-      const cssH = rect.height;
-      const intW = canvas.parentElement.clientWidth || window.innerWidth;
-      const intH = CANVAS_H;
-      const sx = cssW / intW;
-      const sy = cssH / intH;
+      const sx = rect.width / canvas.width;
+      const sy = rect.height / canvas.height;
       const pad = 8;
-      const w = (IDLE_DW + pad * 2) * sx;
-      const h = (IDLE_DH + pad * 2) * sy;
-      const left = (IDLE_X - pad) * sx + rect.left - parentRect.left;
-      const top  = (IDLE_Y - pad) * sy + rect.top  - parentRect.top;
-      hitArea.style.left = left + 'px';
-      hitArea.style.top  = top  + 'px';
-      hitArea.style.width  = Math.max(w, 36) + 'px';
-      hitArea.style.height = Math.max(h, 36) + 'px';
+      hitArea.style.left   = ((IDLE_X - pad) * sx + rect.left - parentRect.left) + 'px';
+      hitArea.style.top    = ((IDLE_Y - pad) * sy + rect.top  - parentRect.top)  + 'px';
+      hitArea.style.width  = Math.max((IDLE_DW + pad * 2) * sx, 36) + 'px';
+      hitArea.style.height = Math.max((IDLE_DH + pad * 2) * sy, 36) + 'px';
       hitArea.style.display = 'block';
       hitArea.style.cursor = GAMEPAD_CURSOR;
     } else {
@@ -117,20 +283,16 @@
     }
   }
 
-  // ── Start game ────────────────────────────────────────────────────
   function startGame() {
     if (started || jumping) return;
-    window.dispatchEvent(new Event('dino-game-start')); // stop favicon-anim toDataURL
-    sendIdlePos();
-    jumping = true;
-    worker.postMessage({ type: 'start' });
-
+    initIdlePos();
+    introStartX = IDLE_X; introStartY = IDLE_Y;
+    jumping = true; introT = 0;
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.add('expanded');
     canvas.style.pointerEvents = 'auto';
     canvas.style.cursor = GAMEPAD_CURSOR;
     hitArea.style.display = 'none';
-
     scrollCooldown = true;
     lastScrollY = window.scrollY || 0;
     setTimeout(() => { scrollCooldown = false; lastScrollY = window.scrollY || 0; }, 600);
@@ -139,26 +301,28 @@
   hitArea.addEventListener('click', startGame);
   hitArea.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, { passive: false });
 
-  // ── In-game click ─────────────────────────────────────────────────
   canvas.addEventListener('click', () => {
     if (!started) return;
-    worker.postMessage({ type: 'click' });
+    if (dead) { reset(); return; }
+    if (mode === 'auto') { mode = 'play'; } else { jump(); }
   });
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     if (!started) return;
-    worker.postMessage({ type: 'click' });
+    if (dead) { reset(); return; }
+    if (mode === 'auto') { mode = 'play'; } else { jump(); }
   }, { passive: false });
 
-  // ── Collapse ──────────────────────────────────────────────────────
   function collapseToIdle() {
     if (!started && !jumping) return;
-    started = false; jumping = false;
-    worker.postMessage({ type: 'collapse' });
-
+    started = false; jumping = false; dead = false;
+    score = 0; hiScore = 0; speed = 5;
+    obstacles = []; nextObs = 180;
+    flashT = 0; groundOff = 0; frameIdx = 0; frameTimer = 0;
+    initIdlePos();
+    dino.x = IDLE_X; dino.y = IDLE_Y; dino.vy = 0; dino.jumping = false;
     const siteHeader = canvas.closest('.site-header');
     if (siteHeader) siteHeader.classList.remove('expanded');
-
     canvas.style.zIndex = '20';
     canvas.style.pointerEvents = 'none';
     canvas.style.cursor = 'default';
@@ -167,7 +331,6 @@
 
   let lastScrollY = window.scrollY || 0;
   let scrollCooldown = false;
-
   window.addEventListener('scroll', () => {
     if (scrollCooldown) return;
     const sy = window.scrollY || window.pageYOffset;
@@ -176,15 +339,20 @@
     if (delta > 3 && (started || jumping)) collapseToIdle();
   }, { passive: true });
 
-  // ── Init ──────────────────────────────────────────────────────────
+  resize();
+  updateHitArea();
+
   function initIdlePos() {
-    sendIdlePos();
+    const p = getIdlePos();
+    IDLE_X = p.x; IDLE_Y = p.y;
+    dino.x = IDLE_X; dino.y = IDLE_Y;
+    updateHitArea();
   }
 
-  if (document.readyState === 'complete') {
-    initIdlePos();
-  } else {
-    window.addEventListener('load', initIdlePos);
-  }
+  if (document.readyState === 'complete') { initIdlePos(); }
+  else { window.addEventListener('load', initIdlePos); }
   setTimeout(initIdlePos, 300);
+
+  new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
+  requestAnimationFrame(tick);
 })();
