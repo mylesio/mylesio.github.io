@@ -153,19 +153,21 @@
     }
   }
 
+  // Draw idle dino once (no RAF loop needed)
+  function drawIdle() {
+    if (!spr.complete) { spr.onload = drawIdle; return; }
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
+      dino.x, dino.y, IDLE_DW, IDLE_DH);
+  }
+
+  let rafId = null;
+
   function tick(ts) {
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
     const dt = Math.min(ts - (lastTs || ts), 50);
     lastTs = ts;
     ctx.clearRect(0, 0, W, H);
-
-    if (!started && !jumping) {
-      if (spr.complete) {
-        ctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
-          dino.x, dino.y, IDLE_DW, IDLE_DH);
-      }
-      return;
-    }
 
     if (jumping) {
       tickIntro(dt);
@@ -296,6 +298,9 @@
     scrollCooldown = true;
     lastScrollY = window.scrollY || 0;
     setTimeout(() => { scrollCooldown = false; lastScrollY = window.scrollY || 0; }, 600);
+    // Start RAF loop only when game begins
+    lastTs = 0;
+    if (!rafId) rafId = requestAnimationFrame(tick);
   }
 
   hitArea.addEventListener('click', startGame);
@@ -327,6 +332,9 @@
     canvas.style.pointerEvents = 'none';
     canvas.style.cursor = 'default';
     updateHitArea();
+    // Stop RAF loop, redraw idle statically
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    drawIdle();
   }
 
   let lastScrollY = window.scrollY || 0;
@@ -354,5 +362,6 @@
   setTimeout(initIdlePos, 300);
 
   new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
-  requestAnimationFrame(tick);
+  // No RAF on page load — idle dino is static, RAF only starts when game begins
+  drawIdle();
 })();
