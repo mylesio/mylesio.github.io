@@ -437,14 +437,6 @@ const showDivider = path === '/about' || path === '/about/'
         const labelZH = document.getElementById('lang-label-zh');
         if (!stage || !divSolid) return;
 
-        // Inject ZH layer content from <template id="zh-content-tpl"> if present
-        if (zhLayer) {
-          const tpl = document.getElementById('zh-content-tpl');
-          if (tpl && tpl.content) {
-            zhLayer.appendChild(tpl.content.cloneNode(true));
-          }
-        }
-
         const SKEW_DEG = 15; // ~75° from horizontal (nearly vertical)
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
         const HIT_DIST = 28;   // px from line to activate cursor
