@@ -396,28 +396,22 @@ const isHome = Astro.url.pathname === '/';
         } catch(_) {}
 
         // ── Geometry: stage-local coords throughout ───────────────────────
-        // splitRatio = fraction of stage width where line crosses the viewport mid-height.
-        // We use window.innerHeight as the "reference height" for the skew angle,
-        // so the visual angle stays ~12° regardless of how tall the stage is.
-        // Line is drawn from stage y=0 to y=SH; stage overflow:hidden clips the rest.
+        // ── Geometry: pure stage-local, scroll-independent ───────────────
+        // Line tilts right (\): top-left to bottom-right.
+        // Anchor = stage center (SH/2). No BoundingClientRect → no scroll drift.
+        // off = horizontal half-span; uses window.innerHeight so angle ≈12° visually.
 
         function getGeom() {
           const SW  = stage.offsetWidth;
           const SH  = stage.offsetHeight;
-          const VH  = window.innerHeight;
-          const off = Math.tan(SKEW_RAD) * VH / 2; // horizontal offset over viewport height
+          const off = Math.tan(SKEW_RAD) * window.innerHeight / 2;
           const midX = splitRatio * SW;
-          // At stage y=0: x = midX - off * (stage_top_from_viewport_mid / VH*2)
-          // Simplification: anchor the mid-point at the center of the CURRENT viewport
-          // within the stage (= VH/2 - stageRect.top, clamped)
-          const rect   = stage.getBoundingClientRect();
-          const anchorY = Math.max(0, Math.min(SH, VH / 2 - rect.top)); // stage-local y
-          const x0 = midX - off * (anchorY / VH);          // x at stage y=0
-          const xH = midX + off * ((SH - anchorY) / VH);   // x at stage y=SH
-          return { x0, xH, SW, SH, off };
+          // Right-leaning (\): top x < midX, bottom x > midX
+          const x0 = midX - off; // x at y=0   (top of stage)
+          const xH = midX + off; // x at y=SH  (bottom of stage)
+          return { x0, xH, SW, SH };
         }
 
-        // stage-local x of line at stage-local y `sy`
         function lineXatSY(sy) {
           const { x0, xH, SH } = getGeom();
           return x0 + (xH - x0) * (sy / SH);
@@ -427,7 +421,7 @@ const isHome = Astro.url.pathname === '/';
         function render() {
           const { x0, xH, SW, SH } = getGeom();
 
-          // SVG line: fully stage-local, SVG is 100%×100% of stage
+          // SVG line in stage-local coords
           divLine.setAttribute('x1', x0.toFixed(1));
           divLine.setAttribute('y1', '0');
           divLine.setAttribute('x2', xH.toFixed(1));
@@ -437,15 +431,17 @@ const isHome = Astro.url.pathname === '/';
           const p0 = ((x0 / SW) * 100).toFixed(3) + '%';
           const p1 = ((xH / SW) * 100).toFixed(3) + '%';
 
-          // EN layer: left of line (ZH is below, fully rendered, exposed on right)
+          // Left of line = ZH (drag left → more ZH)
+          // Right of line = EN (drag right → more EN)
+          // EN layer has background, clips to RIGHT side; ZH is below, exposed on LEFT
           if (enLayer) enLayer.style.clipPath =
-            `polygon(0% 0%, ${p0} 0%, ${p1} 100%, 0% 100%)`;
+            `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // Labels follow the line at ~30% stage height
-          const labelSY = SH * 0.30;
+          // Labels: ZH on left of line, EN on right of line
+          const labelSY = SH * 0.18; // near top of stage, inside viewport
           const labelX  = lineXatSY(labelSY);
-          if (labelEN) labelEN.style.left = Math.max(4, labelX - 40) + 'px';
-          if (labelZH) labelZH.style.left = (labelX + 10) + 'px';
+          if (labelZH) labelZH.style.left = Math.max(4, labelX - 44) + 'px';
+          if (labelEN) labelEN.style.left = (labelX + 12) + 'px';
         }
 
         // ── Snap animation ────────────────────────────────────────────────
@@ -537,10 +533,9 @@ const isHome = Astro.url.pathname === '/';
           else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         });
 
-        // Init + resize; scroll changes stageRect so re-render on scroll too
+        // Init + resize only — geometry is scroll-independent, no scroll listener needed
         render();
         window.addEventListener('resize', render, { passive: true });
-        window.addEventListener('scroll', render, { passive: true });
       })();
     </script>
     </script>
