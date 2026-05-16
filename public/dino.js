@@ -311,8 +311,6 @@
   // ── Start on first interaction ───────────────────────────────────
   function startGame(e) {
     if (started || jumping) return;
-    // stop favicon animation immediately — toDataURL is expensive during game
-    window.dispatchEvent(new Event('dino-game-start'));
     // refresh idle pos right before launch (in case layout changed)
     initIdlePos();
     introStartX = IDLE_X;
