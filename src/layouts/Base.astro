@@ -128,45 +128,42 @@ const showDivider = path === '/about' || path === '/about/'
         padding: 0 1.5rem;
       }
 
-      /* ─── Navbar (sticky, always on top) ───────────── */
+      /* ─── Banner / Dino canvas ───────────────────── */
       .site-header {
         position: sticky;
         top: 0;
         width: 100%;
-        height: 48px;
-        z-index: 100;           /* always above canvas */
-        pointer-events: auto;
-      }
-
-      /* ─── Dino canvas stage (fixed, independent of navbar) ── */
-      #dino-stage {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        width: 100%;
-        height: 48px;           /* clipped to navbar height initially */
+        height: 48px;           /* navbar height initially */
+        background-color: #f5f2ec;
+        border-bottom: 1px solid #e2ddd6;
         overflow: hidden;
-        z-index: 60;            /* above page content, below navbar */
-        pointer-events: none;
+        z-index: 50;
         transition: height 0.4s ease-out;
-        background: #f5f2ec;
       }
-      #dino-stage.expanded {
+      .site-header.expanded {
         height: 170px;
       }
 
       #dino-canvas {
-        position: absolute;
-        top: 0; left: 0;
+        position: fixed;
+        top: 0; left: 0; right: 0;
         width: 100%;
         height: 170px;
         display: block;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
+        z-index: 49; /* below site-header z-index:50 in idle; JS raises to 51 during game */
+        pointer-events: none;
+        cursor: default;
         will-change: transform;
         transform: translateZ(0);
       }
+      .site-header.expanded #dino-canvas {
+        cursor: pointer;
+        /* z-index switched to 5 by JS when dino lands */
+      }
 
-      /* ─── Navbar inside site-header ─────────────────── */
+      /* ─── Liquid Glass navbar (absolute inside banner) ── */
       header {
         position: absolute;
         top: 0; left: 0; right: 0;
@@ -362,12 +359,9 @@ const showDivider = path === '/about' || path === '/about/'
     </style>
   </head>
   <body>
-    <!-- dino canvas stage: fixed, independent GPU layer, z-index below navbar -->
-    <div id="dino-stage">
-      <canvas id="dino-canvas" title="Click to play"></canvas>
-    </div>
-    <!-- navbar: sticky, always on top (z-index:100), pointer-events always active -->
+    <!-- banner contains canvas + absolute navbar on top -->
     <div class="site-header">
+      <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play"></canvas>
       <header>
         <div class="nav-inner">
           <span id="dino-anchor" style="display:inline-block;width:0;height:0;"></span>
