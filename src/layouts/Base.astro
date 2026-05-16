@@ -166,11 +166,8 @@ const showDivider = path === '/about' || path === '/about/'
         position: absolute;
         top: 0; left: 0; right: 0;
         z-index: 10;
-        background: rgba(245, 242, 236, 0.15);
-        backdrop-filter: saturate(180%) blur(16px);
-        -webkit-backdrop-filter: saturate(180%) blur(16px);
-        border-bottom: 1px solid rgba(200, 195, 185, 0.25);
-        box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset;
+        background: var(--bg); /* solid bg — no backdrop-filter to avoid GPU layer cost */
+        border-bottom: 1px solid var(--border);
       }
 
       .nav-inner {
@@ -411,7 +408,6 @@ const showDivider = path === '/about' || path === '/about/'
         <span><a href="/llms.txt">llms.txt</a></span>
       </footer>
     </div>
-    <script>
     <script>
       // ── Language split-view divider ──────────────────────────────────────
       (function () {
