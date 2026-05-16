@@ -295,8 +295,9 @@ const showDivider = path === '/about' || path === '/about/'
         height: 100vh;
         pointer-events: none;
         z-index: 11; /* above SVG line (z-index:10) */
-        backdrop-filter: blur(16px) saturate(1.6);
-        -webkit-backdrop-filter: blur(16px) saturate(1.6);
+        /* No backdrop-filter — too expensive (forces full-page GPU blur every frame) */
+        /* Use solid background color instead */
+        background: var(--bg);
       }
       #lang-wing-l {
         left: 0;
