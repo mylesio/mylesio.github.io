@@ -266,18 +266,19 @@
   const hitArea = document.createElement('div');
   hitArea.id = 'dino-hit-area';
   hitArea.title = 'Click to open game zone';
-  hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
-  canvas.parentElement.appendChild(hitArea);
+  // position:fixed, z:90 (above navbar z:80) so clicks always reach it
+  hitArea.style.cssText = 'position:fixed;z-index:90;cursor:pointer;pointer-events:auto;';
+  document.body.appendChild(hitArea);
 
   function updateHitArea() {
     if (!started && !jumping) {
-      const rect = canvas.getBoundingClientRect();
-      const parentRect = canvas.parentElement.getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect(); // viewport coords (canvas is in fixed stage)
       const sx = rect.width / canvas.width;
       const sy = rect.height / canvas.height;
       const pad = 8;
-      hitArea.style.left   = ((IDLE_X - pad) * sx + rect.left - parentRect.left) + 'px';
-      hitArea.style.top    = ((IDLE_Y - pad) * sy + rect.top  - parentRect.top)  + 'px';
+      // hitArea is position:fixed → left/top are viewport coords directly
+      hitArea.style.left   = (rect.left + (IDLE_X - pad) * sx) + 'px';
+      hitArea.style.top    = (rect.top  + (IDLE_Y - pad) * sy) + 'px';
       hitArea.style.width  = Math.max((IDLE_DW + pad * 2) * sx, 36) + 'px';
       hitArea.style.height = Math.max((IDLE_DH + pad * 2) * sy, 36) + 'px';
       hitArea.style.display = 'block';
