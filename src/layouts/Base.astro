@@ -236,15 +236,15 @@ const isHome = Astro.url.pathname === '/';
       #lang-en-layer {
         position: relative;
         will-change: clip-path;
+        background: var(--bg); /* cover ZH layer on the left side */
       }
-      /* ZH layer sits on top, absolute, same size as EN layer */
+      /* ZH layer sits BELOW EN layer; EN clips left side exposing ZH on right */
       .lang-zh-layer {
         position: absolute;
         top: 0; left: 0;
         width: 100%;
         min-height: 100%;
-        will-change: clip-path;
-        pointer-events: none; /* EN layer handles clicks unless ZH is dominant */
+        /* no clip-path needed — ZH is always fully rendered, EN covers it on the left */
       }
 
       /* EN / 中 labels at top corners */
@@ -345,16 +345,17 @@ const isHome = Astro.url.pathname === '/';
     <div class="page-wrap">
       <!-- lang-stage: wraps main, hosts the split divider -->
       <div class="lang-stage" id="lang-stage">
+        <!-- ZH layer BELOW EN layer; EN clips itself so ZH shows through on right side -->
+        <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
+
         <main id="lang-en-layer">
           <slot />
         </main>
 
-        <!-- ZH layer: same slot content but zh versions, injected per-page -->
-        <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
-
-        <!-- Divider SVG: absolute, sized & viewBox set by JS so overflow:hidden clips correctly -->
+        <!-- Divider SVG: 1×1 placeholder, line coords set by JS, drawn in overflow:visible space -->
+        <!-- Stage overflow:hidden is what clips the line to the box -->
         <svg id="lang-divider" aria-hidden="true"
-             style="position:absolute;top:0;left:0;pointer-events:none;z-index:10;overflow:hidden;">
+             style="position:absolute;top:0;left:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:10;">
           <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
         </svg>
 
@@ -421,14 +422,7 @@ const isHome = Astro.url.pathname === '/';
           const sx_top = vx_top - SL; // stage x when vy=0  → sy = 0 - ST = -ST
           const sx_bot = vx_bot - SL; // stage x when vy=VH → sy = VH - ST
 
-          // SVG covers the full stage, viewBox matches so overflow:hidden clips
-          if (svgEl) {
-            svgEl.setAttribute('width',   SW.toFixed(0));
-            svgEl.setAttribute('height',  SH.toFixed(0));
-            svgEl.setAttribute('viewBox', `0 0 ${SW.toFixed(0)} ${SH.toFixed(0)}`);
-          }
-
-          // Line in stage-local coords:
+          // SVG line in stage-local coords (SVG is overflow:visible, stage clips it)
           // At stage-local y=0  → viewport y = ST    → sx = lineXatVY(ST) - SL
           // At stage-local y=SH → viewport y = ST+SH → sx = lineXatVY(ST+SH) - SL
           const lx0 = lineXatVY(ST)      - SL;
@@ -442,10 +436,10 @@ const isHome = Astro.url.pathname === '/';
           const p0 = ((lx0 / SW) * 100).toFixed(3) + '%';
           const p1 = ((lx1 / SW) * 100).toFixed(3) + '%';
 
+          // Only clip EN layer (ZH is below, visible where EN is clipped away)
           if (enLayer) enLayer.style.clipPath =
             `polygon(0% 0%, ${p0} 0%, ${p1} 100%, 0% 100%)`;
-          if (zhLayer) zhLayer.style.clipPath =
-            `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
+          if (zhLayer) zhLayer.style.clipPath = ''; // ZH always fully rendered
 
           // ── Labels: clipped by stage overflow:hidden ──
           // Position at 1/3 height of visible viewport within stage
