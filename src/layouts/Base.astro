@@ -438,7 +438,8 @@ const showDivider = path === '/about' || path === '/about/'
         // Inject ZH content from template into ZH layer
         const tpl = document.getElementById('zh-content-tpl');
         const zhLayerInit = document.getElementById('lang-zh-layer');
-        if (tpl && zhLayerInit && zhLayerInit.childElementCount === 0) {
+        if (tpl && zhLayerInit && !zhLayerInit.dataset.injected) {
+          zhLayerInit.dataset.injected = '1';
           zhLayerInit.appendChild(tpl.content.cloneNode(true));
         }
 
