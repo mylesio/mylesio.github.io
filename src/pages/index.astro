@@ -10,22 +10,34 @@ const notes = (await getCollection('notes'))
 
 <Base title="Home">
   <section class="hero reveal reveal-2">
-    <p class="hero-name">Myles Liu <span class="hero-is">is</span></p>
+    <p class="hero-name">Myles Liu <span class="hero-is" data-en="is" data-zh="是">is</span></p>
     <p class="hero-sub"><span id="typewriter"></span><span class="type-cursor">▌</span></p>
   </section>
 
   <script>
-    const phrases = [
-      'a frontend engineer',
-      'building monitoring systems',
-      'exploring AI agents',
-      'writing open-source tools',
-    ];
+    const phrases = {
+      en: [
+        'a frontend engineer',
+        'building monitoring systems',
+        'exploring AI agents',
+        'writing open-source tools',
+      ],
+      zh: [
+        '一名前端工程师',
+        '在构建监控系统',
+        '在探索 AI Agent',
+        '在写开源工具',
+      ],
+    };
+
     let pi = 0, ci = 0, deleting = false;
     const el = document.getElementById('typewriter');
     if (el) {
+      function getLang() {
+        return document.documentElement.getAttribute('data-lang') === 'zh' ? 'zh' : 'en';
+      }
       function tick() {
-        const phrase = phrases[pi];
+        const phrase = phrases[getLang()][pi % phrases[getLang()].length];
         if (!deleting) {
           ci++;
           el.textContent = phrase.slice(0, ci);
@@ -40,7 +52,7 @@ const notes = (await getCollection('notes'))
           el.textContent = phrase.slice(0, ci);
           if (ci === 0) {
             deleting = false;
-            pi = (pi + 1) % phrases.length;
+            pi = (pi + 1) % phrases[getLang()].length;
             setTimeout(tick, 400);
             return;
           }
@@ -53,7 +65,7 @@ const notes = (await getCollection('notes'))
 
   {notes.length > 0 && (
     <section class="block reveal reveal-3">
-      <p class="section-label">notes</p>
+      <p class="section-label" data-en="notes" data-zh="笔记">notes</p>
       <ul class="note-list">
         {notes.map((note, i) => (
           <li class="note-item" style={`--i:${i}`}>
@@ -66,39 +78,39 @@ const notes = (await getCollection('notes'))
           </li>
         ))}
       </ul>
-      <a href="/notes" class="section-more">all notes →</a>
+      <a href="/notes" class="section-more" data-en="all notes →" data-zh="全部笔记 →">all notes →</a>
     </section>
   )}
 
   <section class="block projects-block reveal reveal-4">
-    <p class="section-label">projects</p>
+    <p class="section-label" data-en="projects" data-zh="项目">projects</p>
     <div class="project-grid">
       <a href="https://github.com/mylesio/prism" class="project-card" style="--i:0">
         <span class="project-name">prism</span>
-        <span class="project-desc">AI personal profile engine — parses conversations into structured personality insights</span>
+        <span class="project-desc" data-en="AI personal profile engine — parses conversations into structured personality insights" data-zh="AI 个人画像引擎 — 解析对话记录，生成结构化人物画像">AI personal profile engine — parses conversations into structured personality insights</span>
       </a>
       <a href="https://github.com/mylesio/ant-protocol" class="project-card" style="--i:1">
         <span class="project-name">ant-protocol</span>
-        <span class="project-desc">Multi-agent governance — task lifecycle, memory, hooks, queen orchestration</span>
+        <span class="project-desc" data-en="Multi-agent governance — task lifecycle, memory, hooks, queen orchestration" data-zh="多 Agent 治理协议 — 任务生命周期、记忆、钩子、Queen 编排">Multi-agent governance — task lifecycle, memory, hooks, queen orchestration</span>
       </a>
       <a href="https://github.com/mylesio/oasis-openclaw" class="project-card" style="--i:2">
         <span class="project-name">oasis-openclaw</span>
-        <span class="project-desc">Full agent intelligence injected into OASIS social simulation platform</span>
+        <span class="project-desc" data-en="Full agent intelligence injected into OASIS social simulation platform" data-zh="将完整 Agent 智能注入 OASIS 社会模拟平台">Full agent intelligence injected into OASIS social simulation platform</span>
       </a>
       <a href="https://github.com/mylesio/worldmind" class="project-card" style="--i:3">
         <span class="project-name">worldmind</span>
-        <span class="project-desc">Multi-agent world model engine — perceive, reason, and predict complex ecosystems</span>
+        <span class="project-desc" data-en="Multi-agent world model engine — perceive, reason, and predict complex ecosystems" data-zh="多 Agent 世界模型引擎 — 感知、推理与预测复杂系统">Multi-agent world model engine — perceive, reason, and predict complex ecosystems</span>
       </a>
       <a href="https://github.com/mylesio/temporal-crystal" class="project-card" style="--i:4">
         <span class="project-name">temporal-crystal</span>
-        <span class="project-desc">Living memory for AI agents — memories that evolve, compress, and crystallize</span>
+        <span class="project-desc" data-en="Living memory for AI agents — memories that evolve, compress, and crystallize" data-zh="AI Agent 的活性记忆 — 会进化、压缩与结晶的记忆系统">Living memory for AI agents — memories that evolve, compress, and crystallize</span>
       </a>
       <a href="https://github.com/mylesio/rumex" class="project-card" style="--i:5">
         <span class="project-name">rumex</span>
-        <span class="project-desc">Per-agent memory protocol — persistent context across sessions</span>
+        <span class="project-desc" data-en="Per-agent memory protocol — persistent context across sessions" data-zh="单 Agent 记忆协议 — 跨 session 持久化上下文">Per-agent memory protocol — persistent context across sessions</span>
       </a>
     </div>
-    <a href="/projects" class="section-more">all projects →</a>
+    <a href="/projects" class="section-more" data-en="all projects →" data-zh="全部项目 →">all projects →</a>
   </section>
 </Base>
 
@@ -122,7 +134,7 @@ const notes = (await getCollection('notes'))
     letter-spacing: -0.01em;
   }
   .hero-sub {
-    color: var(--text);
+    color: var(--accent-mid);
     font-size: 0.92rem;
     font-weight: 300;
     letter-spacing: 0.01em;

@@ -6,6 +6,7 @@ const projects = [
     name: 'prism',
     url: 'https://github.com/mylesio/prism',
     desc: 'AI personal profile engine. Parses conversation logs and memory files to generate structured personality profiles via multi-stage LLM pipeline.',
+    descZh: 'AI 个人画像引擎。解析对话记录与记忆文件，通过多阶段 LLM Pipeline 生成结构化人物画像。',
     tags: ['Python', 'LLM', 'AI'],
     status: 'active',
   },
@@ -13,6 +14,7 @@ const projects = [
     name: 'ant-protocol',
     url: 'https://github.com/mylesio/ant-protocol',
     desc: 'Portable multi-agent governance protocol. Defines task lifecycle, agent coordination, memory contracts, and queen orchestration for AI agent teams.',
+    descZh: '可移植的多 Agent 治理协议。定义任务生命周期、Agent 协作、记忆契约与 Queen 编排机制。',
     tags: ['protocol', 'multi-agent', 'AI'],
     status: 'active',
   },
@@ -20,6 +22,7 @@ const projects = [
     name: 'oasis-openclaw',
     url: 'https://github.com/mylesio/oasis-openclaw',
     desc: 'Injects full OpenClaw agent intelligence into the OASIS social simulation platform. Agents with persistent memory and real tool access in a simulated world.',
+    descZh: '将完整的 OpenClaw Agent 智能注入 OASIS 社会模拟平台，使 Agent 拥有持久记忆与真实工具调用能力。',
     tags: ['simulation', 'multi-agent', 'OpenClaw'],
     status: 'active',
   },
@@ -27,6 +30,7 @@ const projects = [
     name: 'worldmind',
     url: 'https://github.com/mylesio/worldmind',
     desc: 'Multi-agent world model engine — perceive, model, reason about, and predict the evolution of complex ecosystems.',
+    descZh: '多 Agent 世界模型引擎 — 感知、建模、推理并预测复杂系统的演化。',
     tags: ['AI', 'world-model', 'multi-agent'],
     status: 'active',
   },
@@ -34,6 +38,7 @@ const projects = [
     name: 'temporal-crystal',
     url: 'https://github.com/mylesio/temporal-crystal',
     desc: 'Living memory for AI agents. Memories that evolve, compress, and crystallize over time — not just append-only logs.',
+    descZh: 'AI Agent 的活性记忆系统。记忆会随时间进化、压缩、结晶，而不只是简单的追加日志。',
     tags: ['memory', 'AI', 'architecture'],
     status: 'active',
   },
@@ -41,6 +46,7 @@ const projects = [
     name: 'rumex',
     url: 'https://github.com/mylesio/rumex',
     desc: 'Per-agent memory protocol. Loop memory + task until done. Distill tacit knowledge on success, persist on failure.',
+    descZh: '单 Agent 记忆协议。循环执行记忆+任务直至完成。成功时提炼隐性知识，失败时保留现场。',
     tags: ['protocol', 'memory', 'AI'],
     status: 'active',
   },
@@ -48,6 +54,7 @@ const projects = [
     name: 'claw-code',
     url: 'https://github.com/mylesio/claw-code',
     desc: 'Multi-agent harness reference implementation. Better tools that make real things done.',
+    descZh: '多 Agent Harness 参考实现。更好的工具，做真实的事。',
     tags: ['harness', 'multi-agent', 'Rust'],
     status: 'archived',
   },
@@ -56,7 +63,7 @@ const projects = [
 
 <Base title="Projects">
   <section class="page-header">
-    <h1 class="page-title">projects</h1>
+    <h1 class="page-title" data-en="projects" data-zh="项目">projects</h1>
   </section>
 
   <ul class="projects">
@@ -64,9 +71,13 @@ const projects = [
       <li class="project">
         <div class="project-top">
           <a href={p.url} class="project-name">{p.name}</a>
-          <span class={`project-status ${p.status}`}>{p.status}</span>
+          <span class={`project-status ${p.status}`}
+                data-en={p.status}
+                data-zh={p.status === 'active' ? '维护中' : '已归档'}>
+            {p.status}
+          </span>
         </div>
-        <p class="project-desc">{p.desc}</p>
+        <p class="project-desc" data-en={p.desc} data-zh={p.descZh}>{p.desc}</p>
         <div class="project-tags">
           {p.tags.map(t => <span class="tag">{t}</span>)}
         </div>
@@ -112,7 +123,8 @@ const projects = [
     color: var(--muted);
     letter-spacing: 0.08em;
   }
-  .project-status.active { color: var(--accent-dim, var(--accent)); }
+  .project-status.active { color: var(--green); }
+  .project-status.archived { color: var(--amber); }
   .project-desc {
     font-size: 0.85rem;
     color: var(--muted);
@@ -124,8 +136,9 @@ const projects = [
   .tag {
     font-size: 0.65rem;
     padding: 0.12rem 0.5rem;
-    border: 1px solid var(--border);
-    color: var(--muted);
+    border: 1px solid var(--accent-wash);
+    background: var(--accent-wash);
+    color: var(--accent);
     letter-spacing: 0.05em;
   }
 
