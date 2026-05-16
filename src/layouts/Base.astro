@@ -444,59 +444,89 @@ const showDivider = path === '/about' || path === '/about/'
         }
 
         // ── Section height alignment ─────────────────────────────────────
-        // Align EN and ZH sections pairwise by inserting padding-bottom on the
-        // shorter section so both sides scroll in sync.
-        // Sections are delimited by <h2> tags inside .prose, plus .post-header.
+        // Wrap prose children into h2-delimited section divs, then pairwise
+        // set min-height so EN and ZH sections stay equal in height.
+        // Only runs once; resize re-measures and updates min-heights.
+        let enSectionDivs = [];
+        let zhSectionDivs = [];
+
+        function wrapSections(prose) {
+          // Group children: each group starts with an h2 (or the initial block)
+          const groups = [];
+          let cur = [];
+          Array.from(prose.children).forEach(child => {
+            if (child.tagName === 'H2' && cur.length) {
+              groups.push(cur);
+              cur = [child];
+            } else {
+              cur.push(child);
+            }
+          });
+          if (cur.length) groups.push(cur);
+
+          return groups.map(els => {
+            const wrap = document.createElement('div');
+            wrap.className = 'lang-section';
+            prose.insertBefore(wrap, els[0]);
+            els.forEach(el => wrap.appendChild(el));
+            return wrap;
+          });
+        }
+
         function alignSections() {
           const enLayer2 = document.getElementById('lang-en-layer');
           const zhLayer2 = document.getElementById('lang-zh-layer');
           if (!enLayer2 || !zhLayer2) return;
 
-          // Get section anchor elements: .post-header, then each h2 in .prose
-          function getAnchors(root) {
-            const anchors = [];
-            const header = root.querySelector('.post-header');
-            if (header) anchors.push(header);
-            root.querySelectorAll('.prose h2').forEach(h => anchors.push(h));
-            return anchors;
-          }
-
-          // Height from anchor top to next anchor top (or end of prose)
-          function sectionHeight(anchor, nextAnchor, root) {
-            const prose = root.querySelector('.prose');
-            const bottom = nextAnchor
-              ? nextAnchor.getBoundingClientRect().top
-              : (prose || anchor).getBoundingClientRect().bottom;
-            return bottom - anchor.getBoundingClientRect().top;
-          }
-
-          const enAnchors = getAnchors(enLayer2);
-          const zhAnchors = getAnchors(zhLayer2);
-          const len = Math.min(enAnchors.length, zhAnchors.length);
-
-          for (let i = 0; i < len; i++) {
-            const enA = enAnchors[i];
-            const zhA = zhAnchors[i];
-            // Reset previous padding
-            enA.style.paddingBottom = '';
-            zhA.style.paddingBottom = '';
-
-            const enH = sectionHeight(enA, enAnchors[i + 1], enLayer2);
-            const zhH = sectionHeight(zhA, zhAnchors[i + 1], zhLayer2);
-            const diff = enH - zhH;
-            if (diff > 4) {
-              zhA.style.paddingBottom = (diff) + 'px';
-            } else if (diff < -4) {
-              enA.style.paddingBottom = (-diff) + 'px';
+          // Wrap once
+          if (enSectionDivs.length === 0) {
+            const enProse = enLayer2.querySelector('.prose');
+            const zhProse = zhLayer2.querySelector('.prose');
+            if (enProse && zhProse) {
+              enSectionDivs = wrapSections(enProse);
+              zhSectionDivs = wrapSections(zhProse);
             }
+            // Also align headers
+            const enHeader = enLayer2.querySelector('.post-header');
+            const zhHeader = zhLayer2.querySelector('.post-header');
+            if (enHeader) enHeader.classList.add('lang-header-en');
+            if (zhHeader) zhHeader.classList.add('lang-header-zh');
+          }
+
+          // Re-measure and set min-heights on each pair
+          const len = Math.min(enSectionDivs.length, zhSectionDivs.length);
+          for (let i = 0; i < len; i++) {
+            // Reset first
+            enSectionDivs[i].style.minHeight = '';
+            zhSectionDivs[i].style.minHeight = '';
+          }
+          for (let i = 0; i < len; i++) {
+            const enH = enSectionDivs[i].offsetHeight;
+            const zhH = zhSectionDivs[i].offsetHeight;
+            if (enH > zhH + 4) {
+              zhSectionDivs[i].style.minHeight = enH + 'px';
+            } else if (zhH > enH + 4) {
+              enSectionDivs[i].style.minHeight = zhH + 'px';
+            }
+          }
+
+          // Align headers
+          const enH2 = enLayer2.querySelector('.post-header');
+          const zhH2 = zhLayer2.querySelector('.post-header');
+          if (enH2 && zhH2) {
+            enH2.style.minHeight = '';
+            zhH2.style.minHeight = '';
+            const eh = enH2.offsetHeight, zh = zhH2.offsetHeight;
+            if (eh > zh + 4) zhH2.style.minHeight = eh + 'px';
+            else if (zh > eh + 4) enH2.style.minHeight = zh + 'px';
           }
         }
 
         // Run after fonts settle, then again on resize
         if (document.fonts) {
-          document.fonts.ready.then(() => setTimeout(alignSections, 50));
+          document.fonts.ready.then(() => setTimeout(alignSections, 100));
         } else {
-          setTimeout(alignSections, 300);
+          setTimeout(alignSections, 400);
         }
 
         const SPLIT_KEY = 'lang-split-x';
