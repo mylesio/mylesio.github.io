@@ -4,6 +4,7 @@ description: A breakdown of the MCP protocol, AI app architecture, and why conte
 date: 2025-03-18
 tags: [ai, mcp, architecture, frontend]
 lang: en
+archived: true
 zhSlug: how-to-build-ai-apps-zh
 ---
 

@@ -4,6 +4,7 @@ description: MCP 协议解析、AI 应用架构拆解，以及为什么上下文
 date: 2025-03-18
 tags: [ai, mcp, architecture, frontend]
 lang: zh
+archived: true
 ---
 
 ## 背景

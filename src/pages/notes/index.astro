@@ -2,9 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
-const notes = (await getCollection('notes'))
+const allNotes = (await getCollection('notes'))
   .filter(n => !n.data.draft && (n.data.lang ?? 'en') === 'en')
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const notes = allNotes.filter(n => !n.data.archived);
+const archived = allNotes.filter(n => n.data.archived);
 ---
 
 <Base title="Notes" description="Technical notes on AI agents, frontend engineering, and building things.">
@@ -27,6 +30,22 @@ const notes = (await getCollection('notes'))
       </ul>
     )
   }
+
+  {archived.length > 0 && (
+    <section class="archive-section">
+      <h2 class="section-title" data-en="archived" data-zh="归档">archived</h2>
+      <ul class="list archived-list">
+        {archived.map(note => (
+          <li class="list-item">
+            <a href={`/notes/${note.slug}`}>{note.data.title}</a>
+            <time datetime={note.data.date.toISOString()}>
+              {note.data.date.toISOString().slice(0, 10)}
+            </time>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </Base>
 
 <style>
@@ -45,6 +64,19 @@ const notes = (await getCollection('notes'))
   }
   .list-item:first-child { border-top: 1px solid var(--border); }
   .list-item time { color: var(--muted); font-size: 0.78rem; white-space: nowrap; font-weight: 300; flex-shrink: 0; }
+
+  .archive-section { margin-top: 3rem; }
+  .section-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+    margin-bottom: 0.8rem;
+    opacity: 0.7;
+  }
+  .archived-list .list-item { opacity: 0.6; }
+  .archived-list .list-item:hover { opacity: 1; }
 
   @media (max-width: 480px) {
     .list-item {

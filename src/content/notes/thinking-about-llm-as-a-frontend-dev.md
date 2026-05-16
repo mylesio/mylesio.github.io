@@ -4,6 +4,7 @@ description: How LLMs are reshaping frontend development — prompts, tools, con
 date: 2025-01-09
 tags: [ai, frontend, llm, agent]
 lang: en
+archived: true
 zhSlug: thinking-about-llm-as-a-frontend-dev-zh
 ---
 

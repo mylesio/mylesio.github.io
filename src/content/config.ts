@@ -8,6 +8,7 @@ const notes = defineCollection({
     date: z.coerce.date(),
     tags: z.array(z.string()).optional(),
     draft: z.boolean().optional().default(false),
+    archived: z.boolean().optional().default(false),
     lang: z.enum(['en', 'zh']).optional().default('en'),
     enSlug: z.string().optional(),   // zh note → en counterpart
     zhSlug: z.string().optional(),   // en note → zh counterpart
