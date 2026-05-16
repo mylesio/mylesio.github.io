@@ -387,40 +387,50 @@ const isHome = Astro.url.pathname === '/';
         } catch(_) {}
 
         // Returns line x (stage-relative px) at a given stage-relative y
+        // Line height is capped at viewport height to stay within visible area
+        function lineHeight() {
+          return Math.min(stage.offsetHeight, window.innerHeight);
+        }
+
         function lineXatSY(sy) {
           const SW = stage.offsetWidth;
-          const SH = stage.offsetHeight;
-          const offset = Math.tan(SKEW_RAD) * SH / 2;
+          const LH = lineHeight();
+          const offset = Math.tan(SKEW_RAD) * LH / 2;
           const midX = splitRatio * SW;
-          const x1 = midX - offset; // x at sy=0
-          const x2 = midX + offset; // x at sy=SH
-          return x1 + (x2 - x1) * (sy / SH);
+          const x1 = midX - offset;
+          const x2 = midX + offset;
+          return x1 + (x2 - x1) * (sy / LH);
         }
 
         // ── Core update ────────────────────────────────────────────────────
         function updateSplit(ratio) {
           splitRatio = Math.max(0.02, Math.min(0.98, ratio));
           const SW = stage.offsetWidth;
-          const SH = stage.offsetHeight;
-          const offset = Math.tan(SKEW_RAD) * SH / 2;
+          const LH = lineHeight();
+          const offset = Math.tan(SKEW_RAD) * LH / 2;
           const midX = splitRatio * SW;
-          const x1 = midX - offset;  // stage-relative x at y=0
-          const x2 = midX + offset;  // stage-relative x at y=SH
+          const x1 = midX - offset;
+          const x2 = midX + offset;
 
-          // SVG line: stage-relative px (SVG is absolute inside stage, same size)
+          // SVG line spans only viewport height (clipped by stage overflow:hidden anyway)
           divLine.setAttribute('x1', x1.toFixed(1));
           divLine.setAttribute('y1', '0');
           divLine.setAttribute('x2', x2.toFixed(1));
-          divLine.setAttribute('y2', SH.toFixed(1));
+          divLine.setAttribute('y2', LH.toFixed(1));
 
-          // clip-path percentages for both layers
-          const p1 = ((x1 / SW) * 100).toFixed(3);
-          const p2 = ((x2 / SW) * 100).toFixed(3);
+          // Clip percentages (relative to stage width; y% relative to stage height)
+          const SH = stage.offsetHeight;
+          const p1 = ((x1 / SW) * 100).toFixed(3); // line x% at stage top
+          const p2 = ((x2 / SW) * 100).toFixed(3); // line x% at y=LH
+          const lhPct = ((LH / SH) * 100).toFixed(3); // viewport bottom as % of stage
 
+          // EN: left of line (above LH) + full width below LH
           if (enLayer) enLayer.style.clipPath =
-            `polygon(0% 0%, ${p1}% 0%, ${p2}% 100%, 0% 100%)`;
+            `polygon(0% 0%, ${p1}% 0%, ${p2}% ${lhPct}%, 100% ${lhPct}%, 100% 100%, 0% 100%)`;
+
+          // ZH: right of line, only above LH (no ZH content below viewport)
           if (zhLayer) zhLayer.style.clipPath =
-            `polygon(${p1}% 0%, 100% 0%, 100% 100%, ${p2}% 100%)`;
+            `polygon(${p1}% 0%, 100% 0%, 100% ${lhPct}%, ${p2}% ${lhPct}%)`;
 
           try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         }
@@ -434,10 +444,12 @@ const isHome = Astro.url.pathname === '/';
         }
 
         function nearLine(clientX, clientY) {
-          const sx = clientX - stage.getBoundingClientRect().left;
+          const rect = stage.getBoundingClientRect();
+          const sx = clientX - rect.left;
           const sy = stageY(clientY);
-          // Only react when mouse is vertically inside the stage
-          if (sy < 0 || sy > stage.offsetHeight) return false;
+          const LH = lineHeight();
+          // Only react when mouse is within line's vertical span
+          if (sy < 0 || sy > LH) return false;
           return Math.abs(sx - lineXatSY(sy)) < HIT_DIST;
         }
 
