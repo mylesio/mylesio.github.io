@@ -135,7 +135,7 @@ const showDivider = path === '/about' || path === '/about/'
         width: 100%;
         height: 48px;           /* clipped to navbar height when idle */
         overflow: hidden;
-        z-index: 40;            /* below navbar z:50 */
+        z-index: 60;            /* above navbar z:50 so idle dino is visible */
         pointer-events: none;   /* stage itself: no events */
         background: #f5f2ec;
         transition: height 0.4s ease-out;
@@ -165,7 +165,7 @@ const showDivider = path === '/about' || path === '/about/'
         width: 100%;
         height: 48px;
         background: transparent;  /* dino-stage provides bg */
-        z-index: 50;
+        z-index: 50;              /* below dino-stage z:60; above page content */
         pointer-events: auto;
       }
 
