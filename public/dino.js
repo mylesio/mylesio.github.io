@@ -14,7 +14,7 @@
 (function () {
   const canvas = document.getElementById('dino-canvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: false }); // no alpha = faster composite
 
   // ── Load sprite ──────────────────────────────────────────────────
   const spr = new Image();
@@ -196,22 +196,37 @@
   }
 
   // ── Main loop ────────────────────────────────────────────────────
+  let rafId = null;
+  function startLoop() {
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+  function stopLoop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  function drawIdleFrame() {
+    ctx.clearRect(0, 0, W, H);
+    if (spr.complete) {
+      ctx.drawImage(spr,
+        TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
+        dino.x, dino.y, IDLE_DW, IDLE_DH);
+    }
+  }
+
   function tick(ts) {
-    requestAnimationFrame(tick);
+    rafId = null; // clear before next rAF request
     const dt = Math.min(ts - (lastTs || ts), 50);
     lastTs = ts;
 
     ctx.clearRect(0, 0, W, H);
 
-    // ── IDLE: draw small static dino at logo position ────────────
+    // ── IDLE: draw static frame, no loop needed ───────────────────
     if (!started && !jumping) {
-      if (spr.complete) {
-        ctx.drawImage(spr,
-          TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
-          dino.x, dino.y, IDLE_DW, IDLE_DH);
-      }
-      return;
+      drawIdleFrame();
+      return; // do NOT re-schedule RAF — loop is stopped
     }
+
+    rafId = requestAnimationFrame(tick); // only continue loop if active
 
     // ── INTRO JUMP: parabola animation ───────────────────────────
     if (jumping) {
@@ -315,6 +330,7 @@
     window.dispatchEvent(new Event('dino-game-start'));
     // refresh idle pos right before launch (in case layout changed)
     initIdlePos();
+    startLoop(); // resume RAF loop (was stopped in idle state)
     introStartX = IDLE_X;
     introStartY = IDLE_Y;
     jumping = true;
@@ -463,5 +479,7 @@
   setTimeout(initIdlePos, 300);
 
   new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
-  requestAnimationFrame(tick);
+  // Draw idle frame once; RAF loop only starts when game begins
+  spr.onload = drawIdleFrame;
+  if (spr.complete) drawIdleFrame();
 })();
