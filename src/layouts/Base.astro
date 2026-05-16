@@ -485,15 +485,11 @@ const showDivider = path === '/about' || path === '/about/'
           return { vx0, vx1, VW, VH, SW, SH, rect };
         }
 
-        // viewport x of line at viewport y vy
-        function lineXatVY(vy) {
-          const { vx0, vx1, VH } = getGeom();
-          return vx0 + (vx1 - vx0) * (vy / VH);
-        }
-
-        // ── Render ────────────────────────────────────────────────────────
+                // ── Render ────────────────────────────────────────────────────────
         function render() {
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
+          // lineXatVY inlined — avoids extra getBoundingClientRect calls
+          function lineXatVY(vy) { return vx0 + (vx1 - vx0) * (vy / VH); }
 
           // Stage bounds in viewport coords
           const stageL = rect.left;
@@ -654,7 +650,12 @@ const showDivider = path === '/about' || path === '/about/'
         render();
         updateWings();
         window.addEventListener('resize', () => { render(); updateWings(); }, { passive: true });
-        window.addEventListener('scroll', render, { passive: true });
+        // No scroll listener — SVG line is position:fixed so doesn't move on scroll.
+        // clip-path uses getBoundingClientRect which changes on scroll, so update via rAF throttle.
+        let scrollRafId = null;
+        window.addEventListener('scroll', () => {
+          if (!scrollRafId) scrollRafId = requestAnimationFrame(() => { scrollRafId = null; render(); });
+        }, { passive: true });
       })();
     </script>
   </body>
