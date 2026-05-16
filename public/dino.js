@@ -47,7 +47,7 @@
   let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
 
   function resize() {
-    const newW = canvas.parentElement.clientWidth || 800;
+    const newW = canvas.parentElement.clientWidth || window.innerWidth || 800;
     if (newW === W) return;
     W = canvas.width  = newW;
     canvas.height = CANVAS_H;
@@ -156,6 +156,8 @@
   // Draw idle dino once (no RAF loop needed)
   function drawIdle() {
     if (!spr.complete) { spr.onload = drawIdle; return; }
+    if (!W) resize(); // ensure canvas has width
+    if (!W) return;   // still 0 → bail
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(spr, TREX_BASE_X + TREX_FRAMES.run[0], TREX_BASE_Y, TREX_W, TREX_H,
       dino.x, dino.y, IDLE_DW, IDLE_DH);
