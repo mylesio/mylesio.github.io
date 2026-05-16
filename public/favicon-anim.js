@@ -149,6 +149,9 @@
   let lastTick  = null;
   let done      = false;
 
+  // Stop favicon animation when dino game starts (perf: toDataURL is expensive)
+  window.addEventListener('dino-game-start', () => { done = true; }, { once: true });
+
   function loop(ts) {
     if (done) return;
     if (!startTime) startTime = ts;
@@ -156,11 +159,11 @@
     if (ts - lastTick >= INTERVAL) {
       lastTick = ts;
       const elapsed = ts - startTime;
-      const t = Math.min(elapsed / DURATION, 0.82); // clamp at rest phase start
+      const t = Math.min(elapsed / DURATION, 0.82);
       drawFrame(t);
       setFavicon(canvas.toDataURL('image/png'));
       if (elapsed >= DURATION * 0.82) {
-        done = true; // stop after arms are flat
+        done = true;
         return;
       }
     }
