@@ -145,16 +145,18 @@ const showDivider = path === '/about' || path === '/about/'
       }
 
       #dino-canvas {
-        position: absolute;
+        position: fixed;
         top: 0; left: 0; right: 0;
         width: 100%;
         height: 170px;
         display: block;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
-        z-index: 20;  /* idle: above navbar so dino is visible */
+        z-index: 49; /* below site-header z-index:50 in idle; JS raises to 51 during game */
         pointer-events: none;
         cursor: default;
+        will-change: transform;
+        transform: translateZ(0);
       }
       .site-header.expanded #dino-canvas {
         cursor: pointer;

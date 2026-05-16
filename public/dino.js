@@ -186,7 +186,7 @@
       // landed — now switch z-index so navbar covers canvas
       const siteHeader = canvas.closest('.site-header');
       if (siteHeader) siteHeader.classList.add('expanded');
-      canvas.style.zIndex = '5';
+      canvas.style.zIndex = "51";;
       dino.x = GAME_X;
       dino.y = GAME_Y;
       dino.vy = 0;
@@ -348,21 +348,19 @@
   const hitArea = document.createElement('div');
   hitArea.id = 'dino-hit-area';
   hitArea.title = 'Click to open game zone';
-  hitArea.style.cssText = 'position:absolute;z-index:21;cursor:pointer;pointer-events:auto;';
-  canvas.parentElement.appendChild(hitArea);
+  hitArea.style.cssText = 'position:fixed;z-index:51;cursor:pointer;pointer-events:auto;';
+  document.body.appendChild(hitArea);
 
   function updateHitArea() {
     if (!started && !jumping) {
       const rect = canvas.getBoundingClientRect();
-      const parentRect = canvas.parentElement.getBoundingClientRect();
-      // canvas.width === CSS px (no DPR scaling), so scale = 1:1
       const sx = rect.width / canvas.width;
       const sy = rect.height / canvas.height;
       const pad = 8;
       const w = (IDLE_DW + pad * 2) * sx;
       const h = (IDLE_DH + pad * 2) * sy;
-      const left = (IDLE_X - pad) * sx + rect.left - parentRect.left;
-      const top = (IDLE_Y - pad) * sy + rect.top - parentRect.top;
+      const left = (IDLE_X - pad) * sx + rect.left;
+      const top  = (IDLE_Y - pad) * sy + rect.top;
       hitArea.style.left = left + 'px';
       hitArea.style.top = top + 'px';
       hitArea.style.width = Math.max(w, 36) + 'px';
@@ -430,7 +428,7 @@
     if (siteHeader) siteHeader.classList.remove('expanded');
 
     // restore z-index and disable canvas pointer events
-    canvas.style.zIndex = '20';
+    canvas.style.zIndex = "49";;
     canvas.style.pointerEvents = 'none';
     canvas.style.cursor = 'default';
     updateHitArea();
