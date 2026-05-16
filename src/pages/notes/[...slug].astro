@@ -159,14 +159,4 @@ const dateStr = note.data.date.toISOString().slice(0, 10);
   .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 </style>
 
-<script>
-  // Move zh content template into the lang-zh-layer div
-  const tpl = document.getElementById('zh-content-tpl') as HTMLTemplateElement | null;
-  const layer = document.getElementById('lang-zh-layer');
-  if (tpl && layer) {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'padding: 1rem 0 5rem;';
-    wrap.appendChild(tpl.content.cloneNode(true));
-    layer.appendChild(wrap);
-  }
-</script>
+
