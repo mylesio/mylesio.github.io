@@ -261,8 +261,9 @@ const isHome = Astro.url.pathname === '/';
         opacity: 0.6;
         text-transform: uppercase;
       }
+      /* initial positions overridden by JS */
       .lang-label-en { left: 1rem; }
-      .lang-label-zh { right: 1rem; }
+      .lang-label-zh { left: 60%; }
 
       /* ZH layer font */
       .lang-zh-layer {
@@ -351,13 +352,14 @@ const isHome = Astro.url.pathname === '/';
         <!-- ZH layer: same slot content but zh versions, injected per-page -->
         <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
 
-        <!-- Divider SVG: absolute inside stage, overflow hidden clips the line -->
-        <svg id="lang-divider" aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;overflow:hidden;">
+        <!-- Divider SVG: absolute, sized & viewBox set by JS so overflow:hidden clips correctly -->
+        <svg id="lang-divider" aria-hidden="true"
+             style="position:absolute;top:0;left:0;pointer-events:none;z-index:10;overflow:hidden;">
           <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
         </svg>
 
-        <span class="lang-label-en">EN</span>
-        <span class="lang-label-zh">中</span>
+        <span class="lang-label-en" id="lang-label-en">EN</span>
+        <span class="lang-label-zh" id="lang-label-zh">中</span>
       </div>
 
       <footer>
@@ -375,53 +377,103 @@ const isHome = Astro.url.pathname === '/';
         const divLine = document.getElementById('lang-divider-line');
         if (!stage || !divLine) return;
 
-        const SKEW_DEG = 12;
-        const SKEW_RAD = SKEW_DEG * Math.PI / 180;
-        const HIT_DIST = 24; // px from line to activate ew-resize cursor
+        const SKEW_DEG  = 12;
+        const SKEW_RAD  = SKEW_DEG * Math.PI / 180;
+        const HIT_DIST  = 24;
+        const SNAP_MIN  = 0.05;
+        const SNAP_MAX  = 0.95;
 
-        // splitRatio: fraction of stage width where line mid-point sits
+        // splitRatio: fraction of stage width at mid-height
         let splitRatio = 0.82;
         try {
           const s = parseFloat(localStorage.getItem(SPLIT_KEY));
-          if (!isNaN(s)) splitRatio = Math.max(0.02, Math.min(0.98, s));
+          if (!isNaN(s)) splitRatio = Math.max(SNAP_MIN, Math.min(SNAP_MAX, s));
         } catch(_) {}
 
-        // Returns line x (stage-relative px) at a given stage-relative y
-        function lineXatSY(sy) {
-          const SW = stage.offsetWidth;
-          const SH = stage.offsetHeight;
-          const offset = Math.tan(SKEW_RAD) * SH / 2;
-          const midX = splitRatio * SW;
-          const x1 = midX - offset; // x at sy=0
-          const x2 = midX + offset; // x at sy=SH
-          return x1 + (x2 - x1) * (sy / SH);
+        // Line height = viewport height (NOT stage height — stage can be very tall)
+        // This keeps the visible skew angle reasonable.
+        function lineH() { return window.innerHeight; }
+
+        // Stage-relative x of the line at stage-relative y `sy`
+        function lineXatSY(sy, ratio) {
+          const SW  = stage.offsetWidth;
+          const LH  = lineH();
+          const off = Math.tan(SKEW_RAD) * LH / 2;
+          const mid = (ratio ?? splitRatio) * SW;
+          // Line spans sy=0..LH; outside that range extrapolate (for nearLine checks)
+          return (mid - off) + (2 * off) * (sy / LH);
         }
 
-        // ── Core update ────────────────────────────────────────────────────
-        function updateSplit(ratio) {
-          splitRatio = Math.max(0.02, Math.min(0.98, ratio));
-          const SW = stage.offsetWidth;
-          const SH = stage.offsetHeight;
-          const offset = Math.tan(SKEW_RAD) * SH / 2;
-          const midX = splitRatio * SW;
-          const x1 = midX - offset;  // stage-relative x at y=0
-          const x2 = midX + offset;  // stage-relative x at y=SH
+        // ── Render ──────────────────────────────────────────────────────────
+        const svgEl = document.getElementById('lang-divider');
+        const labelEN = document.getElementById('lang-label-en');
+        const labelZH = document.getElementById('lang-label-zh');
 
-          // SVG line: stage-relative px (SVG is absolute inside stage, same size)
+        function render(ratio) {
+          const SW  = stage.offsetWidth;
+          const SH  = stage.offsetHeight;
+          const LH  = lineH();
+          const off = Math.tan(SKEW_RAD) * LH / 2;
+          const mid = ratio * SW;
+          const x1  = mid - off;   // stage x at sy=0
+          const x2  = mid + off;   // stage x at sy=LH
+
+          // SVG: size it to SW × LH, set viewBox so overflow:hidden clips correctly
+          if (svgEl) {
+            svgEl.setAttribute('width',   SW);
+            svgEl.setAttribute('height',  LH);
+            svgEl.setAttribute('viewBox', `0 0 ${SW} ${LH}`);
+          }
           divLine.setAttribute('x1', x1.toFixed(1));
           divLine.setAttribute('y1', '0');
           divLine.setAttribute('x2', x2.toFixed(1));
-          divLine.setAttribute('y2', SH.toFixed(1));
+          divLine.setAttribute('y2', LH.toFixed(1));
 
-          // clip-path percentages for both layers
-          const p1 = ((x1 / SW) * 100).toFixed(3);
-          const p2 = ((x2 / SW) * 100).toFixed(3);
+          // clip-path for the two content layers (percentages of stage)
+          // At stage y=0: line is at x1; at y=SH: extrapolate the same slope
+          const xBot = (mid - off) + (2 * off) * (SH / LH);
+          const p1 = ((x1   / SW) * 100).toFixed(3);
+          const p2 = ((xBot / SW) * 100).toFixed(3);
 
           if (enLayer) enLayer.style.clipPath =
             `polygon(0% 0%, ${p1}% 0%, ${p2}% 100%, 0% 100%)`;
           if (zhLayer) zhLayer.style.clipPath =
             `polygon(${p1}% 0%, 100% 0%, 100% 100%, ${p2}% 100%)`;
 
+          // Labels: position left of / right of the line at 30% height,
+          // clipped by stage overflow:hidden naturally
+          const labelY_pct = 0.30;
+          const lineAtLabel = lineXatSY(LH * labelY_pct, ratio);
+          if (labelEN) labelEN.style.left  = Math.max(4, lineAtLabel - 36) + 'px';
+          if (labelZH) labelZH.style.left  = (lineAtLabel + 12) + 'px';
+        }
+
+        // ── Spring snap ─────────────────────────────────────────────────────
+        let snapRaf = null;
+        function snapTo(target) {
+          if (snapRaf) cancelAnimationFrame(snapRaf);
+          const from = splitRatio;
+          const t0   = performance.now();
+          const DUR  = 300;
+          function step(now) {
+            const p = Math.min((now - t0) / DUR, 1);
+            const e = 1 - Math.pow(1 - p, 3); // ease-out cubic
+            splitRatio = from + (target - from) * e;
+            render(splitRatio);
+            if (p < 1) snapRaf = requestAnimationFrame(step);
+            else {
+              splitRatio = target;
+              try { localStorage.setItem(SPLIT_KEY, target); } catch(_) {}
+            }
+          }
+          snapRaf = requestAnimationFrame(step);
+        }
+
+        // ── updateSplit: called during drag ─────────────────────────────────
+        function updateSplit(ratio) {
+          // Allow dragging slightly beyond snap bounds for "tension" feel
+          splitRatio = Math.max(0.01, Math.min(0.99, ratio));
+          render(splitRatio);
           try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         }
 
@@ -429,15 +481,12 @@ const isHome = Astro.url.pathname === '/';
         let dragging = false;
         let dragStartX = 0, dragStartRatio = 0;
 
-        function stageY(clientY) {
-          return clientY - stage.getBoundingClientRect().top;
-        }
-
         function nearLine(clientX, clientY) {
-          const sx = clientX - stage.getBoundingClientRect().left;
-          const sy = stageY(clientY);
-          // Only react when mouse is vertically inside the stage
-          if (sy < 0 || sy > stage.offsetHeight) return false;
+          const rect = stage.getBoundingClientRect();
+          const sx = clientX - rect.left;
+          const sy = clientY - rect.top;
+          // Only react within the visible line height (viewport height)
+          if (sy < 0 || sy > lineH()) return false;
           return Math.abs(sx - lineXatSY(sy)) < HIT_DIST;
         }
 
@@ -464,8 +513,12 @@ const isHome = Astro.url.pathname === '/';
         }, { passive: false });
 
         window.addEventListener('mouseup', () => {
+          if (!dragging) return;
           dragging = false;
           stage.style.cursor = '';
+          // Snap back if dragged outside comfortable range
+          if (splitRatio < SNAP_MIN) snapTo(SNAP_MIN);
+          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
         });
 
         // ── Touch ───────────────────────────────────────────────────────────
@@ -487,12 +540,16 @@ const isHome = Astro.url.pathname === '/';
           updateSplit(dragStartRatio + dx / stage.offsetWidth);
         }, { passive: true });
 
-        window.addEventListener('touchend', () => { dragging = false; });
+        window.addEventListener('touchend', () => {
+          if (!dragging) return;
+          dragging = false;
+          if (splitRatio < SNAP_MIN) snapTo(SNAP_MIN);
+          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
+        });
 
-        // Init + resize
-        updateSplit(splitRatio);
-        window.addEventListener('resize', () => updateSplit(splitRatio), { passive: true });
-        window.addEventListener('scroll', () => updateSplit(splitRatio), { passive: true });
+        // Init + resize (no scroll listener needed — SVG is absolute in stage)
+        render(splitRatio);
+        window.addEventListener('resize', () => render(splitRatio), { passive: true });
       })();
     </script>
   </body>
