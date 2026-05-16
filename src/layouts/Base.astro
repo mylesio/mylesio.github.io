@@ -351,6 +351,38 @@ const showDivider = path === '/about' || path === '/about/'
           flex-direction: column;
           gap: 0.4rem;
         }
+
+        /* Mobile: stack EN on top, ZH below — no split divider */
+        .lang-stage {
+          overflow: visible;
+        }
+        .lang-zh-layer {
+          position: static;
+          width: 100%;
+          min-height: unset;
+          padding: 2rem 0 5rem;
+          border-top: 1px solid var(--muted);
+          margin-top: 1rem;
+        }
+        /* Remove section min-height alignment on mobile (stacked, not side by side) */
+        .lang-section {
+          min-height: unset !important;
+        }
+        .post-header {
+          min-height: unset !important;
+        }
+        /* Hide split divider + wings + labels on mobile */
+        #lang-divider,
+        #lang-wing-l,
+        #lang-wing-r,
+        #lang-label-en,
+        #lang-label-zh {
+          display: none !important;
+        }
+        /* EN layer: restore normal clip */
+        #lang-en-layer {
+          clip-path: none !important;
+        }
       }
 
       /* ─── Page entrance ──────────────────────────── */
