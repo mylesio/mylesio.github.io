@@ -172,7 +172,12 @@ const isHome = Astro.url.pathname === '/';
         padding: 0.75rem 1.5rem;
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.5rem;
+      }
+      .nav-inner nav {
+        flex: 1;          /* nav 撑满中间，lang-toggle 自然靠右 */
+        display: flex;
+        gap: 1.5rem;
       }
 
       .logo {
@@ -186,7 +191,7 @@ const isHome = Astro.url.pathname === '/';
       }
       .logo:hover { color: var(--accent); text-decoration: none; }
 
-      nav { display: flex; gap: 1.5rem; }
+      /* nav flex handled by .nav-inner nav above */
 
       header a.nav-link {
         color: #888;
@@ -218,8 +223,8 @@ const isHome = Astro.url.pathname === '/';
 
       /* ─── Lang toggle ────────────────────────────── */
       .lang-toggle {
-        margin-left: auto;
         background: none;
+        flex-shrink: 0;
         border: 1px solid var(--border);
         color: var(--muted);
         font-family: var(--mono);
