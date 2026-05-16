@@ -358,7 +358,11 @@ const isHome = Astro.url.pathname === '/';
         <!-- Divider SVG: fixed to viewport so line only appears within current view -->
         <svg id="lang-divider" aria-hidden="true"
              style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:visible;pointer-events:none;z-index:10;">
-          <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
+          <!-- solid segment: within stage bounds -->
+          <line id="lang-divider-solid" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
+          <!-- dashed segments: outside stage bounds (left overflow + right overflow) -->
+          <line id="lang-divider-dash-l" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
+          <line id="lang-divider-dash-r" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
         </svg>
 
         <span class="lang-label-en" id="lang-label-en">EN</span>
@@ -379,10 +383,12 @@ const isHome = Astro.url.pathname === '/';
         const enLayer = document.getElementById('lang-en-layer');
         const zhLayer = document.getElementById('lang-zh-layer');
         const svgEl   = document.getElementById('lang-divider');
-        const divLine = document.getElementById('lang-divider-line');
+        const divSolid = document.getElementById('lang-divider-solid');
+        const divDashL = document.getElementById('lang-divider-dash-l');
+        const divDashR = document.getElementById('lang-divider-dash-r');
         const labelEN = document.getElementById('lang-label-en');
         const labelZH = document.getElementById('lang-label-zh');
-        if (!stage || !divLine) return;
+        if (!stage || !divSolid) return;
 
         const SKEW_DEG = 15; // ~75° from horizontal (nearly vertical)
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
@@ -428,11 +434,49 @@ const isHome = Astro.url.pathname === '/';
         function render() {
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
 
-          // Line drawn at full fixed angle — no endpoint clamping (would change slope)
-          divLine.setAttribute('x1', vx0.toFixed(1));
-          divLine.setAttribute('y1', '0');
-          divLine.setAttribute('x2', vx1.toFixed(1));
-          divLine.setAttribute('y2', VH.toFixed(1));
+          // Stage bounds in viewport coords
+          const stageL = rect.left;
+          const stageR = rect.left + SW;
+
+          // Full line spans vy=0..VH in viewport coords
+          // Find where line crosses stageL and stageR (viewport y)
+          // lineXatVY(vy) = vx0 + (vx1-vx0)*(vy/VH)
+          // Invert: vy = (x - vx0) / (vx1-vx0) * VH
+          const slope = (vx1 - vx0); // dx over full VH
+          function vyAtVX(vx) {
+            if (Math.abs(slope) < 0.001) return null; // nearly vertical, no crossing
+            return ((vx - vx0) / slope) * VH;
+          }
+
+          const vyL = vyAtVX(stageL); // vy where line crosses stage left edge
+          const vyR = vyAtVX(stageR); // vy where line crosses stage right edge
+
+          // Determine entry/exit vy within viewport [0, VH]
+          // Line goes / direction: top=right, bottom=left → crosses stageR at top, stageL at bottom
+          const vyEnter = Math.max(0, Math.min(VH, Math.min(vyL ?? 0,  vyR ?? 0)));
+          const vyExit  = Math.max(0, Math.min(VH, Math.max(vyL ?? VH, vyR ?? VH)));
+
+          // Helper: set or hide a line element
+          function setLine(el, x1, y1, x2, y2, show) {
+            if (show) {
+              el.setAttribute('x1', x1.toFixed(1)); el.setAttribute('y1', y1.toFixed(1));
+              el.setAttribute('x2', x2.toFixed(1)); el.setAttribute('y2', y2.toFixed(1));
+              el.setAttribute('visibility', 'visible');
+            } else {
+              el.setAttribute('visibility', 'hidden');
+            }
+          }
+
+          // Solid segment: within stage (vyEnter → vyExit)
+          const sxEnter = lineXatVY(vyEnter);
+          const sxExit  = lineXatVY(vyExit);
+          setLine(divSolid, sxEnter, vyEnter, sxExit, vyExit, vyEnter < vyExit);
+
+          // Dashed top segment: above stage entry (0 → vyEnter)
+          setLine(divDashL, vx0, 0, sxEnter, vyEnter, vyEnter > 0);
+
+          // Dashed bottom segment: below stage exit (vyExit → VH)
+          setLine(divDashR, sxExit, vyExit, vx1, VH, vyExit < VH);
 
           // clip-path in stage %
           const sxTop = lineXatVY(rect.top)      - rect.left;
