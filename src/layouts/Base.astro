@@ -471,7 +471,7 @@ const showDivider = path === '/about' || path === '/about/'
 
         // splitRatio: 0~1, based on VIEWPORT width
         // This means clientX / innerWidth = splitRatio at the mid-height of the line
-        let splitRatio = 0.80;
+        let splitRatio = 0.50;
         try {
           const s = parseFloat(localStorage.getItem(SPLIT_KEY));
           if (!isNaN(s)) splitRatio = s; // restore as-is, snap will fix if needed
