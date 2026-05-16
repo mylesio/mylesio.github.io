@@ -64,7 +64,7 @@
   let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
 
   function resize() {
-    const newW = window.innerWidth || 800;
+    const newW = document.getElementById('dino-stage').clientWidth || 800;
     if (newW === W) return;
     W = canvas.width  = newW;
     canvas.height = CANVAS_H;
