@@ -590,7 +590,9 @@ const showDivider = path === '/about' || path === '/about/'
         // nearLine: viewport coords directly (SVG is fixed)
         function nearLine(cx, cy) {
           if (cy < 0 || cy > window.innerHeight) return false;
-          return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
+          const { vx0, vx1, VH } = getGeom();
+          const lx = vx0 + (vx1 - vx0) * (cy / VH);
+          return Math.abs(cx - lx) < HIT_DIST;
         }
 
         let mouseMoveRaf = null;
