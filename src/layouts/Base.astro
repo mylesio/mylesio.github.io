@@ -447,14 +447,13 @@ const showDivider = path === '/about' || path === '/about/'
         }
 
         // ── Section height alignment ─────────────────────────────────────
-        // Wrap prose children into h2-delimited section divs, then pairwise
-        // set min-height so EN and ZH sections stay equal in height.
-        // Only runs once; resize re-measures and updates min-heights.
+        // Wrap prose children into h2-delimited section divs SYNCHRONOUSLY
+        // (before first paint) so there's no visible DOM restructure later.
+        // min-height is set after fonts load (async) to get accurate heights.
         let enSectionDivs = [];
         let zhSectionDivs = [];
 
         function wrapSections(prose) {
-          // Group children: each group starts with an h2 (or the initial block)
           const groups = [];
           let cur = [];
           Array.from(prose.children).forEach(child => {
@@ -466,7 +465,6 @@ const showDivider = path === '/about' || path === '/about/'
             }
           });
           if (cur.length) groups.push(cur);
-
           return groups.map(els => {
             const wrap = document.createElement('div');
             wrap.className = 'lang-section';
@@ -476,37 +474,25 @@ const showDivider = path === '/about' || path === '/about/'
           });
         }
 
-        function alignSections() {
-          // Mobile: two layers overlap — min-height would push ZH sections out of sync.
-          // On mobile, clear any previously set min-heights and bail out.
-          if (window.innerWidth <= 480) {
-            enSectionDivs.forEach(el => { el.style.minHeight = ''; });
-            zhSectionDivs.forEach(el => { el.style.minHeight = ''; });
-            const _enH = document.querySelector('#lang-en-layer .post-header');
-            const _zhH = document.querySelector('#lang-zh-layer .post-header');
-            if (_enH) _enH.style.minHeight = '';
-            if (_zhH) _zhH.style.minHeight = '';
-            return;
+        // Wrap immediately (sync) — no visual flash
+        (function doWrap() {
+          const enLayer0 = document.getElementById('lang-en-layer');
+          const zhLayer0 = document.getElementById('lang-zh-layer');
+          if (!enLayer0 || !zhLayer0) return;
+          const enProse0 = enLayer0.querySelector('.prose');
+          const zhProse0 = zhLayer0.querySelector('.prose');
+          if (enProse0 && zhProse0 && enSectionDivs.length === 0) {
+            enSectionDivs = wrapSections(enProse0);
+            zhSectionDivs = wrapSections(zhProse0);
           }
+        })();
+
+        function alignSections() {
           const enLayer2 = document.getElementById('lang-en-layer');
           const zhLayer2 = document.getElementById('lang-zh-layer');
           if (!enLayer2 || !zhLayer2) return;
 
           // Wrap once
-          if (enSectionDivs.length === 0) {
-            const enProse = enLayer2.querySelector('.prose');
-            const zhProse = zhLayer2.querySelector('.prose');
-            if (enProse && zhProse) {
-              enSectionDivs = wrapSections(enProse);
-              zhSectionDivs = wrapSections(zhProse);
-            }
-            // Also align headers
-            const enHeader = enLayer2.querySelector('.post-header');
-            const zhHeader = zhLayer2.querySelector('.post-header');
-            if (enHeader) enHeader.classList.add('lang-header-en');
-            if (zhHeader) zhHeader.classList.add('lang-header-zh');
-          }
-
           // Re-measure and set min-heights on each pair
           const len = Math.min(enSectionDivs.length, zhSectionDivs.length);
           for (let i = 0; i < len; i++) {
