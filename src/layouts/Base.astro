@@ -435,10 +435,18 @@ const showDivider = path === '/about' || path === '/about/'
         if (!document.getElementById('lang-divider')) return; // not a divider page, exit immediately
 
         // Inject ZH content from template into ZH layer
-        const tpl = document.getElementById('zh-content-tpl');
-        const zhLayerInit = document.getElementById('lang-zh-layer');
-        if (tpl && zhLayerInit && zhLayerInit.childElementCount === 0) {
-          zhLayerInit.appendChild(tpl.content.cloneNode(true));
+        // Must run after full DOM is parsed (template may be after this script tag)
+        function injectZH() {
+          const tpl = document.getElementById('zh-content-tpl');
+          const zhLayerInit = document.getElementById('lang-zh-layer');
+          if (tpl && zhLayerInit && zhLayerInit.childElementCount === 0) {
+            zhLayerInit.appendChild(tpl.content.cloneNode(true));
+          }
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', injectZH);
+        } else {
+          injectZH();
         }
 
         const SPLIT_KEY = 'lang-split-x';
