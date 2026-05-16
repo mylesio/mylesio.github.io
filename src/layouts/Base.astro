@@ -381,7 +381,7 @@ const isHome = Astro.url.pathname === '/';
         const labelZH = document.getElementById('lang-label-zh');
         if (!stage || !divLine) return;
 
-        const SKEW_DEG = 12;
+        const SKEW_DEG = 15; // ~75° from horizontal (nearly vertical)
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
         const HIT_DIST = 28;   // px from line to activate cursor
         const SNAP_MIN = 0.05; // snap back inside these bounds on release
@@ -407,8 +407,8 @@ const isHome = Astro.url.pathname === '/';
           const off = Math.tan(SKEW_RAD) * window.innerHeight / 2;
           const midX = splitRatio * SW;
           // Right-leaning (\): top x < midX, bottom x > midX
-          const x0 = midX - off; // x at y=0   (top of stage)
-          const xH = midX + off; // x at y=SH  (bottom of stage)
+          const x0 = midX + off; // x at y=0   top-right → bottom-left (/ direction)
+          const xH = midX - off; // x at y=SH
           return { x0, xH, SW, SH };
         }
 
