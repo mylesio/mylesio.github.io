@@ -355,9 +355,9 @@ const isHome = Astro.url.pathname === '/';
           <slot />
         </main>
 
-        <!-- Divider SVG: full stage size, line stays within SVG bounds -->
+        <!-- Divider SVG: fixed to viewport so line only appears within current view -->
         <svg id="lang-divider" aria-hidden="true"
-             style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:10;">
+             style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:visible;pointer-events:none;z-index:10;">
           <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
         </svg>
 
@@ -400,63 +400,59 @@ const isHome = Astro.url.pathname === '/';
 
         // ── Geometry: stage-local coords throughout ───────────────────────
         // ── Geometry ─────────────────────────────────────────────────────
+        // SVG is position:fixed (100vw×100vh) → line coords are viewport (clientX/Y).
+        // splitRatio = fraction of stage width; midX in stage-local → convert to viewport x.
         // Line direction: top-right → bottom-left (/ shape).
-        // midX = splitRatio * SW is where the line crosses the STAGE MID-HEIGHT.
-        // off = tan(skew) * VH/2 → horizontal half-span across viewport height.
-        // Line is only drawn within the CURRENT VIEWPORT (not the full stage).
 
         function getGeom() {
-          const SW   = stage.offsetWidth;
-          const SH   = stage.offsetHeight;
-          const VH   = window.innerHeight;
-          const off  = Math.tan(SKEW_RAD) * VH / 2;
-          const midX = splitRatio * SW;
-          // viewport top/bottom in stage-local y (depends on scroll)
+          const VW  = window.innerWidth;
+          const VH  = window.innerHeight;
+          const SW  = stage.offsetWidth;
+          const SH  = stage.offsetHeight;
+          const off = Math.tan(SKEW_RAD) * VH / 2;
+          // midX in viewport coords: stage left + splitRatio * stage width
           const rect  = stage.getBoundingClientRect();
-          const vyTop = -rect.top;                          // stage-local y at viewport top
-          const vyBot = vyTop + VH;                        // stage-local y at viewport bottom
-          // line x at viewport top and bottom (/ direction: top=right, bot=left)
-          const lxTop = midX + off * ((SH / 2 - vyTop) / (SH / 2)); // simplified to slope
-          const lxBot = midX - off * ((vyBot - SH / 2) / (SH / 2));
-          // Use a stable slope: x(sy) = midX + off * (1 - 2*sy/SH)   [/ direction]
-          // At sy=0: x = midX+off, at sy=SH: x = midX-off
-          return { SW, SH, VH, off, midX, vyTop: Math.max(0, vyTop), vyBot: Math.min(SH, vyBot) };
+          const midVX = rect.left + splitRatio * SW;
+          // / direction: top = right, bottom = left
+          const vx0 = midVX + off;  // viewport x at vy=0
+          const vx1 = midVX - off;  // viewport x at vy=VH
+          return { vx0, vx1, VW, VH, SW, SH, rect };
         }
 
-        // x of line at stage-local y sy  (/ direction)
-        function lineXatSY(sy) {
-          const { midX, off, SH } = getGeom();
-          return midX + off * (1 - 2 * sy / SH);
+        // viewport x of line at viewport y vy
+        function lineXatVY(vy) {
+          const { vx0, vx1, VH } = getGeom();
+          return vx0 + (vx1 - vx0) * (vy / VH);
         }
 
         // ── Render ────────────────────────────────────────────────────────
         function render() {
-          const { SW, SH, vyTop, vyBot } = getGeom();
+          const { vx0, vx1, VH, SW, SH, rect } = getGeom();
 
-          // Line only spans the visible viewport within stage
-          const lx0 = lineXatSY(vyTop);
-          const lx1 = lineXatSY(vyBot);
+          // Line in viewport coords (SVG is fixed, spans full viewport)
+          divLine.setAttribute('x1', vx0.toFixed(1));
+          divLine.setAttribute('y1', '0');
+          divLine.setAttribute('x2', vx1.toFixed(1));
+          divLine.setAttribute('y2', VH.toFixed(1));
 
-          divLine.setAttribute('x1', lx0.toFixed(1));
-          divLine.setAttribute('y1', vyTop.toFixed(1));
-          divLine.setAttribute('x2', lx1.toFixed(1));
-          divLine.setAttribute('y2', vyBot.toFixed(1));
-
-          // clip-path uses full stage height (content must be clipped everywhere)
-          const p0 = ((lineXatSY(0)  / SW) * 100).toFixed(3) + '%';
-          const p1 = ((lineXatSY(SH) / SW) * 100).toFixed(3) + '%';
+          // clip-path in stage-local % — convert viewport line to stage coords
+          // At stage y=0 → viewport y = rect.top
+          // At stage y=SH → viewport y = rect.top + SH
+          const sxTop = lineXatVY(rect.top)        - rect.left;
+          const sxBot = lineXatVY(rect.top + SH)   - rect.left;
+          const p0 = ((sxTop / SW) * 100).toFixed(3) + '%';
+          const p1 = ((sxBot / SW) * 100).toFixed(3) + '%';
           if (enLayer) enLayer.style.clipPath =
             `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // ── Labels: fixed at top of stage, no JS top positioning ──
-          // x position follows the line at stage top (sy=0)
-          const labelX = lineXatSY(0);
+          // ── Labels: CSS top:1.5rem fixed, only left is updated ──
+          // Label x follows line at stage top (viewport y = rect.top)
+          const labelVX = lineXatVY(rect.top);
+          const labelX  = labelVX - rect.left; // stage-local x
           if (splitRatio <= 0.5) {
-            // EN dominant (line on left, EN fills right) → show EN label right of line
             if (labelEN) { labelEN.style.left = (labelX + 14) + 'px'; labelEN.style.opacity = '0.7'; }
             if (labelZH) { labelZH.style.opacity = '0'; }
           } else {
-            // ZH dominant (line on right, ZH fills left) → show ZH label left of line
             if (labelZH) { labelZH.style.left = Math.max(4, labelX - 52) + 'px'; labelZH.style.opacity = '0.7'; }
             if (labelEN) { labelEN.style.opacity = '0'; }
           }
@@ -487,20 +483,16 @@ const isHome = Astro.url.pathname === '/';
         let dragging = false;
         let dragStartCX = 0, dragStartRatio = 0;
 
-        // nearLine: convert clientX/Y to stage-local, check distance to line
+        // nearLine: viewport coords directly (SVG is fixed)
         function nearLine(cx, cy) {
-          const rect = stage.getBoundingClientRect();
-          const sx = cx - rect.left;
-          const sy = cy - rect.top;
-          const SH = stage.offsetHeight;
-          if (sy < 0 || sy > SH) return false;
-          return Math.abs(sx - lineXatSY(sy)) < HIT_DIST;
+          if (cy < 0 || cy > window.innerHeight) return false;
+          return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
         }
 
         window.addEventListener('mousemove', (e) => {
           if (dragging) {
             if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null; }
-            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth;
+            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth; // stage width = drag reference
             render();
             document.body.style.cursor = 'grabbing';
           } else {
@@ -553,7 +545,7 @@ const isHome = Astro.url.pathname === '/';
 
         render();
         window.addEventListener('resize', render, { passive: true });
-        window.addEventListener('scroll', render, { passive: true }); // viewport pos changes → line endpoint + label update
+        window.addEventListener('scroll', render, { passive: true }); // stageRect changes → clip-path needs update
       })();
     </script>
     </script>
