@@ -264,6 +264,9 @@ const isHome = Astro.url.pathname === '/';
       /* initial positions overridden by JS */
       .lang-label-en { left: 1rem; }
       .lang-label-zh { left: 60%; }
+      .lang-label-en, .lang-label-zh {
+        transition: opacity 0.2s;
+      }
 
       /* ZH layer font */
       .lang-zh-layer {
@@ -396,61 +399,71 @@ const isHome = Astro.url.pathname === '/';
         } catch(_) {}
 
         // ── Geometry: stage-local coords throughout ───────────────────────
-        // ── Geometry: pure stage-local, scroll-independent ───────────────
-        // Line tilts right (\): top-left to bottom-right.
-        // Anchor = stage center (SH/2). No BoundingClientRect → no scroll drift.
-        // off = horizontal half-span; uses window.innerHeight so angle ≈12° visually.
+        // ── Geometry ─────────────────────────────────────────────────────
+        // Line direction: top-right → bottom-left (/ shape).
+        // midX = splitRatio * SW is where the line crosses the STAGE MID-HEIGHT.
+        // off = tan(skew) * VH/2 → horizontal half-span across viewport height.
+        // Line is only drawn within the CURRENT VIEWPORT (not the full stage).
 
         function getGeom() {
-          const SW  = stage.offsetWidth;
-          const SH  = stage.offsetHeight;
-          const off = Math.tan(SKEW_RAD) * window.innerHeight / 2;
+          const SW   = stage.offsetWidth;
+          const SH   = stage.offsetHeight;
+          const VH   = window.innerHeight;
+          const off  = Math.tan(SKEW_RAD) * VH / 2;
           const midX = splitRatio * SW;
-          // Right-leaning (\): top x < midX, bottom x > midX
-          const x0 = midX + off; // x at y=0   top-right → bottom-left (/ direction)
-          const xH = midX - off; // x at y=SH
-          return { x0, xH, SW, SH };
+          // viewport top/bottom in stage-local y (depends on scroll)
+          const rect  = stage.getBoundingClientRect();
+          const vyTop = -rect.top;                          // stage-local y at viewport top
+          const vyBot = vyTop + VH;                        // stage-local y at viewport bottom
+          // line x at viewport top and bottom (/ direction: top=right, bot=left)
+          const lxTop = midX + off * ((SH / 2 - vyTop) / (SH / 2)); // simplified to slope
+          const lxBot = midX - off * ((vyBot - SH / 2) / (SH / 2));
+          // Use a stable slope: x(sy) = midX + off * (1 - 2*sy/SH)   [/ direction]
+          // At sy=0: x = midX+off, at sy=SH: x = midX-off
+          return { SW, SH, VH, off, midX, vyTop: Math.max(0, vyTop), vyBot: Math.min(SH, vyBot) };
         }
 
+        // x of line at stage-local y sy  (/ direction)
         function lineXatSY(sy) {
-          const { x0, xH, SH } = getGeom();
-          return x0 + (xH - x0) * (sy / SH);
+          const { midX, off, SH } = getGeom();
+          return midX + off * (1 - 2 * sy / SH);
         }
 
         // ── Render ────────────────────────────────────────────────────────
         function render() {
-          const { x0, xH, SW, SH } = getGeom();
+          const { SW, SH, vyTop, vyBot } = getGeom();
 
-          // SVG line in stage-local coords
-          divLine.setAttribute('x1', x0.toFixed(1));
-          divLine.setAttribute('y1', '0');
-          divLine.setAttribute('x2', xH.toFixed(1));
-          divLine.setAttribute('y2', SH.toFixed(1));
+          // Line only spans the visible viewport within stage
+          const lx0 = lineXatSY(vyTop);
+          const lx1 = lineXatSY(vyBot);
 
-          // clip-path percentages (relative to stage)
-          const p0 = ((x0 / SW) * 100).toFixed(3) + '%';
-          const p1 = ((xH / SW) * 100).toFixed(3) + '%';
+          divLine.setAttribute('x1', lx0.toFixed(1));
+          divLine.setAttribute('y1', vyTop.toFixed(1));
+          divLine.setAttribute('x2', lx1.toFixed(1));
+          divLine.setAttribute('y2', vyBot.toFixed(1));
 
-          // Left of line = ZH (drag left → more ZH)
-          // Right of line = EN (drag right → more EN)
-          // EN layer has background, clips to RIGHT side; ZH is below, exposed on LEFT
+          // clip-path uses full stage height (content must be clipped everywhere)
+          const p0 = ((lineXatSY(0)  / SW) * 100).toFixed(3) + '%';
+          const p1 = ((lineXatSY(SH) / SW) * 100).toFixed(3) + '%';
           if (enLayer) enLayer.style.clipPath =
             `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // Labels: ZH on left of line, EN on right of line
-          // Place labels at viewport-center height within stage (always visible)
-          const rect    = stage.getBoundingClientRect();
-          const labelSY = Math.max(0, Math.min(SH, window.innerHeight / 2 - rect.top));
+          // ── Labels ──
+          // Only the dominant side gets a label, shown near the line at viewport center
+          const labelSY = Math.max(vyTop, Math.min(vyBot, (vyTop + vyBot) / 2));
           const labelX  = lineXatSY(labelSY);
-          // ZH label: left of line (ZH content is on the left)
-          if (labelZH) {
-            labelZH.style.left = Math.max(4, labelX - 52) + 'px';
-            labelZH.style.top  = (labelSY - 10) + 'px';
-          }
-          // EN label: right of line (EN content is on the right)
-          if (labelEN) {
-            labelEN.style.left = (labelX + 14) + 'px';
-            labelEN.style.top  = (labelSY + 10) + 'px';
+          const labelTop = labelSY + 'px';
+
+          // splitRatio < 0.5: ZH dominates (line on left half) → show ZH tag left of line
+          // splitRatio > 0.5: EN dominates (line on right half) → show EN tag right of line
+          if (splitRatio <= 0.5) {
+            // ZH dominant: show ZH label LEFT of line, hide EN
+            if (labelZH) { labelZH.style.left = Math.max(4, labelX - 52) + 'px'; labelZH.style.top = labelTop; labelZH.style.opacity = '0.7'; }
+            if (labelEN) { labelEN.style.opacity = '0'; }
+          } else {
+            // EN dominant: show EN label RIGHT of line, hide ZH
+            if (labelEN) { labelEN.style.left = (labelX + 14) + 'px'; labelEN.style.top = labelTop; labelEN.style.opacity = '0.7'; }
+            if (labelZH) { labelZH.style.opacity = '0'; }
           }
         }
 
@@ -543,25 +556,9 @@ const isHome = Astro.url.pathname === '/';
           else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         });
 
-        // Labels need scroll update (their viewport position changes); line geometry does not
-        function renderLabels() {
-          const { SH } = getGeom();
-          const rect    = stage.getBoundingClientRect();
-          const labelSY = Math.max(0, Math.min(SH, window.innerHeight / 2 - rect.top));
-          const labelX  = lineXatSY(labelSY);
-          if (labelZH) {
-            labelZH.style.left = Math.max(4, labelX - 52) + 'px';
-            labelZH.style.top  = (labelSY - 10) + 'px';
-          }
-          if (labelEN) {
-            labelEN.style.left = (labelX + 14) + 'px';
-            labelEN.style.top  = (labelSY + 10) + 'px';
-          }
-        }
-
         render();
         window.addEventListener('resize', render, { passive: true });
-        window.addEventListener('scroll', renderLabels, { passive: true });
+        window.addEventListener('scroll', render, { passive: true }); // viewport pos changes → line endpoint + label update
       })();
     </script>
     </script>
