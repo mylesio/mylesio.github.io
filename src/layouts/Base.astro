@@ -443,6 +443,62 @@ const showDivider = path === '/about' || path === '/about/'
           zhLayerInit.appendChild(tpl.content.cloneNode(true));
         }
 
+        // ── Section height alignment ─────────────────────────────────────
+        // Align EN and ZH sections pairwise by inserting padding-bottom on the
+        // shorter section so both sides scroll in sync.
+        // Sections are delimited by <h2> tags inside .prose, plus .post-header.
+        function alignSections() {
+          const enLayer2 = document.getElementById('lang-en-layer');
+          const zhLayer2 = document.getElementById('lang-zh-layer');
+          if (!enLayer2 || !zhLayer2) return;
+
+          // Get section anchor elements: .post-header, then each h2 in .prose
+          function getAnchors(root) {
+            const anchors = [];
+            const header = root.querySelector('.post-header');
+            if (header) anchors.push(header);
+            root.querySelectorAll('.prose h2').forEach(h => anchors.push(h));
+            return anchors;
+          }
+
+          // Height from anchor top to next anchor top (or end of prose)
+          function sectionHeight(anchor, nextAnchor, root) {
+            const prose = root.querySelector('.prose');
+            const bottom = nextAnchor
+              ? nextAnchor.getBoundingClientRect().top
+              : (prose || anchor).getBoundingClientRect().bottom;
+            return bottom - anchor.getBoundingClientRect().top;
+          }
+
+          const enAnchors = getAnchors(enLayer2);
+          const zhAnchors = getAnchors(zhLayer2);
+          const len = Math.min(enAnchors.length, zhAnchors.length);
+
+          for (let i = 0; i < len; i++) {
+            const enA = enAnchors[i];
+            const zhA = zhAnchors[i];
+            // Reset previous padding
+            enA.style.paddingBottom = '';
+            zhA.style.paddingBottom = '';
+
+            const enH = sectionHeight(enA, enAnchors[i + 1], enLayer2);
+            const zhH = sectionHeight(zhA, zhAnchors[i + 1], zhLayer2);
+            const diff = enH - zhH;
+            if (diff > 4) {
+              zhA.style.paddingBottom = (diff) + 'px';
+            } else if (diff < -4) {
+              enA.style.paddingBottom = (-diff) + 'px';
+            }
+          }
+        }
+
+        // Run after fonts settle, then again on resize
+        if (document.fonts) {
+          document.fonts.ready.then(() => setTimeout(alignSections, 50));
+        } else {
+          setTimeout(alignSections, 300);
+        }
+
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
         const enLayer = document.getElementById('lang-en-layer');
@@ -671,7 +727,7 @@ const showDivider = path === '/about' || path === '/about/'
 
         render();
         updateWings();
-        window.addEventListener('resize', () => { render(); updateWings(); }, { passive: true });
+        window.addEventListener('resize', () => { render(); updateWings(); alignSections(); }, { passive: true });
         // No scroll listener — SVG line is position:fixed so doesn't move on scroll.
         // clip-path uses getBoundingClientRect which changes on scroll, so update via rAF throttle.
         let scrollRafId = null;
