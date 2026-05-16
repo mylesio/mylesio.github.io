@@ -406,8 +406,8 @@ const isHome = Astro.url.pathname === '/';
         const divLine = document.getElementById('lang-divider-line');
         if (!stage || !handle) return;
 
-        // Skew angle: 0 = vertical line
-        const SKEW_DEG = 0;
+        // Skew angle from vertical
+        const SKEW_DEG = 12;
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
 
         // Default: start mostly to the right (EN dominant)
