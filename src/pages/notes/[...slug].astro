@@ -3,32 +3,42 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const notes = await getCollection('notes');
-  return notes.map(note => ({
-    params: { slug: note.slug },
-    props: { note },
-  }));
+  const allNotes = await getCollection('notes');
+  // Only generate pages for EN notes (zh notes are embedded inside en pages)
+  const enNotes = allNotes.filter(n => (n.data.lang ?? 'en') === 'en');
+  const zhNotes = allNotes.filter(n => n.data.lang === 'zh');
+
+  return enNotes.map(note => {
+    const zhNote = note.data.zhSlug
+      ? zhNotes.find(z => z.slug === note.data.zhSlug)
+      : null;
+    return {
+      params: { slug: note.slug },
+      props: { note, zhNote: zhNote ?? null },
+    };
+  });
 }
 
-const { note } = Astro.props;
-const { Content } = await note.render();
+const { note, zhNote } = Astro.props;
+const { Content: ContentEN } = await note.render();
+const ContentZH = zhNote ? (await zhNote.render()).Content : null;
 const dateStr = note.data.date.toISOString().slice(0, 10);
-
-// Determine en/zh counterpart slug
-const isZh = note.data.lang === 'zh';
-const enSlug = isZh ? (note.data.enSlug ?? note.slug) : note.slug;
-const zhSlug = isZh ? note.slug : (note.data.zhSlug ?? null);
 ---
 
 <Base title={note.data.title} description={note.data.description}>
-  <article data-en-slug={enSlug} data-zh-slug={zhSlug ?? ''}>
+  <article>
     <header class="post-header">
       <p class="post-meta">
         <a href="/notes" data-en="notes" data-zh="笔记">notes</a>
         <span class="sep">/</span>
         <time datetime={note.data.date.toISOString()}>{dateStr}</time>
       </p>
-      <h1 class="post-title">{note.data.title}</h1>
+      <!-- title: show en or zh depending on lang -->
+      <h1 class="post-title"
+          data-en={note.data.title}
+          data-zh={zhNote?.data.title ?? note.data.title}>
+        {note.data.title}
+      </h1>
       {note.data.tags && (
         <div class="tags">
           {note.data.tags.map((tag: string) => (
@@ -37,9 +47,18 @@ const zhSlug = isZh ? note.slug : (note.data.zhSlug ?? null);
         </div>
       )}
     </header>
-    <div class="prose">
-      <Content />
+
+    <!-- EN content -->
+    <div class="prose" data-show-lang="en">
+      <ContentEN />
     </div>
+
+    <!-- ZH content (hidden by default, shown via data-show-lang) -->
+    {ContentZH && (
+      <div class="prose" data-show-lang="zh" style="display:none">
+        <ContentZH />
+      </div>
+    )}
   </article>
 </Base>
 
@@ -122,28 +141,3 @@ const zhSlug = isZh ? note.slug : (note.data.zhSlug ?? null);
   .prose th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 400; letter-spacing: 0.04em; font-size: 0.8em; text-transform: uppercase; }
   .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 </style>
-
-<script>
-  // On notes detail page: redirect to zh/en counterpart when lang toggles
-  (function () {
-    const article = document.querySelector('article[data-en-slug]');
-    if (!article) return;
-    const enSlug = article.getAttribute('data-en-slug');
-    const zhSlug = article.getAttribute('data-zh-slug');
-
-    function handleLangChange() {
-      const lang = document.documentElement.getAttribute('data-lang') || 'en';
-      const targetSlug = lang === 'zh' ? zhSlug : enSlug;
-      if (!targetSlug) return;   // no translation available, stay put
-      const targetPath = `/notes/${targetSlug}`;
-      const currentPath = window.location.pathname.replace(/\/$/, '');
-      if (targetPath !== currentPath) {
-        window.location.href = targetPath;
-      }
-    }
-
-    // Watch for data-lang attribute changes on <html>
-    const observer = new MutationObserver(() => handleLangChange());
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
-  })();
-</script>

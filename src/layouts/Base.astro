@@ -17,6 +17,9 @@ const isHome = Astro.url.pathname === '/';
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" />
     <script src="/favicon-anim.js" defer></script>
     <script src="/dino.js" defer></script>
     <style>
@@ -241,6 +244,48 @@ const isHome = Astro.url.pathname === '/';
         border-color: var(--accent);
       }
 
+      /* ─── Lang wipe overlay ──────────────────────── */
+      #lang-wipe {
+        position: fixed;
+        top: 0; left: 0;
+        width: 3px;
+        height: 100vh;
+        background: linear-gradient(
+          to right,
+          transparent,
+          rgba(2, 132, 199, 0.55) 40%,
+          rgba(2, 132, 199, 0.9) 50%,
+          rgba(2, 132, 199, 0.55) 60%,
+          transparent
+        );
+        transform: translateX(-20px);
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      #lang-wipe.wipe-running {
+        animation: langWipe 0.42s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes langWipe {
+        0%   { opacity: 0;   transform: translateX(-20px); }
+        8%   { opacity: 1;   transform: translateX(-20px); }
+        92%  { opacity: 1;   transform: translateX(calc(100vw + 20px)); }
+        100% { opacity: 0;   transform: translateX(calc(100vw + 20px)); }
+      }
+
+      /* ─── zh font ────────────────────────────────── */
+      [data-lang="zh"] body {
+        font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
+                     Georgia, 'Times New Roman', serif;
+        letter-spacing: 0.02em;
+      }
+      [data-lang="zh"] .logo,
+      [data-lang="zh"] a.nav-link,
+      [data-lang="zh"] .lang-toggle {
+        font-family: var(--mono); /* keep UI chrome in mono */
+      }
+
       /* ─── Mobile ─────────────────────────────────── */
       @media (max-width: 480px) {
         html { font-size: 14px; }
@@ -280,6 +325,8 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
+    <!-- lang wipe overlay -->
+    <div id="lang-wipe" aria-hidden="true"></div>
     <!-- banner contains canvas + absolute navbar on top -->
     <div class="site-header">
       <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play"></canvas>
@@ -306,29 +353,66 @@ const isHome = Astro.url.pathname === '/';
       </footer>
     </div>
     <script>
-      // ── i18n toggle ──────────────────────────────────────────────────────
+      // ── i18n + wipe transition ───────────────────────────────────────────
       (function () {
         const LANG_KEY = 'preferred-lang';
-        const toggle = document.getElementById('lang-toggle');
+        const toggle   = document.getElementById('lang-toggle');
+        const wipe     = document.getElementById('lang-wipe');
         if (!toggle) return;
 
-        function applyLang(lang) {
+        // Apply language without animation (init / restore)
+        function applyLang(lang, animate) {
+          if (animate && wipe) {
+            // 1. Fire wipe animation
+            wipe.classList.remove('wipe-running');
+            void wipe.offsetWidth; // reflow to reset
+            wipe.classList.add('wipe-running');
+
+            // 2. Swap content at ~50% of animation (210ms in, total 420ms)
+            setTimeout(() => swapContent(lang), 210);
+          } else {
+            swapContent(lang);
+          }
+        }
+
+        function swapContent(lang) {
           document.documentElement.setAttribute('data-lang', lang);
           toggle.textContent = lang === 'zh' ? '中' : 'EN';
+
+          // Swap data-en / data-zh text nodes
           document.querySelectorAll('[data-en][data-zh]').forEach(el => {
-            el.textContent = lang === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+            // Only swap textContent if the element has no significant child elements
+            // (i.e. it's a leaf text node container, not a wrapper with <a> children)
+            const hasLinks = el.querySelector('a');
+            if (!hasLinks) {
+              el.textContent = lang === 'zh'
+                ? el.getAttribute('data-zh')
+                : el.getAttribute('data-en');
+            }
           });
+
+          // Show/hide lang-specific content blocks
+          document.querySelectorAll('[data-show-lang]').forEach(el => {
+            const showFor = el.getAttribute('data-show-lang');
+            el.style.display = showFor === lang ? '' : 'none';
+          });
+
           try { localStorage.setItem(LANG_KEY, lang); } catch(_) {}
         }
 
-        // restore saved preference
+        // Restore saved preference (no animation on init)
         let saved = 'en';
         try { saved = localStorage.getItem(LANG_KEY) || 'en'; } catch(_) {}
-        applyLang(saved);
+        applyLang(saved, false);
 
+        // Toggle on click
+        let busy = false;
         toggle.addEventListener('click', () => {
+          if (busy) return;
+          busy = true;
+          setTimeout(() => { busy = false; }, 500);
           const current = document.documentElement.getAttribute('data-lang') || 'en';
-          applyLang(current === 'zh' ? 'en' : 'zh');
+          applyLang(current === 'zh' ? 'en' : 'zh', true);
         });
       })();
     </script>
