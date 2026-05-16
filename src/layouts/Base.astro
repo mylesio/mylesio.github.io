@@ -352,37 +352,7 @@ const showDivider = path === '/about' || path === '/about/'
           gap: 0.4rem;
         }
 
-        /* Mobile: stack EN on top, ZH below — no split divider */
-        .lang-stage {
-          overflow: visible;
-        }
-        .lang-zh-layer {
-          position: static;
-          width: 100%;
-          min-height: unset;
-          padding: 2rem 0 5rem;
-          border-top: 1px solid var(--muted);
-          margin-top: 1rem;
-        }
-        /* Remove section min-height alignment on mobile (stacked, not side by side) */
-        .lang-section {
-          min-height: unset !important;
-        }
-        .post-header {
-          min-height: unset !important;
-        }
-        /* Hide split divider + wings + labels on mobile */
-        #lang-divider,
-        #lang-wing-l,
-        #lang-wing-r,
-        #lang-label-en,
-        #lang-label-zh {
-          display: none !important;
-        }
-        /* EN layer: restore normal clip */
-        #lang-en-layer {
-          clip-path: none !important;
-        }
+
       }
 
       /* ─── Page entrance ──────────────────────────── */
@@ -507,16 +477,6 @@ const showDivider = path === '/about' || path === '/about/'
         }
 
         function alignSections() {
-          // Mobile: stacked layout, no alignment needed — clear any leftover min-heights
-          if (window.innerWidth <= 480) {
-            enSectionDivs.forEach(el => el.style.minHeight = '');
-            zhSectionDivs.forEach(el => el.style.minHeight = '');
-            const enH2 = document.querySelector('#lang-en-layer .post-header');
-            const zhH2 = document.querySelector('#lang-zh-layer .post-header');
-            if (enH2) enH2.style.minHeight = '';
-            if (zhH2) zhH2.style.minHeight = '';
-            return;
-          }
           const enLayer2 = document.getElementById('lang-en-layer');
           const zhLayer2 = document.getElementById('lang-zh-layer');
           if (!enLayer2 || !zhLayer2) return;
