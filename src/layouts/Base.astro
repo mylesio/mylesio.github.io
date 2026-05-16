@@ -510,16 +510,6 @@ const showDivider = path === '/about' || path === '/about/'
             }
           }
 
-          // Align headers
-          const enH2 = enLayer2.querySelector('.post-header');
-          const zhH2 = zhLayer2.querySelector('.post-header');
-          if (enH2 && zhH2) {
-            enH2.style.minHeight = '';
-            zhH2.style.minHeight = '';
-            const eh = enH2.offsetHeight, zh = zhH2.offsetHeight;
-            if (eh > zh + 4) zhH2.style.minHeight = eh + 'px';
-            else if (zh > eh + 4) enH2.style.minHeight = zh + 'px';
-          }
         }
 
         // Run once after fonts are ready and browser has completed first layout.
