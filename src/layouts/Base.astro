@@ -500,16 +500,15 @@ const showDivider = path === '/about' || path === '/about/'
           setL(divDashL, vx0, 0, lineXatVY(vyIn,g), vyIn, vyIn > 1);
           setL(divDashR, lineXatVY(vyOut,g), vyOut, vx1, VH, vyOut < VH - 1);
 
-          // clip-path: purely splitRatio-based, scroll-independent
-          // line x at stage y=0 (top): midX + off  →  (splitRatio + off/SW) * 100%
-          // line x at stage y=SH (bot): midX - off →  (splitRatio - off/SW) * 100%
-          const offPct = (off / SW) * 100;
-          const p0 = (splitRatio * 100 + offPct).toFixed(2) + '%';
-          const p1 = (splitRatio * 100 - offPct).toFixed(2) + '%';
+          // clip-path: EN layer right polygon (ZH exposed on left)
+          const sxTop = lineXatVY(cachedRect.top, g)          - stageL;
+          const sxBot = lineXatVY(cachedRect.top + SH, g)     - stageL;
+          const p0 = ((sxTop / SW) * 100).toFixed(2) + '%';
+          const p1 = ((sxBot / SW) * 100).toFixed(2) + '%';
           if (enLayer) enLayer.style.clipPath = `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // Labels (clamped inside stage) — x based on line at stage top
-          const rawLX = splitRatio * SW + off; // stage-local x at stage top
+          // Labels (clamped inside stage)
+          const rawLX = lineXatVY(cachedRect.top, g) - stageL;
           const LW = 32;
           if (splitRatio <= 0.5) {
             if (labelEN) { labelEN.style.left = Math.min(SW-LW, Math.max(4, rawLX+14))+'px'; labelEN.style.opacity='0.7'; }
@@ -617,8 +616,9 @@ const showDivider = path === '/about' || path === '/about/'
 
         render();
         updateWings();
-        // NO scroll listener — clip-path and line are scroll-independent
         window.addEventListener('resize', () => { render(); updateWings(); }, { passive: true });
+        // scroll: only need to re-render clip-path (cachedRect.top changes); no reflow on wings
+        window.addEventListener('scroll', render, { passive: true });
       })();
     </script>
   </body>
