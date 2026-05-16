@@ -153,8 +153,17 @@
     }
   }
 
+  // RAF interval probe: log first 10 frame gaps to console
+  let probeCount = 0;
+  let probePrev = 0;
+
   function tick(ts) {
     requestAnimationFrame(tick);
+    if (started && probeCount < 10) {
+      if (probePrev) console.log('[dino] frame gap:', (ts - probePrev).toFixed(1), 'ms →', (1000/(ts-probePrev)).toFixed(1), 'fps');
+      probePrev = ts;
+      probeCount++;
+    }
     const dt = Math.min(ts - (lastTs || ts), 50);
     lastTs = ts;
     ctx.clearRect(0, 0, W, H);
