@@ -352,10 +352,9 @@ const isHome = Astro.url.pathname === '/';
           <slot />
         </main>
 
-        <!-- Divider SVG: 1×1 placeholder, line coords set by JS, drawn in overflow:visible space -->
-        <!-- Stage overflow:hidden is what clips the line to the box -->
+        <!-- Divider SVG: full stage size, line stays within SVG bounds -->
         <svg id="lang-divider" aria-hidden="true"
-             style="position:absolute;top:0;left:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:10;">
+             style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:10;">
           <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
         </svg>
 
@@ -396,56 +395,56 @@ const isHome = Astro.url.pathname === '/';
           if (!isNaN(s)) splitRatio = s; // restore as-is, snap will fix if needed
         } catch(_) {}
 
-        // ── Geometry (all in viewport / clientX-Y space) ──────────────────
-        // The line passes through (splitRatio * VW, VH/2) at mid-viewport.
-        // x at viewport-y `vy`:  x(vy) = splitRatio*VW + tan(skew) * (vy - VH/2)
-        function lineXatVY(vy) {
-          const VW = window.innerWidth;
-          const VH = window.innerHeight;
-          return splitRatio * VW + Math.tan(SKEW_RAD) * (vy - VH / 2);
+        // ── Geometry: stage-local coords throughout ───────────────────────
+        // splitRatio = fraction of stage width where line crosses the viewport mid-height.
+        // We use window.innerHeight as the "reference height" for the skew angle,
+        // so the visual angle stays ~12° regardless of how tall the stage is.
+        // Line is drawn from stage y=0 to y=SH; stage overflow:hidden clips the rest.
+
+        function getGeom() {
+          const SW  = stage.offsetWidth;
+          const SH  = stage.offsetHeight;
+          const VH  = window.innerHeight;
+          const off = Math.tan(SKEW_RAD) * VH / 2; // horizontal offset over viewport height
+          const midX = splitRatio * SW;
+          // At stage y=0: x = midX - off * (stage_top_from_viewport_mid / VH*2)
+          // Simplification: anchor the mid-point at the center of the CURRENT viewport
+          // within the stage (= VH/2 - stageRect.top, clamped)
+          const rect   = stage.getBoundingClientRect();
+          const anchorY = Math.max(0, Math.min(SH, VH / 2 - rect.top)); // stage-local y
+          const x0 = midX - off * (anchorY / VH);          // x at stage y=0
+          const xH = midX + off * ((SH - anchorY) / VH);   // x at stage y=SH
+          return { x0, xH, SW, SH, off };
+        }
+
+        // stage-local x of line at stage-local y `sy`
+        function lineXatSY(sy) {
+          const { x0, xH, SH } = getGeom();
+          return x0 + (xH - x0) * (sy / SH);
         }
 
         // ── Render ────────────────────────────────────────────────────────
         function render() {
-          const VW  = window.innerWidth;
-          const VH  = window.innerHeight;
-          const rect = stage.getBoundingClientRect(); // stage in viewport coords
-          const SL = rect.left, ST = rect.top;
-          const SW = rect.width, SH = rect.height;
+          const { x0, xH, SW, SH } = getGeom();
 
-          // ── SVG line (stage-local coords, viewBox clipped) ──
-          // Convert viewport line endpoints to stage-local px
-          // Line spans vy = 0 (viewport top) to vy = VH (viewport bottom)
-          const vx_top = lineXatVY(0);
-          const vx_bot = lineXatVY(VH);
-          // Convert to stage-local
-          const sx_top = vx_top - SL; // stage x when vy=0  → sy = 0 - ST = -ST
-          const sx_bot = vx_bot - SL; // stage x when vy=VH → sy = VH - ST
-
-          // SVG line in stage-local coords (SVG is overflow:visible, stage clips it)
-          // At stage-local y=0  → viewport y = ST    → sx = lineXatVY(ST) - SL
-          // At stage-local y=SH → viewport y = ST+SH → sx = lineXatVY(ST+SH) - SL
-          const lx0 = lineXatVY(ST)      - SL;
-          const lx1 = lineXatVY(ST + SH) - SL;
-          divLine.setAttribute('x1', lx0.toFixed(1));
+          // SVG line: fully stage-local, SVG is 100%×100% of stage
+          divLine.setAttribute('x1', x0.toFixed(1));
           divLine.setAttribute('y1', '0');
-          divLine.setAttribute('x2', lx1.toFixed(1));
+          divLine.setAttribute('x2', xH.toFixed(1));
           divLine.setAttribute('y2', SH.toFixed(1));
 
-          // ── clip-path (percentage of stage) ──
-          const p0 = ((lx0 / SW) * 100).toFixed(3) + '%';
-          const p1 = ((lx1 / SW) * 100).toFixed(3) + '%';
+          // clip-path percentages (relative to stage)
+          const p0 = ((x0 / SW) * 100).toFixed(3) + '%';
+          const p1 = ((xH / SW) * 100).toFixed(3) + '%';
 
-          // Only clip EN layer (ZH is below, visible where EN is clipped away)
+          // EN layer: left of line (ZH is below, fully rendered, exposed on right)
           if (enLayer) enLayer.style.clipPath =
             `polygon(0% 0%, ${p0} 0%, ${p1} 100%, 0% 100%)`;
-          if (zhLayer) zhLayer.style.clipPath = ''; // ZH always fully rendered
 
-          // ── Labels: clipped by stage overflow:hidden ──
-          // Position at 1/3 height of visible viewport within stage
-          const labelVY = ST + VH * 0.25; // viewport y 25% down from stage top, clamped
-          const labelX  = lineXatVY(Math.max(ST, Math.min(ST + SH, labelVY))) - SL;
-          if (labelEN) labelEN.style.left = Math.max(4,  labelX - 40) + 'px';
+          // Labels follow the line at ~30% stage height
+          const labelSY = SH * 0.30;
+          const labelX  = lineXatSY(labelSY);
+          if (labelEN) labelEN.style.left = Math.max(4, labelX - 40) + 'px';
           if (labelZH) labelZH.style.left = (labelX + 10) + 'px';
         }
 
@@ -474,17 +473,20 @@ const isHome = Astro.url.pathname === '/';
         let dragging = false;
         let dragStartCX = 0, dragStartRatio = 0;
 
-        // nearLine: all in viewport coords (clientX/Y)
+        // nearLine: convert clientX/Y to stage-local, check distance to line
         function nearLine(cx, cy) {
-          const VH = window.innerHeight;
-          if (cy < 0 || cy > VH) return false;
-          return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
+          const rect = stage.getBoundingClientRect();
+          const sx = cx - rect.left;
+          const sy = cy - rect.top;
+          const SH = stage.offsetHeight;
+          if (sy < 0 || sy > SH) return false;
+          return Math.abs(sx - lineXatSY(sy)) < HIT_DIST;
         }
 
         window.addEventListener('mousemove', (e) => {
           if (dragging) {
             if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null; }
-            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / window.innerWidth;
+            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth;
             render();
             document.body.style.cursor = 'grabbing';
           } else {
@@ -523,7 +525,7 @@ const isHome = Astro.url.pathname === '/';
 
         window.addEventListener('touchmove', (e) => {
           if (!dragging) return;
-          splitRatio = dragStartRatio + (e.touches[0].clientX - dragStartCX) / window.innerWidth;
+          splitRatio = dragStartRatio + (e.touches[0].clientX - dragStartCX) / stage.offsetWidth;
           render();
         }, { passive: true });
 
