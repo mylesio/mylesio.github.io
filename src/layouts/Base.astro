@@ -355,19 +355,15 @@ const isHome = Astro.url.pathname === '/';
           <slot />
         </main>
 
-        <!-- Divider SVG: fixed to viewport, only solid line now -->
+        <!-- Divider SVG: fixed to viewport so line only appears within current view -->
         <svg id="lang-divider" aria-hidden="true"
              style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:visible;pointer-events:none;z-index:10;">
+          <!-- solid segment: within stage bounds -->
           <line id="lang-divider-solid" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
+          <!-- dashed segments: outside stage bounds (left overflow + right overflow) -->
+          <line id="lang-divider-dash-l" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
+          <line id="lang-divider-dash-r" stroke="#d946a8" stroke-width="1.5" opacity="0.4" stroke-dasharray="4 6"/>
         </svg>
-
-        <!-- Frosted glass masks: cover the area outside stage left/right edges -->
-        <div id="lang-mask-l" style="position:fixed;top:0;left:0;height:100vh;pointer-events:none;z-index:9;
-          backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4);
-          background:linear-gradient(to right, var(--bg) 0%, transparent 100%);opacity:0.85;width:0;"></div>
-        <div id="lang-mask-r" style="position:fixed;top:0;right:0;height:100vh;pointer-events:none;z-index:9;
-          backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4);
-          background:linear-gradient(to left, var(--bg) 0%, transparent 100%);opacity:0.85;width:0;"></div>
 
         <span class="lang-label-en" id="lang-label-en">EN</span>
         <span class="lang-label-zh" id="lang-label-zh">中</span>
@@ -388,8 +384,8 @@ const isHome = Astro.url.pathname === '/';
         const zhLayer = document.getElementById('lang-zh-layer');
         const svgEl   = document.getElementById('lang-divider');
         const divSolid = document.getElementById('lang-divider-solid');
-        const maskL    = document.getElementById('lang-mask-l');
-        const maskR    = document.getElementById('lang-mask-r');
+        const divDashL = document.getElementById('lang-divider-dash-l');
+        const divDashR = document.getElementById('lang-divider-dash-r');
         const labelEN = document.getElementById('lang-label-en');
         const labelZH = document.getElementById('lang-label-zh');
         if (!stage || !divSolid) return;
@@ -438,20 +434,49 @@ const isHome = Astro.url.pathname === '/';
         function render() {
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
 
-          // Full line — single solid segment across full viewport height
-          divSolid.setAttribute('x1', vx0.toFixed(1));
-          divSolid.setAttribute('y1', '0');
-          divSolid.setAttribute('x2', vx1.toFixed(1));
-          divSolid.setAttribute('y2', VH.toFixed(1));
-
-          // Frosted glass masks: cover outside-stage portions of the line
-          // maskL covers [0, stageLeft], maskR covers [stageRight, 100vw]
+          // Stage bounds in viewport coords
           const stageL = rect.left;
           const stageR = rect.left + SW;
-          const leftOverflow  = Math.max(0, stageL);                      // left margin width
-          const rightOverflow = Math.max(0, window.innerWidth - stageR);  // right margin width
-          if (maskL) maskL.style.width = leftOverflow + 'px';
-          if (maskR) maskR.style.width = rightOverflow + 'px';
+
+          // Full line spans vy=0..VH in viewport coords
+          // Find where line crosses stageL and stageR (viewport y)
+          // lineXatVY(vy) = vx0 + (vx1-vx0)*(vy/VH)
+          // Invert: vy = (x - vx0) / (vx1-vx0) * VH
+          const slope = (vx1 - vx0); // dx over full VH
+          function vyAtVX(vx) {
+            if (Math.abs(slope) < 0.001) return null; // nearly vertical, no crossing
+            return ((vx - vx0) / slope) * VH;
+          }
+
+          const vyL = vyAtVX(stageL); // vy where line crosses stage left edge
+          const vyR = vyAtVX(stageR); // vy where line crosses stage right edge
+
+          // Determine entry/exit vy within viewport [0, VH]
+          // Line goes / direction: top=right, bottom=left → crosses stageR at top, stageL at bottom
+          const vyEnter = Math.max(0, Math.min(VH, Math.min(vyL ?? 0,  vyR ?? 0)));
+          const vyExit  = Math.max(0, Math.min(VH, Math.max(vyL ?? VH, vyR ?? VH)));
+
+          // Helper: set or hide a line element
+          function setLine(el, x1, y1, x2, y2, show) {
+            if (show) {
+              el.setAttribute('x1', x1.toFixed(1)); el.setAttribute('y1', y1.toFixed(1));
+              el.setAttribute('x2', x2.toFixed(1)); el.setAttribute('y2', y2.toFixed(1));
+              el.setAttribute('visibility', 'visible');
+            } else {
+              el.setAttribute('visibility', 'hidden');
+            }
+          }
+
+          // Solid segment: within stage (vyEnter → vyExit)
+          const sxEnter = lineXatVY(vyEnter);
+          const sxExit  = lineXatVY(vyExit);
+          setLine(divSolid, sxEnter, vyEnter, sxExit, vyExit, vyEnter < vyExit);
+
+          // Dashed top segment: above stage entry (0 → vyEnter)
+          setLine(divDashL, vx0, 0, sxEnter, vyEnter, vyEnter > 0);
+
+          // Dashed bottom segment: below stage exit (vyExit → VH)
+          setLine(divDashR, sxExit, vyExit, vx1, VH, vyExit < VH);
 
           // clip-path in stage %
           const sxTop = lineXatVY(rect.top)      - rect.left;
