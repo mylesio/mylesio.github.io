@@ -85,6 +85,7 @@
   let frameIdx = 0, frameTimer = 0;
   const FRAME_MS = 1000 / 12;
   let lastTs = 0, groundOff = 0;
+  let fpsFrames = 0, fpsLast = 0, fpsDisplay = 0;
 
   // dino position — starts at idle (logo spot)
   const dino = { x: IDLE_X, y: IDLE_Y, vy: 0 };
@@ -283,6 +284,14 @@
       drawTrex(TREX_FRAMES.crashed[0], dino.x, dino.y);
     }
 
+    // FPS counter
+    fpsFrames++;
+    const fpsNow = performance.now();
+    if (fpsNow - fpsLast >= 500) {
+      fpsDisplay = Math.round(fpsFrames * 1000 / (fpsNow - fpsLast));
+      fpsFrames = 0; fpsLast = fpsNow;
+    }
+
     // Score — always visible, positioned below navbar
     const scoreY = NAVBAR_H + 14;
     ctx.font = '11px monospace'; ctx.textAlign = 'right';
@@ -292,6 +301,9 @@
     }
     ctx.fillStyle = 'rgba(83,83,83,0.8)';
     ctx.fillText(String(Math.floor(score)).padStart(5, '0'), W - 8, scoreY);
+    // FPS display
+    ctx.fillStyle = 'rgba(83,83,83,0.35)';
+    ctx.fillText(fpsDisplay + 'fps', W - 8, scoreY + 14);
     ctx.textAlign = 'left';
 
     // Game over — always shown when dead
