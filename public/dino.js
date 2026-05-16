@@ -64,7 +64,7 @@
   let IDLE_Y = Math.round((NAVBAR_H - IDLE_DH) / 2);
 
   function resize() {
-    const newW = canvas.parentElement.clientWidth || 800;
+    const newW = document.getElementById('dino-stage').clientWidth || 800;
     if (newW === W) return;
     W = canvas.width  = newW;
     canvas.height = CANVAS_H;
@@ -184,9 +184,9 @@
 
     if (introT >= INTRO_DURATION) {
       // landed — now switch z-index so navbar covers canvas
-      const siteHeader = canvas.closest('.site-header');
+      const siteHeader = document.getElementById('dino-stage');
       if (siteHeader) siteHeader.classList.add('expanded');
-      canvas.style.zIndex = "51";;
+      ;
       dino.x = GAME_X;
       dino.y = GAME_Y;
       dino.vy = 0;
@@ -333,7 +333,7 @@
     canvas.removeEventListener('touchstart', startGame);
 
     // expand site-header immediately on click
-    const siteHeader = canvas.closest('.site-header');
+    const siteHeader = document.getElementById('dino-stage');
     if (siteHeader) siteHeader.classList.add('expanded');
     // enable canvas interaction for game
     canvas.style.pointerEvents = 'auto';
@@ -424,11 +424,11 @@
     dino.jumping = false;
 
     // collapse site-header
-    const siteHeader = canvas.closest('.site-header');
+    const siteHeader = document.getElementById('dino-stage');
     if (siteHeader) siteHeader.classList.remove('expanded');
 
     // restore z-index and disable canvas pointer events
-    canvas.style.zIndex = "49";;
+    ;
     canvas.style.pointerEvents = 'none';
     canvas.style.cursor = 'default';
     updateHitArea();
@@ -470,6 +470,6 @@
   // also recompute if font/layout shifts
   setTimeout(initIdlePos, 300);
 
-  new ResizeObserver(resizeDebounced).observe(canvas.parentElement);
+  new ResizeObserver(resizeDebounced).observe(document.getElementById('dino-stage'));
   requestAnimationFrame(tick);
 })();
