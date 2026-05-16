@@ -48,16 +48,17 @@
   const IDLE_DH = Math.round(TREX_H * IDLE_SCALE);
 
   function getIdlePos() {
+    // canvas is position:fixed left:0, so canvas left = 0 in viewport coords
+    // anchor is inside navbar (sticky), so anchor.getBoundingClientRect().left
+    // gives its viewport x directly — no subtraction needed
     const anchor = document.getElementById('dino-anchor');
-    if (!anchor) return { x: 24, y: Math.round((NAVBAR_H - IDLE_DH) / 2) };
-    const ar = anchor.getBoundingClientRect();
-    const cr = canvas.getBoundingClientRect();
-    // place just to the right of anchor (left of mylesio text), +2px gap
-    const x = Math.round(ar.left - cr.left + 2);
-    // on mobile navbar is taller due to different padding — push dino lower
     const isMobile = window.innerWidth < 640;
     const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
-    return { x: Math.max(4, x), y };
+    if (!anchor) return { x: 24, y };
+    const ar = anchor.getBoundingClientRect();
+    // ar.left is already in viewport coords = canvas coords (canvas left=0)
+    const x = Math.round(ar.left + 2);
+    return { x: Math.max(4, Math.min(x, W - IDLE_DW - 4)), y };
   }
 
   let IDLE_X = 24;
