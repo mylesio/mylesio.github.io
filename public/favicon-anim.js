@@ -170,5 +170,6 @@
     requestAnimationFrame(loop);
   }
 
-  setTimeout(() => requestAnimationFrame(loop), 600);
+  // DISABLED for performance testing — re-enable after FPS confirmed
+  // setTimeout(() => requestAnimationFrame(loop), 600);
 })();
