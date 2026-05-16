@@ -268,6 +268,28 @@ const isHome = Astro.url.pathname === '/';
         transition: opacity 0.2s;
       }
 
+      /* Frosted glass wings outside the content stage */
+      #lang-wing-l, #lang-wing-r {
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 11; /* above SVG line (z-index:10) */
+        backdrop-filter: blur(16px) saturate(1.6);
+        -webkit-backdrop-filter: blur(16px) saturate(1.6);
+      }
+      #lang-wing-l {
+        left: 0;
+        /* inner edge fades into content */
+        -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
+        mask-image: linear-gradient(to right, black 60%, transparent 100%);
+      }
+      #lang-wing-r {
+        right: 0;
+        -webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%);
+        mask-image: linear-gradient(to left, black 60%, transparent 100%);
+      }
+
       /* ZH layer font */
       .lang-zh-layer {
         font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
@@ -369,6 +391,10 @@ const isHome = Astro.url.pathname === '/';
         <span class="lang-label-zh" id="lang-label-zh">中</span>
       </div>
 
+      <!-- Frosted glass wings: cover area outside content stage on left/right -->
+      <div id="lang-wing-l" aria-hidden="true"></div>
+      <div id="lang-wing-r" aria-hidden="true"></div>
+
       <footer>
         <span>Myles Liu</span>
         <span><a href="/llms.txt">llms.txt</a></span>
@@ -386,6 +412,16 @@ const isHome = Astro.url.pathname === '/';
         const divSolid = document.getElementById('lang-divider-solid');
         const divDashL = document.getElementById('lang-divider-dash-l');
         const divDashR = document.getElementById('lang-divider-dash-r');
+        const wingL    = document.getElementById('lang-wing-l');
+        const wingR    = document.getElementById('lang-wing-r');
+
+        function updateWings() {
+          const r = stage.getBoundingClientRect();
+          const leftW  = Math.max(0, r.left);
+          const rightW = Math.max(0, window.innerWidth - r.right);
+          if (wingL) wingL.style.width = leftW  + 'px';
+          if (wingR) wingR.style.width = rightW + 'px';
+        }
         const labelEN = document.getElementById('lang-label-en');
         const labelZH = document.getElementById('lang-label-zh');
         if (!stage || !divSolid) return;
@@ -591,7 +627,8 @@ const isHome = Astro.url.pathname === '/';
         }
 
         render();
-        window.addEventListener('resize', render, { passive: true });
+        updateWings();
+        window.addEventListener('resize', () => { render(); updateWings(); }, { passive: true });
         window.addEventListener('scroll', render, { passive: true });
       })();
     </script>
