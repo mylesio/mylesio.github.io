@@ -233,21 +233,22 @@ const isHome = Astro.url.pathname === '/';
         position: relative;
       }
 
-      /* EN label (bottom-left of stage) */
+      /* EN / 中 labels at top corners */
       .lang-label-en,
       .lang-label-zh {
         position: absolute;
-        bottom: 0;
-        font-size: 0.65rem;
-        letter-spacing: 0.1em;
-        color: var(--muted);
+        top: 1.5rem;
+        font-size: 0.6rem;
+        letter-spacing: 0.12em;
+        color: #d946a8;
         pointer-events: none;
         user-select: none;
         z-index: 5;
-        opacity: 0.55;
+        opacity: 0.6;
+        text-transform: uppercase;
       }
-      .lang-label-en { left: 0; }
-      .lang-label-zh { right: 0; }
+      .lang-label-en { left: 1rem; }
+      .lang-label-zh { right: 1rem; }
 
       /* ZH overlay — clipped; updated via JS custom property */
       .lang-zh-layer {
@@ -275,9 +276,9 @@ const isHome = Astro.url.pathname === '/';
         overflow: visible;
       }
       #lang-divider line {
-        stroke: var(--accent-mid);
+        stroke: #d946a8;
         stroke-width: 1.5;
-        opacity: 0.7;
+        opacity: 0.85;
       }
       /* Handle pill */
       #lang-handle {
@@ -285,28 +286,29 @@ const isHome = Astro.url.pathname === '/';
         top: 50%;
         transform: translate(-50%, -50%);
         z-index: 11;
-        width: 28px; height: 48px;
-        background: rgba(245,242,236,0.85);
-        border: 1.5px solid var(--accent-mid);
+        width: 28px; height: 44px;
+        background: rgba(245,242,236,0.9);
+        border: 1.5px solid #d946a8;
         border-radius: 14px;
         cursor: ew-resize;
         display: flex;
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        box-shadow: 0 2px 12px rgba(2,132,199,0.18);
-        transition: box-shadow 0.15s;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 2px 14px rgba(217,70,168,0.22);
+        transition: box-shadow 0.15s, border-color 0.15s;
         user-select: none;
         touch-action: none;
       }
       #lang-handle:hover, #lang-handle.dragging {
-        box-shadow: 0 4px 20px rgba(2,132,199,0.32);
-        border-color: var(--accent);
+        box-shadow: 0 4px 22px rgba(217,70,168,0.38);
+        border-color: #be185d;
       }
       #lang-handle svg {
         width: 12px; height: 12px;
-        opacity: 0.55;
+        opacity: 0.6;
+        color: #d946a8;
       }
 
       /* ─── Mobile ─────────────────────────────────── */
@@ -404,8 +406,8 @@ const isHome = Astro.url.pathname === '/';
         const divLine = document.getElementById('lang-divider-line');
         if (!stage || !handle) return;
 
-        // Skew angle for the diagonal line (degrees from vertical)
-        const SKEW_DEG = 8;
+        // Skew angle: 0 = vertical line
+        const SKEW_DEG = 0;
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
 
         // Default: start mostly to the right (EN dominant)
