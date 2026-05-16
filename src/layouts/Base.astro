@@ -522,11 +522,17 @@ const showDivider = path === '/about' || path === '/about/'
           }
         }
 
-        // Run after fonts settle, then again on resize
+        // Run after fonts settle — try multiple times to catch late font renders
+        function scheduleAlign() {
+          alignSections();             // immediate pass
+          setTimeout(alignSections, 200);  // after layout reflow
+          setTimeout(alignSections, 800);  // after custom fonts swap in
+          setTimeout(alignSections, 2000); // final safety pass
+        }
         if (document.fonts) {
-          document.fonts.ready.then(() => setTimeout(alignSections, 100));
+          document.fonts.ready.then(scheduleAlign);
         } else {
-          setTimeout(alignSections, 400);
+          setTimeout(scheduleAlign, 300);
         }
 
         const SPLIT_KEY = 'lang-split-x';
@@ -757,7 +763,7 @@ const showDivider = path === '/about' || path === '/about/'
 
         render();
         updateWings();
-        window.addEventListener('resize', () => { render(); updateWings(); alignSections(); }, { passive: true });
+        window.addEventListener('resize', () => { render(); updateWings(); scheduleAlign(); }, { passive: true });
         // No scroll listener — SVG line is position:fixed so doesn't move on scroll.
         // clip-path uses getBoundingClientRect which changes on scroll, so update via rAF throttle.
         let scrollRafId = null;
