@@ -387,8 +387,7 @@ const isHome = Astro.url.pathname === '/';
         const SKEW_DEG = 15; // ~75° from horizontal (nearly vertical)
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
         const HIT_DIST = 28;   // px from line to activate cursor
-        const SNAP_MIN = 0.05; // snap back inside these bounds on release
-        const SNAP_MAX = 0.95;
+        // snap bounds computed dynamically in snapIfNeeded() based on off/SW
 
         // splitRatio: 0~1, based on VIEWPORT width
         // This means clientX / innerWidth = splitRatio at the mid-height of the line
@@ -429,18 +428,13 @@ const isHome = Astro.url.pathname === '/';
         function render() {
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
 
-          // Clamp SVG line endpoints to stage horizontal bounds (viewport px)
-          const stageL = rect.left;
-          const stageR = rect.left + SW;
-          const cx0 = Math.max(stageL, Math.min(stageR, vx0));
-          const cx1 = Math.max(stageL, Math.min(stageR, vx1));
-
-          divLine.setAttribute('x1', cx0.toFixed(1));
+          // Line drawn at full fixed angle — no endpoint clamping (would change slope)
+          divLine.setAttribute('x1', vx0.toFixed(1));
           divLine.setAttribute('y1', '0');
-          divLine.setAttribute('x2', cx1.toFixed(1));
+          divLine.setAttribute('x2', vx1.toFixed(1));
           divLine.setAttribute('y2', VH.toFixed(1));
 
-          // clip-path: use unclamped line (content split extends beyond viewport)
+          // clip-path in stage %
           const sxTop = lineXatVY(rect.top)      - rect.left;
           const sxBot = lineXatVY(rect.top + SH) - rect.left;
           const p0 = ((sxTop / SW) * 100).toFixed(3) + '%';
@@ -448,20 +442,16 @@ const isHome = Astro.url.pathname === '/';
           if (enLayer) enLayer.style.clipPath =
             `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // ── Labels: CSS top:1.5rem, only left updated ──
-          // Label x follows CLAMPED line position at stage top, sticks to edge
-          const labelVX   = Math.max(stageL, Math.min(stageR, lineXatVY(rect.top)));
-          const labelX    = labelVX - rect.left; // stage-local x
-          const LABEL_W   = 32; // approx label width px
-
+          // ── Labels: CSS top:1.5rem fixed; x follows line but clamped inside stage ──
+          // (label sticks to edge when line is dragged outside)
+          const rawLabelX = lineXatVY(rect.top) - rect.left; // stage-local, may be out of bounds
+          const LABEL_W   = 32;
           if (splitRatio <= 0.5) {
-            // EN dominant → EN label right of line, clamped inside stage
-            const enLeft = Math.min(SW - LABEL_W, Math.max(4, labelX + 14));
+            const enLeft = Math.min(SW - LABEL_W, Math.max(4, rawLabelX + 14));
             if (labelEN) { labelEN.style.left = enLeft + 'px'; labelEN.style.opacity = '0.7'; }
             if (labelZH) { labelZH.style.opacity = '0'; }
           } else {
-            // ZH dominant → ZH label left of line, clamped inside stage
-            const zhLeft = Math.min(SW - LABEL_W, Math.max(4, labelX - 52));
+            const zhLeft = Math.min(SW - LABEL_W, Math.max(4, rawLabelX - 52));
             if (labelZH) { labelZH.style.left = zhLeft + 'px'; labelZH.style.opacity = '0.7'; }
             if (labelEN) { labelEN.style.opacity = '0'; }
           }
@@ -523,9 +513,7 @@ const isHome = Astro.url.pathname === '/';
           if (!dragging) return;
           dragging = false;
           document.body.style.cursor = '';
-          if (splitRatio < SNAP_MIN)      snapTo(SNAP_MIN);
-          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
-          else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
+          snapIfNeeded();
         });
 
         // Touch
@@ -547,16 +535,24 @@ const isHome = Astro.url.pathname === '/';
         window.addEventListener('touchend', () => {
           if (!dragging) return;
           dragging = false;
-          if (splitRatio < SNAP_MIN)      snapTo(SNAP_MIN);
-          else if (splitRatio > SNAP_MAX) snapTo(SNAP_MAX);
-          else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
+          snapIfNeeded();
         });
+
+        // snapIfNeeded: snap back if line is fully outside stage
+        function snapIfNeeded() {
+          const SW  = stage.offsetWidth;
+          const off = Math.tan(SKEW_RAD) * window.innerHeight / 2;
+          const minR = off / SW;        // leftmost: line's right edge just touches stage left
+          const maxR = 1 - off / SW;    // rightmost: line's left edge just touches stage right
+          if (splitRatio < minR)      snapTo(minR);
+          else if (splitRatio > maxR) snapTo(maxR);
+          else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
+        }
 
         render();
         window.addEventListener('resize', render, { passive: true });
-        window.addEventListener('scroll', render, { passive: true }); // stageRect changes → clip-path needs update
+        window.addEventListener('scroll', render, { passive: true });
       })();
-    </script>
     </script>
   </body>
 </html>
