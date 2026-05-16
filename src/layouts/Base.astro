@@ -538,14 +538,11 @@ const isHome = Astro.url.pathname === '/';
           snapIfNeeded();
         });
 
-        // snapIfNeeded: snap back if line is fully outside stage
+        // snapIfNeeded: snap back only if midX left stage entirely
         function snapIfNeeded() {
-          const SW  = stage.offsetWidth;
-          const off = Math.tan(SKEW_RAD) * window.innerHeight / 2;
-          const minR = off / SW;        // leftmost: line's right edge just touches stage left
-          const maxR = 1 - off / SW;    // rightmost: line's left edge just touches stage right
-          if (splitRatio < minR)      snapTo(minR);
-          else if (splitRatio > maxR) snapTo(maxR);
+          // splitRatio=0 → midX=0 (left edge), splitRatio=1 → midX=SW (right edge)
+          if (splitRatio < 0)      snapTo(0);
+          else if (splitRatio > 1) snapTo(1);
           else try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
         }
 
