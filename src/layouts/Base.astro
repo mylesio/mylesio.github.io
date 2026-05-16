@@ -606,6 +606,11 @@ const showDivider = path === '/about' || path === '/about/'
 
                 // ── Render ────────────────────────────────────────────────────────
         function render() {
+          // On mobile the divider is hidden and EN layer should show full width — skip clip
+          if (window.innerWidth <= 480) {
+            if (enLayer) enLayer.style.clipPath = 'none';
+            return;
+          }
           const { vx0, vx1, VH, SW, SH, rect } = getGeom();
           // lineXatVY inlined — avoids extra getBoundingClientRect calls
           function lineXatVY(vy) { return vx0 + (vx1 - vx0) * (vy / VH); }
