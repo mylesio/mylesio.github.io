@@ -224,66 +224,89 @@ const isHome = Astro.url.pathname === '/';
       footer a { color: var(--muted); border-color: transparent; }
       footer a:hover { color: var(--text); border-color: transparent; }
 
-      /* ─── Lang toggle ────────────────────────────── */
-      .lang-toggle {
-        background: none;
-        flex-shrink: 0;
-        border: 1px solid var(--border);
-        color: var(--muted);
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.08em;
-        padding: 0.2rem 0.55rem;
-        cursor: pointer;
-        transition: color 0.15s, border-color 0.15s;
-        border-radius: 2px;
-        line-height: 1.4;
+      /* ─── Lang divider ───────────────────────────── */
+      /* The split-view lives inside .lang-stage which wraps <main>.
+         EN layer is always visible; ZH layer sits on top, clipped from the right.
+         The divider SVG line + handle floats at the split position.            */
+
+      .lang-stage {
+        position: relative;
       }
-      .lang-toggle:hover {
-        color: var(--accent);
+
+      /* EN label (bottom-left of stage) */
+      .lang-label-en,
+      .lang-label-zh {
+        position: absolute;
+        bottom: 0;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        pointer-events: none;
+        user-select: none;
+        z-index: 5;
+        opacity: 0.55;
+      }
+      .lang-label-en { left: 0; }
+      .lang-label-zh { right: 0; }
+
+      /* ZH overlay — clipped; updated via JS custom property */
+      .lang-zh-layer {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        /* clip from left edge to split position */
+        clip-path: inset(0 0 0 var(--split-x, 60%));
+        will-change: clip-path;
+      }
+      /* zh font inside zh layer */
+      .lang-zh-layer {
+        font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
+                     Georgia, serif;
+        letter-spacing: 0.03em;
+      }
+
+      /* Divider line SVG */
+      #lang-divider {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 10;
+        overflow: visible;
+      }
+      #lang-divider line {
+        stroke: var(--accent-mid);
+        stroke-width: 1.5;
+        opacity: 0.7;
+      }
+      /* Handle pill */
+      #lang-handle {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 11;
+        width: 28px; height: 48px;
+        background: rgba(245,242,236,0.85);
+        border: 1.5px solid var(--accent-mid);
+        border-radius: 14px;
+        cursor: ew-resize;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 2px 12px rgba(2,132,199,0.18);
+        transition: box-shadow 0.15s;
+        user-select: none;
+        touch-action: none;
+      }
+      #lang-handle:hover, #lang-handle.dragging {
+        box-shadow: 0 4px 20px rgba(2,132,199,0.32);
         border-color: var(--accent);
       }
-
-      /* ─── Lang wipe overlay ──────────────────────── */
-      #lang-wipe {
-        position: fixed;
-        top: 0; left: 0;
-        width: 3px;
-        height: 100vh;
-        background: linear-gradient(
-          to right,
-          transparent,
-          rgba(2, 132, 199, 0.55) 40%,
-          rgba(2, 132, 199, 0.9) 50%,
-          rgba(2, 132, 199, 0.55) 60%,
-          transparent
-        );
-        transform: translateX(-20px);
-        pointer-events: none;
-        z-index: 9999;
-        opacity: 0;
-        will-change: transform, opacity;
-      }
-      #lang-wipe.wipe-running {
-        animation: langWipe 0.42s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      }
-      @keyframes langWipe {
-        0%   { opacity: 0;   transform: translateX(-20px); }
-        8%   { opacity: 1;   transform: translateX(-20px); }
-        92%  { opacity: 1;   transform: translateX(calc(100vw + 20px)); }
-        100% { opacity: 0;   transform: translateX(calc(100vw + 20px)); }
-      }
-
-      /* ─── zh font ────────────────────────────────── */
-      [data-lang="zh"] body {
-        font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
-                     Georgia, 'Times New Roman', serif;
-        letter-spacing: 0.02em;
-      }
-      [data-lang="zh"] .logo,
-      [data-lang="zh"] a.nav-link,
-      [data-lang="zh"] .lang-toggle {
-        font-family: var(--mono); /* keep UI chrome in mono */
+      #lang-handle svg {
+        width: 12px; height: 12px;
+        opacity: 0.55;
       }
 
       /* ─── Mobile ─────────────────────────────────── */
@@ -325,95 +348,165 @@ const isHome = Astro.url.pathname === '/';
     </style>
   </head>
   <body>
-    <!-- lang wipe overlay -->
-    <div id="lang-wipe" aria-hidden="true"></div>
     <!-- banner contains canvas + absolute navbar on top -->
     <div class="site-header">
       <canvas id="dino-canvas" style="display:block;cursor:pointer;" title="Click to play"></canvas>
       <header>
         <div class="nav-inner">
-        <span id="dino-anchor" style="display:inline-block;width:0;height:0;"></span>
-        <a class="logo reveal reveal-1" href="/">mylesio</a>
+          <span id="dino-anchor" style="display:inline-block;width:0;height:0;"></span>
+          <a class="logo reveal reveal-1" href="/">mylesio</a>
           <nav class="reveal reveal-1">
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes" data-en="notes" data-zh="笔记">notes</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects" data-en="projects" data-zh="项目">projects</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about" data-en="about" data-zh="关于">about</a>
           </nav>
-          <button class="lang-toggle reveal reveal-1" id="lang-toggle" aria-label="Toggle language">EN</button>
         </div>
       </header>
     </div>
     <div class="page-wrap">
-      <main>
-        <slot />
-      </main>
+      <!-- lang-stage: wraps main, hosts the split divider -->
+      <div class="lang-stage" id="lang-stage">
+        <main id="lang-en-layer">
+          <slot />
+        </main>
+
+        <!-- ZH layer: same slot content but zh versions, injected per-page -->
+        <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
+
+        <!-- Divider SVG line -->
+        <svg id="lang-divider" aria-hidden="true">
+          <line id="lang-divider-line" x1="0" y1="0" x2="0" y2="100%"/>
+        </svg>
+
+        <!-- Draggable handle -->
+        <div id="lang-handle" title="drag to reveal 中文 / English" role="slider" aria-label="Language split" aria-valuemin="0" aria-valuemax="100">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 2L2 6L4 10M8 2L10 6L8 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <span class="lang-label-en">EN</span>
+        <span class="lang-label-zh">中</span>
+      </div>
+
       <footer>
         <span>Myles Liu</span>
         <span><a href="/llms.txt">llms.txt</a></span>
       </footer>
     </div>
     <script>
-      // ── i18n + wipe transition ───────────────────────────────────────────
+      // ── Language split-view divider ──────────────────────────────────────
       (function () {
-        const LANG_KEY = 'preferred-lang';
-        const toggle   = document.getElementById('lang-toggle');
-        const wipe     = document.getElementById('lang-wipe');
-        if (!toggle) return;
+        const SPLIT_KEY = 'lang-split-x';
+        const stage   = document.getElementById('lang-stage');
+        const handle  = document.getElementById('lang-handle');
+        const zhLayer = document.getElementById('lang-zh-layer');
+        const divLine = document.getElementById('lang-divider-line');
+        if (!stage || !handle) return;
 
-        // Apply language without animation (init / restore)
-        function applyLang(lang, animate) {
-          if (animate && wipe) {
-            // 1. Fire wipe animation
-            wipe.classList.remove('wipe-running');
-            void wipe.offsetWidth; // reflow to reset
-            wipe.classList.add('wipe-running');
+        // Skew angle for the diagonal line (degrees from vertical)
+        const SKEW_DEG = 8;
+        const SKEW_RAD = SKEW_DEG * Math.PI / 180;
 
-            // 2. Swap content at ~50% of animation (210ms in, total 420ms)
-            setTimeout(() => swapContent(lang), 210);
-          } else {
-            swapContent(lang);
+        // Default: start mostly to the right (EN dominant)
+        let splitRatio = 0.78;
+        try {
+          const s = parseFloat(localStorage.getItem(SPLIT_KEY));
+          if (!isNaN(s)) splitRatio = Math.max(0.05, Math.min(0.95, s));
+        } catch(_) {}
+
+        function updateSplit(ratio) {
+          splitRatio = Math.max(0.05, Math.min(0.95, ratio));
+
+          const stageRect = stage.getBoundingClientRect();
+          const W = stageRect.width;
+          const H = stageRect.height;
+
+          // Pixel x of split at mid-height
+          const midX = splitRatio * W;
+
+          // Skewed line: top and bottom x offset by tan(angle) * H/2
+          const offset = Math.tan(SKEW_RAD) * H / 2;
+          const x1 = midX - offset;
+          const x2 = midX + offset;
+
+          // Update SVG line
+          if (divLine) {
+            divLine.setAttribute('x1', x1.toFixed(1));
+            divLine.setAttribute('y1', '0');
+            divLine.setAttribute('x2', x2.toFixed(1));
+            divLine.setAttribute('y2', H.toFixed(1));
           }
-        }
 
-        function swapContent(lang) {
+          // Update zh layer clip: polygon following the skewed line
+          // left edge = 0, right edge = W
+          // clip = everything to the RIGHT of the line
+          const clipPercX1 = ((x1 / W) * 100).toFixed(2);
+          const clipPercX2 = ((x2 / W) * 100).toFixed(2);
+          if (zhLayer) {
+            zhLayer.style.clipPath =
+              `polygon(${clipPercX1}% 0%, 100% 0%, 100% 100%, ${clipPercX2}% 100%)`;
+          }
+
+          // Position handle at mid-height, split x
+          handle.style.left = `${midX.toFixed(1)}px`;
+          handle.style.top  = `${(H / 2).toFixed(1)}px`;
+
+          // Persist
+          try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
+
+          // Update data-lang based on which side is dominant
+          const lang = splitRatio > 0.5 ? 'en' : 'zh';
           document.documentElement.setAttribute('data-lang', lang);
-          toggle.textContent = lang === 'zh' ? '中' : 'EN';
 
-          // Swap data-en / data-zh text nodes
+          // Swap text nodes (nav labels, section labels, etc.)
           document.querySelectorAll('[data-en][data-zh]').forEach(el => {
-            // Only swap textContent if the element has no significant child elements
-            // (i.e. it's a leaf text node container, not a wrapper with <a> children)
-            const hasLinks = el.querySelector('a');
-            if (!hasLinks) {
+            if (!el.querySelector('a')) {
               el.textContent = lang === 'zh'
                 ? el.getAttribute('data-zh')
                 : el.getAttribute('data-en');
             }
           });
-
-          // Show/hide lang-specific content blocks
-          document.querySelectorAll('[data-show-lang]').forEach(el => {
-            const showFor = el.getAttribute('data-show-lang');
-            el.style.display = showFor === lang ? '' : 'none';
-          });
-
-          try { localStorage.setItem(LANG_KEY, lang); } catch(_) {}
         }
 
-        // Restore saved preference (no animation on init)
-        let saved = 'en';
-        try { saved = localStorage.getItem(LANG_KEY) || 'en'; } catch(_) {}
-        applyLang(saved, false);
+        // Init
+        updateSplit(splitRatio);
 
-        // Toggle on click
-        let busy = false;
-        toggle.addEventListener('click', () => {
-          if (busy) return;
-          busy = true;
-          setTimeout(() => { busy = false; }, 500);
-          const current = document.documentElement.getAttribute('data-lang') || 'en';
-          applyLang(current === 'zh' ? 'en' : 'zh', true);
-        });
+        // Recalc on resize
+        window.addEventListener('resize', () => updateSplit(splitRatio), { passive: true });
+
+        // ── Drag logic ──────────────────────────────────────────────────────
+        let dragging = false;
+        let startX = 0, startRatio = 0;
+
+        function onDown(e) {
+          dragging = true;
+          handle.classList.add('dragging');
+          startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+          startRatio = splitRatio;
+          e.preventDefault();
+        }
+
+        function onMove(e) {
+          if (!dragging) return;
+          const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+          const W = stage.getBoundingClientRect().width;
+          const dx = clientX - startX;
+          updateSplit(startRatio + dx / W);
+        }
+
+        function onUp() {
+          if (!dragging) return;
+          dragging = false;
+          handle.classList.remove('dragging');
+        }
+
+        handle.addEventListener('mousedown',  onDown,  { passive: false });
+        handle.addEventListener('touchstart', onDown,  { passive: false });
+        window.addEventListener('mousemove',  onMove,  { passive: true });
+        window.addEventListener('touchmove',  onMove,  { passive: true });
+        window.addEventListener('mouseup',    onUp);
+        window.addEventListener('touchend',   onUp);
       })();
     </script>
   </body>

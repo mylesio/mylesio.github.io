@@ -53,11 +53,28 @@ const dateStr = note.data.date.toISOString().slice(0, 10);
       <ContentEN />
     </div>
 
-    <!-- ZH content (hidden by default, shown via data-show-lang) -->
+    <!-- ZH content: rendered here, moved to #lang-zh-layer by JS -->
     {ContentZH && (
-      <div class="prose" data-show-lang="zh" style="display:none">
-        <ContentZH />
-      </div>
+      <template id="zh-content-tpl">
+        <header class="post-header">
+          <p class="post-meta">
+            <a href="/notes">笔记</a>
+            <span class="sep">/</span>
+            <time datetime={note.data.date.toISOString()}>{dateStr}</time>
+          </p>
+          <h1 class="post-title">{zhNote?.data.title ?? note.data.title}</h1>
+          {note.data.tags && (
+            <div class="tags">
+              {note.data.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </header>
+        <div class="prose">
+          <ContentZH />
+        </div>
+      </template>
     )}
   </article>
 </Base>
@@ -141,3 +158,15 @@ const dateStr = note.data.date.toISOString().slice(0, 10);
   .prose th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--muted); font-weight: 400; letter-spacing: 0.04em; font-size: 0.8em; text-transform: uppercase; }
   .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
 </style>
+
+<script>
+  // Move zh content template into the lang-zh-layer div
+  const tpl = document.getElementById('zh-content-tpl') as HTMLTemplateElement | null;
+  const layer = document.getElementById('lang-zh-layer');
+  if (tpl && layer) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'padding: 1rem 0 5rem;';
+    wrap.appendChild(tpl.content.cloneNode(true));
+    layer.appendChild(wrap);
+  }
+</script>
