@@ -128,25 +128,24 @@ const showDivider = path === '/about' || path === '/about/'
         padding: 0 1.5rem;
       }
 
-      /* ─── Navbar (sticky) ───────────────────────────── */
+      /* ─── Navbar (sticky, always on top) ───────────── */
       .site-header {
         position: sticky;
         top: 0;
         width: 100%;
         height: 48px;
-        z-index: 50;            /* below canvas z:60 */
+        z-index: 100;           /* always above canvas */
         pointer-events: auto;
       }
 
-      /* ─── Dino canvas stage (fixed, above navbar visually) ─
-         canvas has pointer-events:none so navbar clicks pass through */
+      /* ─── Dino canvas stage (fixed, independent of navbar) ── */
       #dino-stage {
         position: fixed;
         top: 0; left: 0; right: 0;
         width: 100%;
-        height: 48px;
+        height: 48px;           /* clipped to navbar height initially */
         overflow: hidden;
-        z-index: 60;            /* above navbar — canvas paints bg + idle dino */
+        z-index: 60;            /* above page content, below navbar */
         pointer-events: none;
         transition: height 0.4s ease-out;
         background: #f5f2ec;
@@ -167,7 +166,7 @@ const showDivider = path === '/about' || path === '/about/'
         transform: translateZ(0);
       }
 
-      /* ─── Navbar bar inside site-header ─────────────── */
+      /* ─── Navbar inside site-header ─────────────────── */
       header {
         position: absolute;
         top: 0; left: 0; right: 0;
