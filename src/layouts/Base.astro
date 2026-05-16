@@ -445,115 +445,79 @@ const showDivider = path === '/about' || path === '/about/'
           }
         }
 
-        const SKEW_DEG = 15; // ~75° from horizontal (nearly vertical)
+        const SKEW_DEG = 15;
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
-        const HIT_DIST = 28;   // px from line to activate cursor
-        // snap bounds computed dynamically in snapIfNeeded() based on off/SW
+        const HIT_DIST = 28;
 
-        // splitRatio: 0~1, based on VIEWPORT width
-        // This means clientX / innerWidth = splitRatio at the mid-height of the line
         let splitRatio = 0.80;
         try {
           const s = parseFloat(localStorage.getItem(SPLIT_KEY));
-          if (!isNaN(s)) splitRatio = s; // restore as-is, snap will fix if needed
+          if (!isNaN(s)) splitRatio = s;
         } catch(_) {}
 
-        // ── Geometry: stage-local coords throughout ───────────────────────
-        // ── Geometry ─────────────────────────────────────────────────────
-        // SVG is position:fixed (100vw×100vh) → line coords are viewport (clientX/Y).
-        // splitRatio = fraction of stage width; midX in stage-local → convert to viewport x.
-        // Line direction: top-right → bottom-left (/ shape).
+        // ── Cached rect (updated on render/resize/scroll, NOT on every mousemove) ──
+        let cachedRect = stage.getBoundingClientRect();
 
+        // ── Geometry (uses cachedRect — no forced reflow on mousemove) ────
         function getGeom() {
-          const VW  = window.innerWidth;
           const VH  = window.innerHeight;
           const SW  = stage.offsetWidth;
           const SH  = stage.offsetHeight;
           const off = Math.tan(SKEW_RAD) * VH / 2;
-          // midX in viewport coords: stage left + splitRatio * stage width
-          const rect  = stage.getBoundingClientRect();
-          const midVX = rect.left + splitRatio * SW;
-          // / direction: top = right, bottom = left
-          const vx0 = midVX + off;  // viewport x at vy=0
-          const vx1 = midVX - off;  // viewport x at vy=VH
-          return { vx0, vx1, VW, VH, SW, SH, rect };
+          const midVX = cachedRect.left + splitRatio * SW;
+          const vx0 = midVX + off;   // top-right
+          const vx1 = midVX - off;   // bottom-left  (/ direction)
+          return { vx0, vx1, VH, SW, SH };
         }
 
-        // viewport x of line at viewport y vy
-        function lineXatVY(vy) {
-          const { vx0, vx1, VH } = getGeom();
-          return vx0 + (vx1 - vx0) * (vy / VH);
+        function lineXatVY(vy, g) {
+          g = g || getGeom();
+          return g.vx0 + (g.vx1 - g.vx0) * (vy / g.VH);
         }
 
-        // ── Render ────────────────────────────────────────────────────────
+        // ── Render (updates cachedRect, batches all DOM writes) ───────────
         function render() {
-          const { vx0, vx1, VH, SW, SH, rect } = getGeom();
+          cachedRect = stage.getBoundingClientRect(); // refresh only here
+          const g = getGeom();
+          const { vx0, vx1, VH, SW, SH } = g;
+          const stageL = cachedRect.left;
+          const stageR = stageL + SW;
 
-          // Stage bounds in viewport coords
-          const stageL = rect.left;
-          const stageR = rect.left + SW;
+          // Line endpoints (full viewport height, fixed SVG)
+          divSolid.setAttribute('x1', vx0.toFixed(1)); divSolid.setAttribute('y1', '0');
+          divSolid.setAttribute('x2', vx1.toFixed(1)); divSolid.setAttribute('y2', VH.toFixed(1));
 
-          // Full line spans vy=0..VH in viewport coords
-          // Find where line crosses stageL and stageR (viewport y)
-          // lineXatVY(vy) = vx0 + (vx1-vx0)*(vy/VH)
-          // Invert: vy = (x - vx0) / (vx1-vx0) * VH
-          const slope = (vx1 - vx0); // dx over full VH
-          function vyAtVX(vx) {
-            if (Math.abs(slope) < 0.001) return null; // nearly vertical, no crossing
-            return ((vx - vx0) / slope) * VH;
+          // Dashed portions outside stage (solid line covers full VH, dashes overlay outside)
+          const slope = vx1 - vx0;
+          const vyStageL = Math.abs(slope) > 0.01 ? ((stageL - vx0) / slope) * VH : null;
+          const vyStageR = Math.abs(slope) > 0.01 ? ((stageR - vx0) / slope) * VH : null;
+          const vyIn  = Math.max(0, Math.min(VH, Math.min(vyStageL ?? 0,  vyStageR ?? 0)));
+          const vyOut = Math.max(0, Math.min(VH, Math.max(vyStageL ?? VH, vyStageR ?? VH)));
+          function setL(el, x1,y1,x2,y2,show) {
+            if (show) { el.setAttribute('x1',x1.toFixed(1)); el.setAttribute('y1',y1.toFixed(1)); el.setAttribute('x2',x2.toFixed(1)); el.setAttribute('y2',y2.toFixed(1)); el.removeAttribute('visibility'); }
+            else el.setAttribute('visibility','hidden');
           }
+          setL(divDashL, vx0, 0, lineXatVY(vyIn,g), vyIn, vyIn > 1);
+          setL(divDashR, lineXatVY(vyOut,g), vyOut, vx1, VH, vyOut < VH - 1);
 
-          const vyL = vyAtVX(stageL); // vy where line crosses stage left edge
-          const vyR = vyAtVX(stageR); // vy where line crosses stage right edge
+          // clip-path: EN layer right polygon (ZH exposed on left)
+          const sxTop = lineXatVY(cachedRect.top, g)          - stageL;
+          const sxBot = lineXatVY(cachedRect.top + SH, g)     - stageL;
+          const p0 = ((sxTop / SW) * 100).toFixed(2) + '%';
+          const p1 = ((sxBot / SW) * 100).toFixed(2) + '%';
+          if (enLayer) enLayer.style.clipPath = `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
 
-          // Determine entry/exit vy within viewport [0, VH]
-          // Line goes / direction: top=right, bottom=left → crosses stageR at top, stageL at bottom
-          const vyEnter = Math.max(0, Math.min(VH, Math.min(vyL ?? 0,  vyR ?? 0)));
-          const vyExit  = Math.max(0, Math.min(VH, Math.max(vyL ?? VH, vyR ?? VH)));
-
-          // Helper: set or hide a line element
-          function setLine(el, x1, y1, x2, y2, show) {
-            if (show) {
-              el.setAttribute('x1', x1.toFixed(1)); el.setAttribute('y1', y1.toFixed(1));
-              el.setAttribute('x2', x2.toFixed(1)); el.setAttribute('y2', y2.toFixed(1));
-              el.setAttribute('visibility', 'visible');
-            } else {
-              el.setAttribute('visibility', 'hidden');
-            }
-          }
-
-          // Solid segment: within stage (vyEnter → vyExit)
-          const sxEnter = lineXatVY(vyEnter);
-          const sxExit  = lineXatVY(vyExit);
-          setLine(divSolid, sxEnter, vyEnter, sxExit, vyExit, vyEnter < vyExit);
-
-          // Dashed top segment: above stage entry (0 → vyEnter)
-          setLine(divDashL, vx0, 0, sxEnter, vyEnter, vyEnter > 0);
-
-          // Dashed bottom segment: below stage exit (vyExit → VH)
-          setLine(divDashR, sxExit, vyExit, vx1, VH, vyExit < VH);
-
-          // clip-path in stage %
-          const sxTop = lineXatVY(rect.top)      - rect.left;
-          const sxBot = lineXatVY(rect.top + SH) - rect.left;
-          const p0 = ((sxTop / SW) * 100).toFixed(3) + '%';
-          const p1 = ((sxBot / SW) * 100).toFixed(3) + '%';
-          if (enLayer) enLayer.style.clipPath =
-            `polygon(${p0} 0%, 100% 0%, 100% 100%, ${p1} 100%)`;
-
-          // ── Labels: CSS top:1.5rem fixed; x follows line but clamped inside stage ──
-          // (label sticks to edge when line is dragged outside)
-          const rawLabelX = lineXatVY(rect.top) - rect.left; // stage-local, may be out of bounds
-          const LABEL_W   = 32;
+          // Labels (clamped inside stage)
+          const rawLX = lineXatVY(cachedRect.top, g) - stageL;
+          const LW = 32;
           if (splitRatio <= 0.5) {
-            const enLeft = Math.min(SW - LABEL_W, Math.max(4, rawLabelX + 14));
-            if (labelEN) { labelEN.style.left = enLeft + 'px'; labelEN.style.opacity = '0.7'; }
-            if (labelZH) { labelZH.style.opacity = '0'; }
+            if (labelEN) { labelEN.style.left = Math.min(SW-LW, Math.max(4, rawLX+14))+'px'; labelEN.style.opacity='0.7'; }
+            if (labelZH) labelZH.style.opacity = '0';
           } else {
-            const zhLeft = Math.min(SW - LABEL_W, Math.max(4, rawLabelX - 52));
-            if (labelZH) { labelZH.style.left = zhLeft + 'px'; labelZH.style.opacity = '0.7'; }
-            if (labelEN) { labelEN.style.opacity = '0'; }
+            if (labelZH) { labelZH.style.left = Math.min(SW-LW, Math.max(4, rawLX-52))+'px'; labelZH.style.opacity='0.7'; }
+            if (labelEN) labelEN.style.opacity = '0';
           }
+
         }
 
         // ── Snap animation ────────────────────────────────────────────────
@@ -587,13 +551,18 @@ const showDivider = path === '/about' || path === '/about/'
           return Math.abs(cx - lineXatVY(cy)) < HIT_DIST;
         }
 
+        // RAF-throttled mousemove — avoids forced reflow every pixel
+        let mouseMoveRaf = null;
+        let lastMouseX = 0, lastMouseY = 0;
         window.addEventListener('mousemove', (e) => {
+          lastMouseX = e.clientX; lastMouseY = e.clientY;
           if (dragging) {
             if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null; }
-            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth; // stage width = drag reference
-            render();
+            splitRatio = dragStartRatio + (e.clientX - dragStartCX) / stage.offsetWidth;
+            if (!mouseMoveRaf) mouseMoveRaf = requestAnimationFrame(() => { mouseMoveRaf = null; render(); });
             document.body.style.cursor = 'grabbing';
           } else {
+            // cursor check uses cachedRect (no reflow)
             document.body.style.cursor = nearLine(e.clientX, e.clientY) ? 'ew-resize' : '';
           }
         }, { passive: true });
@@ -648,6 +617,7 @@ const showDivider = path === '/about' || path === '/about/'
         render();
         updateWings();
         window.addEventListener('resize', () => { render(); updateWings(); }, { passive: true });
+        // scroll: only need to re-render clip-path (cachedRect.top changes); no reflow on wings
         window.addEventListener('scroll', render, { passive: true });
       })();
     </script>
