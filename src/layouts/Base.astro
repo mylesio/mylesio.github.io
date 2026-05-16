@@ -231,6 +231,20 @@ const isHome = Astro.url.pathname === '/';
 
       .lang-stage {
         position: relative;
+        /* EN layer (main) clips left side */
+      }
+      #lang-en-layer {
+        position: relative;
+        will-change: clip-path;
+      }
+      /* ZH layer sits on top, absolute, same size as EN layer */
+      .lang-zh-layer {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        min-height: 100%;
+        will-change: clip-path;
+        pointer-events: none; /* EN layer handles clicks unless ZH is dominant */
       }
 
       /* EN / 中 labels at top corners */
@@ -250,16 +264,7 @@ const isHome = Astro.url.pathname === '/';
       .lang-label-en { left: 1rem; }
       .lang-label-zh { right: 1rem; }
 
-      /* ZH overlay — clipped; updated via JS custom property */
-      .lang-zh-layer {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%;
-        /* clip from left edge to split position */
-        clip-path: inset(0 0 0 var(--split-x, 60%));
-        will-change: clip-path;
-      }
-      /* zh font inside zh layer */
+      /* ZH layer font */
       .lang-zh-layer {
         font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
                      Georgia, serif;
@@ -280,35 +285,18 @@ const isHome = Astro.url.pathname === '/';
         stroke-width: 1.5;
         opacity: 0.85;
       }
-      /* Handle pill */
+      /* Handle circle — follows mouse on the line */
       #lang-handle {
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 11;
-        width: 28px; height: 44px;
-        background: rgba(245,242,236,0.9);
+        width: 32px; height: 32px;
+        background: rgba(245,242,236,0.92);
         border: 1.5px solid #d946a8;
-        border-radius: 14px;
-        cursor: ew-resize;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 2px 14px rgba(217,70,168,0.22);
-        transition: box-shadow 0.15s, border-color 0.15s;
-        user-select: none;
-        touch-action: none;
-      }
-      #lang-handle:hover, #lang-handle.dragging {
-        box-shadow: 0 4px 22px rgba(217,70,168,0.38);
-        border-color: #be185d;
-      }
-      #lang-handle svg {
-        width: 12px; height: 12px;
-        opacity: 0.6;
-        color: #d946a8;
+        box-shadow: 0 2px 14px rgba(217,70,168,0.28);
       }
 
       /* ─── Mobile ─────────────────────────────────── */
@@ -375,20 +363,19 @@ const isHome = Astro.url.pathname === '/';
         <!-- ZH layer: same slot content but zh versions, injected per-page -->
         <div class="lang-zh-layer" id="lang-zh-layer" aria-hidden="true"></div>
 
-        <!-- Divider SVG line -->
-        <svg id="lang-divider" aria-hidden="true">
-          <line id="lang-divider-line" x1="0" y1="0" x2="0" y2="100%"/>
-        </svg>
-
-        <!-- Draggable handle -->
-        <div id="lang-handle" title="drag to reveal 中文 / English" role="slider" aria-label="Language split" aria-valuemin="0" aria-valuemax="100">
-          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 2L2 6L4 10M8 2L10 6L8 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-
         <span class="lang-label-en">EN</span>
         <span class="lang-label-zh">中</span>
+      </div>
+
+      <!-- Divider: fixed overlay, viewport-scoped, outside page-wrap -->
+      <svg id="lang-divider" aria-hidden="true" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:100;overflow:visible;">
+        <line id="lang-divider-line" stroke="#d946a8" stroke-width="1.5" opacity="0.85"/>
+      </svg>
+      <!-- Handle: fixed, follows mouse on the line -->
+      <div id="lang-handle" aria-hidden="true" style="position:fixed;display:none;z-index:101;transform:translate(-50%,-50%);pointer-events:none;">
+        <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+          <path d="M4 2L2 6L4 10M8 2L10 6L8 10" stroke="#d946a8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
 
       <footer>
@@ -401,114 +388,162 @@ const isHome = Astro.url.pathname === '/';
       (function () {
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
-        const handle  = document.getElementById('lang-handle');
+        const enLayer = document.getElementById('lang-en-layer');  // <main>
         const zhLayer = document.getElementById('lang-zh-layer');
         const divLine = document.getElementById('lang-divider-line');
-        if (!stage || !handle) return;
+        const handle  = document.getElementById('lang-handle');
+        if (!stage || !divLine) return;
 
-        // Skew angle from vertical
         const SKEW_DEG = 12;
         const SKEW_RAD = SKEW_DEG * Math.PI / 180;
 
-        // Default: start mostly to the right (EN dominant)
-        let splitRatio = 0.78;
+        // splitRatio: 0 = full ZH, 1 = full EN. Default EN dominant.
+        let splitRatio = 0.82;
         try {
           const s = parseFloat(localStorage.getItem(SPLIT_KEY));
-          if (!isNaN(s)) splitRatio = Math.max(0.05, Math.min(0.95, s));
+          if (!isNaN(s)) splitRatio = Math.max(0.02, Math.min(0.98, s));
         } catch(_) {}
 
+        // ── Core update ────────────────────────────────────────────────────
         function updateSplit(ratio) {
-          splitRatio = Math.max(0.05, Math.min(0.95, ratio));
+          splitRatio = Math.max(0.02, Math.min(0.98, ratio));
 
+          // Use viewport dimensions for the fixed SVG line
+          const VW = window.innerWidth;
+          const VH = window.innerHeight;
+
+          // The line passes through (splitRatio * VW, VH/2) at mid-height
+          // Slope offset from skew angle
+          const offset = Math.tan(SKEW_RAD) * VH / 2;
+          const midX = splitRatio * VW;
+          const lx1 = midX - offset;  // x at top (y=0)
+          const lx2 = midX + offset;  // x at bottom (y=VH)
+
+          // Update SVG line (viewport-fixed)
+          divLine.setAttribute('x1', lx1.toFixed(1));
+          divLine.setAttribute('y1', '0');
+          divLine.setAttribute('x2', lx2.toFixed(1));
+          divLine.setAttribute('y2', VH.toFixed(1));
+
+          // Clip both layers inside the stage using stage-relative coords
+          // We need to convert viewport line to stage-relative percentages
           const stageRect = stage.getBoundingClientRect();
-          const W = stageRect.width;
-          const H = stageRect.height;
+          const SW = stageRect.width;
+          const SH = stageRect.height;
+          const SL = stageRect.left;
+          const ST = stageRect.top;
 
-          // Pixel x of split at mid-height
-          const midX = splitRatio * W;
+          // Line x at stage top and bottom in stage-relative coords
+          // viewport y → stage y: vy = ST + sy  →  sy = vy - ST
+          // line x at vy: x(vy) = lx1 + (lx2-lx1) * vy/VH
+          const lineAtStageTop    = lx1 + (lx2 - lx1) * (ST / VH) - SL;
+          const lineAtStageBottom = lx1 + (lx2 - lx1) * ((ST + SH) / VH) - SL;
 
-          // Skewed line: top and bottom x offset by tan(angle) * H/2
-          const offset = Math.tan(SKEW_RAD) * H / 2;
-          const x1 = midX - offset;
-          const x2 = midX + offset;
+          const p1x = ((lineAtStageTop    / SW) * 100).toFixed(2);  // % at y=0
+          const p2x = ((lineAtStageBottom / SW) * 100).toFixed(2);  // % at y=100%
 
-          // Update SVG line
-          if (divLine) {
-            divLine.setAttribute('x1', x1.toFixed(1));
-            divLine.setAttribute('y1', '0');
-            divLine.setAttribute('x2', x2.toFixed(1));
-            divLine.setAttribute('y2', H.toFixed(1));
+          // EN layer: LEFT of the line  → clip right side away
+          if (enLayer) {
+            enLayer.style.clipPath =
+              `polygon(0% 0%, ${p1x}% 0%, ${p2x}% 100%, 0% 100%)`;
           }
 
-          // Update zh layer clip: polygon following the skewed line
-          // left edge = 0, right edge = W
-          // clip = everything to the RIGHT of the line
-          const clipPercX1 = ((x1 / W) * 100).toFixed(2);
-          const clipPercX2 = ((x2 / W) * 100).toFixed(2);
+          // ZH layer: RIGHT of the line → clip left side away
           if (zhLayer) {
             zhLayer.style.clipPath =
-              `polygon(${clipPercX1}% 0%, 100% 0%, 100% 100%, ${clipPercX2}% 100%)`;
+              `polygon(${p1x}% 0%, 100% 0%, 100% 100%, ${p2x}% 100%)`;
           }
 
-          // Position handle at mid-height, split x
-          handle.style.left = `${midX.toFixed(1)}px`;
-          handle.style.top  = `${(H / 2).toFixed(1)}px`;
-
-          // Persist
           try { localStorage.setItem(SPLIT_KEY, splitRatio); } catch(_) {}
-
-          // Update data-lang based on which side is dominant
-          const lang = splitRatio > 0.5 ? 'en' : 'zh';
-          document.documentElement.setAttribute('data-lang', lang);
-
-          // Swap text nodes (nav labels, section labels, etc.)
-          document.querySelectorAll('[data-en][data-zh]').forEach(el => {
-            if (!el.querySelector('a')) {
-              el.textContent = lang === 'zh'
-                ? el.getAttribute('data-zh')
-                : el.getAttribute('data-en');
-            }
-          });
         }
 
-        // Init
-        updateSplit(splitRatio);
-
-        // Recalc on resize
-        window.addEventListener('resize', () => updateSplit(splitRatio), { passive: true });
-
-        // ── Drag logic ──────────────────────────────────────────────────────
+        // ── Handle: follows mouse proximity to the line ────────────────────
         let dragging = false;
-        let startX = 0, startRatio = 0;
+        let dragStartX = 0, dragStartRatio = 0;
+        // Track last mouse position for handle positioning
+        let lastMouseX = 0, lastMouseY = 0;
+        const HIT_DIST = 28; // px proximity to show handle
 
-        function onDown(e) {
-          dragging = true;
-          handle.classList.add('dragging');
-          startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-          startRatio = splitRatio;
-          e.preventDefault();
+        function lineXAtY(vy) {
+          const VW = window.innerWidth;
+          const VH = window.innerHeight;
+          const offset = Math.tan(SKEW_RAD) * VH / 2;
+          const midX = splitRatio * VW;
+          const lx1 = midX - offset;
+          const lx2 = midX + offset;
+          return lx1 + (lx2 - lx1) * (vy / VH);
         }
 
-        function onMove(e) {
+        function updateHandle(mx, my) {
+          if (!handle) return;
+          const lineX = lineXAtY(my);
+          const dist = Math.abs(mx - lineX);
+          if (dist < HIT_DIST || dragging) {
+            // Project mouse onto the line for handle position
+            const clampedY = Math.max(40, Math.min(window.innerHeight - 40, my));
+            handle.style.display = 'flex';
+            handle.style.left = lineXAtY(clampedY).toFixed(1) + 'px';
+            handle.style.top  = clampedY.toFixed(1) + 'px';
+            document.body.style.cursor = 'ew-resize';
+          } else {
+            handle.style.display = 'none';
+            if (!dragging) document.body.style.cursor = '';
+          }
+        }
+
+        // ── Mouse / touch events ───────────────────────────────────────────
+        window.addEventListener('mousemove', (e) => {
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+          if (dragging) {
+            const dx = e.clientX - dragStartX;
+            updateSplit(dragStartRatio + dx / window.innerWidth);
+          }
+          updateHandle(e.clientX, e.clientY);
+        }, { passive: true });
+
+        window.addEventListener('mousedown', (e) => {
+          const lineX = lineXAtY(e.clientY);
+          if (Math.abs(e.clientX - lineX) < HIT_DIST) {
+            dragging = true;
+            dragStartX = e.clientX;
+            dragStartRatio = splitRatio;
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        window.addEventListener('mouseup', () => {
+          if (dragging) {
+            dragging = false;
+            updateHandle(lastMouseX, lastMouseY);
+          }
+        });
+
+        window.addEventListener('touchmove', (e) => {
           if (!dragging) return;
-          const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-          const W = stage.getBoundingClientRect().width;
-          const dx = clientX - startX;
-          updateSplit(startRatio + dx / W);
-        }
+          const t = e.touches[0];
+          const dx = t.clientX - dragStartX;
+          updateSplit(dragStartRatio + dx / window.innerWidth);
+        }, { passive: true });
 
-        function onUp() {
-          if (!dragging) return;
-          dragging = false;
-          handle.classList.remove('dragging');
-        }
+        window.addEventListener('touchend', () => { dragging = false; });
 
-        handle.addEventListener('mousedown',  onDown,  { passive: false });
-        handle.addEventListener('touchstart', onDown,  { passive: false });
-        window.addEventListener('mousemove',  onMove,  { passive: true });
-        window.addEventListener('touchmove',  onMove,  { passive: true });
-        window.addEventListener('mouseup',    onUp);
-        window.addEventListener('touchend',   onUp);
+        // Touch: detect tap near line to start drag
+        window.addEventListener('touchstart', (e) => {
+          const t = e.touches[0];
+          const lineX = lineXAtY(t.clientY);
+          if (Math.abs(t.clientX - lineX) < HIT_DIST + 10) {
+            dragging = true;
+            dragStartX = t.clientX;
+            dragStartRatio = splitRatio;
+          }
+        }, { passive: true });
+
+        // Init + resize
+        updateSplit(splitRatio);
+        window.addEventListener('resize', () => updateSplit(splitRatio), { passive: true });
+        // Recalc when stage scrolls (clip coords depend on stageRect)
+        window.addEventListener('scroll', () => updateSplit(splitRatio), { passive: true });
       })();
     </script>
   </body>
