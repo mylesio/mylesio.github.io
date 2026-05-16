@@ -311,11 +311,12 @@ const showDivider = path === '/about' || path === '/about/'
         mask-image: linear-gradient(to left, black 60%, transparent 100%);
       }
 
-      /* ZH layer font */
+      /* ZH layer font + match main padding so content starts at same y as EN */
       .lang-zh-layer {
         font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
                      Georgia, serif;
         letter-spacing: 0.03em;
+        padding: 1rem 0 5rem;
       }
 
       /* Divider line SVG */
