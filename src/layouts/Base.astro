@@ -433,6 +433,14 @@ const showDivider = path === '/about' || path === '/about/'
       // Only initialize on pages with showDivider (about + notes slugs)
       (function () {
         if (!document.getElementById('lang-divider')) return; // not a divider page, exit immediately
+
+        // Inject ZH content from template into ZH layer
+        const tpl = document.getElementById('zh-content-tpl');
+        const zhLayerInit = document.getElementById('lang-zh-layer');
+        if (tpl && zhLayerInit && zhLayerInit.childElementCount === 0) {
+          zhLayerInit.appendChild(tpl.content.cloneNode(true));
+        }
+
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
         const enLayer = document.getElementById('lang-en-layer');
