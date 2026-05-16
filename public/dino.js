@@ -120,6 +120,7 @@
   // ── Start game ────────────────────────────────────────────────────
   function startGame() {
     if (started || jumping) return;
+    window.dispatchEvent(new Event('dino-game-start')); // stop favicon-anim toDataURL
     sendIdlePos();
     jumping = true;
     worker.postMessage({ type: 'start' });

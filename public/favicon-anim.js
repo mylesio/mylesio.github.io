@@ -149,6 +149,9 @@
   let lastTick  = null;
   let done      = false;
 
+  // Stop immediately when dino game starts
+  window.addEventListener('dino-game-start', () => { done = true; }, { once: true });
+
   function loop(ts) {
     if (done) return;
     if (!startTime) startTime = ts;
