@@ -2,8 +2,9 @@
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
 }
-const { title, description = "Myles Liu — frontend engineer, AI agent practitioner." } = Astro.props;
+const { title, description = "Myles Liu — frontend engineer, AI agent practitioner.", noindex = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isHome = Astro.url.pathname === '/';
 const path = Astro.url.pathname;
@@ -20,6 +21,7 @@ const showDivider = path === '/about' || path === '/about/'
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{isHome ? 'mylesio' : `${title} — mylesio`}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -389,7 +391,6 @@ const showDivider = path === '/about' || path === '/about/'
           <a class="logo reveal reveal-1" href="/">mylesio</a>
           <nav class="reveal reveal-1">
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes" data-en="notes" data-zh="笔记">notes</a>
-            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/stream') }]} href="/stream" data-en="stream" data-zh="流">stream</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects" data-en="projects" data-zh="项目">projects</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about" data-en="about" data-zh="关于">about</a>
           </nav>
