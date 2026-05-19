@@ -24,7 +24,7 @@ const rendered = await Promise.all(
 
   <div class="stream-list">
     {rendered.map(({ entry, Content }) => (
-      <article class="stream-entry">
+      <article class="stream-entry lang-section">
         <div class="entry-meta">
           <time datetime={entry.data.date.toISOString()}>
             {entry.data.date.toISOString().slice(0, 10)}
@@ -45,7 +45,7 @@ const rendered = await Promise.all(
     </section>
     <div class="stream-list">
       {rendered.map(({ entry }) => (
-        <article class="stream-entry">
+        <article class="stream-entry lang-section">
           <div class="entry-meta">
             <time datetime={entry.data.date.toISOString()}>
               {entry.data.date.toISOString().slice(0, 10)}

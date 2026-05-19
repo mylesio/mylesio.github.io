@@ -487,6 +487,10 @@ const showDivider = path === '/about' || path === '/about/'
           if (enProse0 && zhProse0 && enSectionDivs.length === 0) {
             enSectionDivs = wrapSections(enProse0);
             zhSectionDivs = wrapSections(zhProse0);
+          } else if (!enProse0 && enSectionDivs.length === 0) {
+            // Fallback for pages that already use .lang-section directly (e.g. /stream)
+            enSectionDivs = Array.from(enLayer0.querySelectorAll('.lang-section'));
+            zhSectionDivs = Array.from(zhLayer0.querySelectorAll('.lang-section'));
           }
         })();
 
