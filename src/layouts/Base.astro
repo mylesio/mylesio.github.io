@@ -602,12 +602,15 @@ const showDivider = path === '/about' || path === '/about/'
         function scheduleAlign() {
           requestAnimationFrame(alignSections);
           setTimeout(() => requestAnimationFrame(alignSections), 600);
+          setTimeout(() => requestAnimationFrame(alignSections), 1500);
         }
         if (document.fonts) {
           document.fonts.ready.then(scheduleAlign);
         } else {
           scheduleAlign();
         }
+        // Extra pass after all resources (images, web fonts) fully loaded
+        window.addEventListener('load', () => setTimeout(() => requestAnimationFrame(alignSections), 300));
 
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
