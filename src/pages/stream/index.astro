@@ -6,7 +6,6 @@ import { render } from 'astro:content';
 const entries = (await getCollection('stream'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// render each entry
 const rendered = await Promise.all(
   entries.map(async (entry) => {
     const { Content } = await render(entry);
@@ -31,17 +30,37 @@ const rendered = await Promise.all(
             {entry.data.date.toISOString().slice(0, 10)}
           </time>
         </div>
-        <div class="entry-body en-content">
+        <div class="entry-body">
           <Content />
         </div>
-        {entry.data.zh && (
-          <div class="entry-body zh-content" lang="zh">
-            {entry.data.zh}
-          </div>
-        )}
       </article>
     ))}
   </div>
+
+  <!-- ZH layer template for divider — mirrors the EN content above with ZH text -->
+  <template id="zh-content-tpl">
+    <section class="page-header">
+      <h1 class="page-title">思维流</h1>
+      <p class="page-subtitle">每天在想什么，AI 提炼，持续更新。</p>
+    </section>
+    <div class="stream-list">
+      {rendered.map(({ entry }) => (
+        <article class="stream-entry">
+          <div class="entry-meta">
+            <time datetime={entry.data.date.toISOString()}>
+              {entry.data.date.toISOString().slice(0, 10)}
+            </time>
+          </div>
+          <div class="entry-body">
+            {entry.data.zh
+              ? <p>{entry.data.zh}</p>
+              : <p style="color:var(--muted);font-style:italic">（暂无中文版本）</p>
+            }
+          </div>
+        </article>
+      ))}
+    </div>
+  </template>
 </Base>
 
 <style>
@@ -65,7 +84,6 @@ const rendered = await Promise.all(
   .stream-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
   }
 
   .stream-entry {
@@ -80,9 +98,6 @@ const rendered = await Promise.all(
     border-bottom: 1px solid var(--border, #e8e4dc);
   }
 
-  .entry-meta {
-    padding-top: 0.1rem;
-  }
   .entry-meta time {
     font-size: 0.72rem;
     color: var(--muted);
@@ -91,7 +106,6 @@ const rendered = await Promise.all(
     white-space: nowrap;
   }
 
-  /* EN content: default visible */
   .entry-body {
     font-size: 0.9rem;
     line-height: 1.7;
@@ -110,17 +124,6 @@ const rendered = await Promise.all(
     padding: 0.1em 0.35em;
     border-radius: 3px;
   }
-
-  /* ZH content: hidden by default, shown when body has data-lang="zh" */
-  .zh-content {
-    display: none;
-    font-family: 'Noto Serif SC', serif;
-    font-size: 0.88rem;
-  }
-
-  /* Lang switching via Base.astro's lang-toggle script */
-  :global(body[data-lang="zh"]) .en-content { display: none; }
-  :global(body[data-lang="zh"]) .zh-content { display: block; }
 
   @media (max-width: 600px) {
     .stream-entry {
