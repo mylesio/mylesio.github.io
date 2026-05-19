@@ -321,7 +321,10 @@ const showDivider = path === '/about' || path === '/about/'
         font-family: 'Noto Serif SC', 'Source Han Serif CN', 'STSong',
                      Georgia, serif;
         letter-spacing: 0.03em;
-        padding: 1rem 0 5rem;
+        padding: 1rem 1.5rem 5rem;
+      }
+      @media (max-width: 480px) {
+        .lang-zh-layer { padding-left: 1rem; padding-right: 1rem; }
       }
 
       /* .lang-section display/padding is set inline by wrapSections() JS so it
