@@ -34,12 +34,12 @@
   function getIdlePos() {
     const anchor = document.getElementById('dino-anchor');
     const isMobile = window.innerWidth < 640;
-    const y = Math.round((NAVBAR_H - IDLE_DH) / 2);
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) - 1;
     if (!anchor) return { x: 24, y };
     const ar = anchor.getBoundingClientRect();
     // canvas is position:absolute inside #dino-stage which is position:fixed top:0 left:0
     // so canvas left edge = 0 in viewport coords → ar.left is directly the canvas-local x
-    const x = Math.round(ar.left + 2);
+    const x = Math.round(ar.left + 2) - 3;
     return { x: Math.max(4, Math.min(x, W - IDLE_DW - 4)), y };
   }
 
