@@ -514,18 +514,19 @@ const showDivider = path === '/about' || path === '/about/'
 
           // Re-measure and set min-heights on each pair
           const len = Math.min(enSectionDivs.length, zhSectionDivs.length);
+          // Reset all minHeights first
           for (let i = 0; i < len; i++) {
-            // Reset first
             enSectionDivs[i].style.minHeight = '';
             zhSectionDivs[i].style.minHeight = '';
           }
+          // Force reflow so offsetHeight reflects natural content height,
+          // not the previously set minHeight value.
+          void document.getElementById('lang-en-layer')?.offsetHeight;
+          // Measure natural heights and align pairs
           for (let i = 0; i < len; i++) {
             const enH = enSectionDivs[i].offsetHeight;
             const zhH = zhSectionDivs[i].offsetHeight;
-            console.log(`[align] [${i}] en=${enH}px zh=${zhH}px`);
             const maxH = Math.max(enH, zhH);
-            // Always set both sides to the same height so absolute-positioned
-            // ZH layer stays visually in sync with the normal-flow EN layer.
             enSectionDivs[i].style.minHeight = maxH + 'px';
             zhSectionDivs[i].style.minHeight = maxH + 'px';
           }
