@@ -322,6 +322,9 @@ const showDivider = path === '/about' || path === '/about/'
         padding: 1rem 0 5rem;
       }
 
+      /* .lang-section display/padding is set inline by wrapSections() JS so it
+         works on dynamically-created elements (no Astro scope hash needed). */
+
       /* Divider line SVG */
       #lang-divider {
         position: absolute;
@@ -450,29 +453,41 @@ const showDivider = path === '/about' || path === '/about/'
         }
 
         // ── Section height alignment ─────────────────────────────────────
-        // Wrap prose children into h2-delimited section divs SYNCHRONOUSLY
+        // Wrap each prose child element into its own lang-section div SYNCHRONOUSLY
         // (before first paint) so there's no visible DOM restructure later.
+        // One child = one section; EN and ZH sections are paired 1-to-1 for height alignment.
         // min-height is set after fonts load (async) to get accurate heights.
         let enSectionDivs = [];
         let zhSectionDivs = [];
 
         function wrapSections(prose) {
-          const groups = [];
-          let cur = [];
-          Array.from(prose.children).forEach(child => {
-            if (child.tagName === 'H2' && cur.length) {
-              groups.push(cur);
-              cur = [child];
-            } else {
-              cur.push(child);
-            }
-          });
-          if (cur.length) groups.push(cur);
-          return groups.map(els => {
+          const children = Array.from(prose.children);
+          return children.map(child => {
             const wrap = document.createElement('div');
             wrap.className = 'lang-section';
-            prose.insertBefore(wrap, els[0]);
-            els.forEach(el => wrap.appendChild(el));
+            // display:flow-root creates BFC, preventing child margin collapse from
+            // bleeding out and causing EN/ZH section tops to drift apart.
+            // padding-bottom replaces child bottom-margin as the inter-section spacer
+            // so spacing is font-independent and identical on both sides.
+            wrap.style.cssText = 'display:flow-root;';
+            const tag = child.tagName;
+            if (tag === 'H2') {
+              wrap.style.paddingTop = '1.75rem';
+              wrap.style.paddingBottom = '0.5rem';
+              child.style.margin = '0';
+            } else if (tag === 'H3') {
+              wrap.style.paddingTop = '1.25rem';
+              wrap.style.paddingBottom = '0.25rem';
+              child.style.margin = '0';
+            } else {
+              wrap.style.paddingBottom = '1.25rem';
+              // strip child bottom margin to avoid double-spacing
+              const cs = getComputedStyle(child);
+              const mb = parseFloat(cs.marginBottom);
+              if (mb > 0) child.style.marginBottom = '0';
+            }
+            prose.insertBefore(wrap, child);
+            wrap.appendChild(child);
             return wrap;
           });
         }
@@ -512,6 +527,18 @@ const showDivider = path === '/about' || path === '/about/'
             }
           }
 
+          // Align post-header heights (title may wrap differently EN vs ZH)
+          const enHeader = enLayer2.querySelector('.post-header');
+          const zhHeader = zhLayer2.querySelector('.post-header');
+          if (enHeader && zhHeader) {
+            enHeader.style.minHeight = '';
+            zhHeader.style.minHeight = '';
+            void enLayer2.offsetHeight; // reflow
+            const maxHdrH = Math.max(enHeader.offsetHeight, zhHeader.offsetHeight);
+            enHeader.style.minHeight = maxHdrH + 'px';
+            zhHeader.style.minHeight = maxHdrH + 'px';
+          }
+
           // Re-measure and set min-heights on each pair
           const len = Math.min(enSectionDivs.length, zhSectionDivs.length);
           // Reset all minHeights first
@@ -549,8 +576,12 @@ const showDivider = path === '/about' || path === '/about/'
         // Run once after fonts are ready and browser has completed first layout.
         // fonts.ready resolves after all fonts in the document are loaded,
         // then rAF ensures we're in the next paint frame (layout already done).
+        // We also schedule a second pass 600ms later to catch late-loading CJK
+        // web fonts (e.g. Noto Serif SC from Google Fonts) that may resolve
+        // after fonts.ready (due to font subsetting / lazy loading).
         function scheduleAlign() {
           requestAnimationFrame(alignSections);
+          setTimeout(() => requestAnimationFrame(alignSections), 600);
         }
         if (document.fonts) {
           document.fonts.ready.then(scheduleAlign);
