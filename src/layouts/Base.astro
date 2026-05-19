@@ -491,6 +491,7 @@ const showDivider = path === '/about' || path === '/about/'
             // Fallback for pages that already use .lang-section directly (e.g. /stream)
             enSectionDivs = Array.from(enLayer0.querySelectorAll('.lang-section'));
             zhSectionDivs = Array.from(zhLayer0.querySelectorAll('.lang-section'));
+            console.log('[align] stream fallback: en=', enSectionDivs.length, 'zh=', zhSectionDivs.length);
           }
         })();
 
@@ -499,7 +500,18 @@ const showDivider = path === '/about' || path === '/about/'
           const zhLayer2 = document.getElementById('lang-zh-layer');
           if (!enLayer2 || !zhLayer2) return;
 
-          // Wrap once
+          // Ensure sections are populated (fallback for stream-style pages)
+          if (enSectionDivs.length === 0) {
+            const enProse2 = enLayer2.querySelector('.prose');
+            if (enProse2) {
+              enSectionDivs = wrapSections(enProse2);
+              zhSectionDivs = wrapSections(zhLayer2.querySelector('.prose'));
+            } else {
+              enSectionDivs = Array.from(enLayer2.querySelectorAll('.lang-section'));
+              zhSectionDivs = Array.from(zhLayer2.querySelectorAll('.lang-section'));
+            }
+          }
+
           // Re-measure and set min-heights on each pair
           const len = Math.min(enSectionDivs.length, zhSectionDivs.length);
           for (let i = 0; i < len; i++) {
@@ -516,7 +528,6 @@ const showDivider = path === '/about' || path === '/about/'
               enSectionDivs[i].style.minHeight = zhH + 'px';
             }
           }
-
         }
 
         // Run once after fonts are ready and browser has completed first layout.
