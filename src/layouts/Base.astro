@@ -522,13 +522,27 @@ const showDivider = path === '/about' || path === '/about/'
           // Force reflow so offsetHeight reflects natural content height,
           // not the previously set minHeight value.
           void document.getElementById('lang-en-layer')?.offsetHeight;
-          // Measure natural heights and align pairs
+          // Measure natural heights and align pairs.
+          // stream-entry uses box-sizing: content-box, so:
+          //   offsetHeight = content + paddingTop + paddingBottom + border
+          //   minHeight    = content only
+          // We must set both sides to the same minHeight (content units) so
+          // their total rendered heights (minHeight + padding) match exactly.
           for (let i = 0; i < len; i++) {
-            const enH = enSectionDivs[i].offsetHeight;
-            const zhH = zhSectionDivs[i].offsetHeight;
-            const maxH = Math.max(enH, zhH);
-            enSectionDivs[i].style.minHeight = maxH + 'px';
-            zhSectionDivs[i].style.minHeight = maxH + 'px';
+            const enEl = enSectionDivs[i];
+            const zhEl = zhSectionDivs[i];
+            const enCs = getComputedStyle(enEl);
+            const zhCs = getComputedStyle(zhEl);
+            const enPad = parseFloat(enCs.paddingTop) + parseFloat(enCs.paddingBottom)
+                        + parseFloat(enCs.borderTopWidth) + parseFloat(enCs.borderBottomWidth);
+            const zhPad = parseFloat(zhCs.paddingTop) + parseFloat(zhCs.paddingBottom)
+                        + parseFloat(zhCs.borderTopWidth) + parseFloat(zhCs.borderBottomWidth);
+            const enContentH = enEl.offsetHeight - enPad;
+            const zhContentH = zhEl.offsetHeight - zhPad;
+            const maxContentH = Math.max(enContentH, zhContentH);
+            // Set both sides to the same content height so total heights match
+            enEl.style.minHeight = maxContentH + 'px';
+            zhEl.style.minHeight = maxContentH + 'px';
           }
         }
 
