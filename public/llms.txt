@@ -4,7 +4,16 @@
 
 ## Notes
 
-- [Hello World](/notes/hello-world): Why I built this knowledge base.
+- [DeepSeek V4 and the Future of Context Engineering](/notes/deepseek-v4-context-engineering): Speculating on DeepSeek V4's architecture (Engram + mHC), and what context engineering looks like when the model can finally remember.
+- [EndlessRun: Running Local Models for 24 Hours Straight](/notes/endlessrun-local-model-24h): A design for letting an 8B–26B edge model run complex tasks overnight using task decomposition, memory compression, and native tool calls.
+- [Engineering Cybernetics Meets AI Harness](/notes/engineering-cybernetics-meets-ai-harness): How Qian Xuesen's 1954 control theory maps to the problem of making AI agents follow instructions reliably.
+- [EyeGlow: Eye-Tracking Agent Interaction on MacBook](/notes/eyeglow-eye-tracking-agent): A design spec for using the MacBook front camera + eye direction + blink to replace mouse clicks when confirming AI agent prompts.
+- [Fruit Fly Connectome × AI Agent Architecture](/notes/fruitfly-connectome-meets-agents): What the fruit fly's 139K-neuron brain wiring diagram teaches us about designing multi-agent communication topologies.
+- [GenericAgent: A Self-Evolving Agent in 3K Lines](/notes/generic-agent-self-evolving-framework): How a minimal agent framework achieves 6x token efficiency through contextual information density maximization and autonomous skill crystallization.
+- [Karpathy's LLM Wiki: Knowledge as Code](/notes/karpathy-llm-wiki): Instead of RAG-from-scratch every time, let the LLM continuously compile and maintain a living wiki. Notes on Karpathy's gist.
+- [Multi-Agent Governance: Building Reliable AI Agent Teams](/notes/multi-agent-governance): How to organize multiple AI agents into reliable teams — roles, authorization, evaluation, prompt evolution, and the engineering principles behind it all.
+- [Temporal Crystal: A Memory Compression and Retrieval Engine](/notes/temporal-crystal-memory-engine): An AI memory system with layered compression, hybrid retrieval, knowledge graphs, self-healing, and a dream engine inspired by biological sleep.
+- [WorldMind: A Multi-Agent World Model Engine](/notes/worldmind-multi-agent-world-model): Architecture design for an autonomous system that perceives, remembers, reasons, predicts, and learns — starting with the GitHub open source ecosystem.
 
 ## Projects
 
