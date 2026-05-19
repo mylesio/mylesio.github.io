@@ -522,6 +522,9 @@ const showDivider = path === '/about' || path === '/about/'
           for (let i = 0; i < len; i++) {
             const enH = enSectionDivs[i].offsetHeight;
             const zhH = zhSectionDivs[i].offsetHeight;
+            const enW = enSectionDivs[i].offsetWidth;
+            const zhW = zhSectionDivs[i].offsetWidth;
+            console.log(`[align] [${i}] en=${enH}px(w=${enW}) zh=${zhH}px(w=${zhW})`);
             if (enH > zhH + 4) {
               zhSectionDivs[i].style.minHeight = enH + 'px';
             } else if (zhH > enH + 4) {
