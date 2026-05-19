@@ -415,6 +415,7 @@ const showDivider = path === '/about' || path === '/about/'
           <nav class="reveal reveal-1">
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes" data-en="notes" data-zh="笔记">notes</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects" data-en="projects" data-zh="项目">projects</a>
+            <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/stream') }]} href="/stream" data-en="stream" data-zh="思维流">stream</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/about') }]} href="/about" data-en="about" data-zh="关于">about</a>
           </nav>
         </div>
