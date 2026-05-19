@@ -323,13 +323,8 @@ const showDivider = path === '/about' || path === '/about/'
         letter-spacing: 0.03em;
         padding: 1rem 1.5rem 5rem;
       }
-      /* Mobile: hide divider + ZH layer, show EN full-width */
       @media (max-width: 480px) {
-        #lang-divider { display: none !important; }
-        .lang-zh-layer { display: none !important; }
-        #lang-en-layer { clip-path: none !important; }
-        #lang-wing-l, #lang-wing-r { display: none !important; }
-        .lang-label-en, .lang-label-zh { display: none !important; }
+        .lang-zh-layer { padding-left: 1rem; padding-right: 1rem; }
       }
 
       /* .lang-section display/padding is set inline by wrapSections() JS so it
