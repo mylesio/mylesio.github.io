@@ -410,8 +410,8 @@ const showDivider = path === '/about' || path === '/about/'
     <div class="site-header">
       <header>
         <div class="nav-inner">
-          <span id="dino-anchor" style="display:inline-block;width:0;height:0;"></span>
-          <a class="logo reveal reveal-1" href="/">mylesio</a>
+          <a class="logo reveal reveal-1" href="/" style="position:relative;">
+            <span id="dino-anchor" style="position:absolute;width:0;height:0;left:-28px;top:50%;transform:translateY(-50%);"></span>mylesio</a>
           <nav class="reveal reveal-1">
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/notes') }]} href="/notes" data-en="notes" data-zh="笔记">notes</a>
             <a class:list={["nav-link", { active: Astro.url.pathname.startsWith('/projects') }]} href="/projects" data-en="projects" data-zh="项目">projects</a>
