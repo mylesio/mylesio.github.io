@@ -34,7 +34,7 @@
   function getIdlePos() {
     const anchor = document.getElementById('dino-anchor');
     const isMobile = window.innerWidth < 640;
-    const y = Math.round((NAVBAR_H - IDLE_DH) / 2) + (isMobile ? 9 : 0);
+    const y = Math.round((NAVBAR_H - IDLE_DH) / 2);
     if (!anchor) return { x: 24, y };
     const ar = anchor.getBoundingClientRect();
     // canvas is position:absolute inside #dino-stage which is position:fixed top:0 left:0
