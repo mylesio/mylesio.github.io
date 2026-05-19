@@ -380,6 +380,23 @@ const showDivider = path === '/about' || path === '/about/'
       @media (prefers-reduced-motion: reduce) {
         .reveal { opacity: 1; animation: none; }
       }
+
+      /* ── Global page header ── */
+      .page-header { padding: 2rem 0 2.5rem; }
+      .page-title {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 400;
+        margin: 0 0 0.6rem;
+      }
+      .page-subtitle {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.65;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
