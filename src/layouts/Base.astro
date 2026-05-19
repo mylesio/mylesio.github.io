@@ -601,16 +601,15 @@ const showDivider = path === '/about' || path === '/about/'
         // after fonts.ready (due to font subsetting / lazy loading).
         function scheduleAlign() {
           requestAnimationFrame(alignSections);
-          setTimeout(() => requestAnimationFrame(alignSections), 600);
-          setTimeout(() => requestAnimationFrame(alignSections), 1500);
         }
         if (document.fonts) {
+          // Re-align every time any font finishes loading (catches CJK subset chunks)
+          document.fonts.addEventListener('loadingdone', () => requestAnimationFrame(alignSections));
           document.fonts.ready.then(scheduleAlign);
         } else {
           scheduleAlign();
         }
-        // Extra pass after all resources (images, web fonts) fully loaded
-        window.addEventListener('load', () => setTimeout(() => requestAnimationFrame(alignSections), 300));
+        window.addEventListener('load', () => requestAnimationFrame(alignSections));
 
         const SPLIT_KEY = 'lang-split-x';
         const stage   = document.getElementById('lang-stage');
