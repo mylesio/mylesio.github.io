@@ -184,14 +184,25 @@ const labelPositions = facets.map((_, i) => {
 </Base>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Clone SVG into ZH radar wrap
-    const enSvg = document.querySelector('.radar-wrap .radar-svg');
+  // Inject radar SVG into ZH layer after divider has cloned zh-content-tpl.
+  // Base.astro's divider init runs on DOMContentLoaded; we use a MutationObserver
+  // to watch for the ZH radar-wrap to appear, then clone the SVG in.
+  function injectZhRadar() {
+    const enSvg = document.querySelector('#lang-en-layer .radar-svg');
     const zhWrap = document.querySelector('#lang-zh-layer .radar-wrap');
-    if (enSvg && zhWrap) {
+    if (enSvg && zhWrap && !zhWrap.querySelector('svg')) {
       zhWrap.appendChild(enSvg.cloneNode(true));
+      return true;
     }
-  });
+    return false;
+  }
+
+  if (!injectZhRadar()) {
+    const obs = new MutationObserver(() => {
+      if (injectZhRadar()) obs.disconnect();
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
 </script>
 
 <style is:global>

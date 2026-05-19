@@ -8,10 +8,11 @@ const { title, description = "Myles Liu — frontend engineer, AI agent practiti
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isHome = Astro.url.pathname === '/';
 const path = Astro.url.pathname;
-// Divider on: /about, /notes/<slug>, /stream (and /stream/)
+// Divider on: /about, /notes/<slug>, /stream (and /stream/), /stream/result
 const showDivider = path === '/about' || path === '/about/'
   || (path.startsWith('/notes/') && path.replace(/\/$/, '') !== '/notes')
-  || path === '/stream' || path === '/stream/';
+  || path === '/stream' || path === '/stream/'
+  || path === '/stream/result' || path === '/stream/result/';
 ---
 
 <!doctype html>
