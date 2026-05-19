@@ -15,4 +15,13 @@ const notes = defineCollection({
   }),
 });
 
-export const collections = { notes };
+const stream = defineCollection({
+  type: 'content',
+  schema: z.object({
+    date: z.coerce.date(),
+    // optional: zh pair for bilingual snippets
+    zh: z.string().optional(),
+  }),
+});
+
+export const collections = { notes, stream };

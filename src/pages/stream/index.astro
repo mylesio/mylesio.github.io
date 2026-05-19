@@ -1,0 +1,134 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { render } from 'astro:content';
+
+const entries = (await getCollection('stream'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// render each entry
+const rendered = await Promise.all(
+  entries.map(async (entry) => {
+    const { Content } = await render(entry);
+    return { entry, Content };
+  })
+);
+---
+
+<Base title="Stream" description="A living log of what I'm thinking about.">
+  <section class="page-header">
+    <h1 class="page-title" data-en="stream" data-zh="思维流">stream</h1>
+    <p class="page-subtitle" data-en="a log of what I'm actually thinking about, day to day." data-zh="每天在想什么，AI 提炼，持续更新。">
+      a log of what I'm actually thinking about, day to day.
+    </p>
+  </section>
+
+  <div class="stream-list">
+    {rendered.map(({ entry, Content }) => (
+      <article class="stream-entry">
+        <div class="entry-meta">
+          <time datetime={entry.data.date.toISOString()}>
+            {entry.data.date.toISOString().slice(0, 10)}
+          </time>
+        </div>
+        <div class="entry-body en-content">
+          <Content />
+        </div>
+        {entry.data.zh && (
+          <div class="entry-body zh-content" lang="zh">
+            {entry.data.zh}
+          </div>
+        )}
+      </article>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .page-header {
+    padding: 2rem 0 3rem;
+  }
+  .page-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+  }
+  .page-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    max-width: 480px;
+  }
+
+  .stream-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .stream-entry {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 0 2rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--border, #e8e4dc);
+    align-items: start;
+  }
+  .stream-entry:last-child {
+    border-bottom: 1px solid var(--border, #e8e4dc);
+  }
+
+  .entry-meta {
+    padding-top: 0.1rem;
+  }
+  .entry-meta time {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'OperatorMono', 'SF Mono', monospace;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  /* EN content: default visible */
+  .entry-body {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .entry-body :global(p) {
+    margin: 0 0 0.6em;
+  }
+  .entry-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .entry-body :global(code) {
+    font-family: 'OperatorMono', 'SF Mono', monospace;
+    font-size: 0.82em;
+    background: var(--code-bg, #f0ece4);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  /* ZH content: hidden by default, shown when body has data-lang="zh" */
+  .zh-content {
+    display: none;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.88rem;
+  }
+
+  /* Lang switching via Base.astro's lang-toggle script */
+  :global(body[data-lang="zh"]) .en-content { display: none; }
+  :global(body[data-lang="zh"]) .zh-content { display: block; }
+
+  @media (max-width: 600px) {
+    .stream-entry {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    .entry-meta time {
+      font-size: 0.68rem;
+    }
+  }
+</style>
