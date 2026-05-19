@@ -1,0 +1,294 @@
+---
+// Prism Profile Card — hexagonal radar chart + facet breakdown
+// Data source: Prism analysis generated 2026-04-22
+
+const facets = [
+  { key: 'communication', en: 'Communication',  zh: '沟通能力', score: 8.6, conf: 90,
+    enDesc: 'High-density, structured, executable — puts goals, constraints, boundaries, and output format in the same context. Reduces back-and-forth.',
+    zhDesc: '高密度、结构化、可执行——把产品目标、约束、边界和输出格式放在同一上下文中。显著减少来回澄清成本。' },
+  { key: 'learning',       en: 'Learning',       zh: '学习能力', score: 8.3, conf: 89,
+    enDesc: 'Research-driven before committing. Handles multi-domain complexity (privacy, security, cross-platform) without losing thread.',
+    zhDesc: '先分析再承诺。能同时处理隐私、安全、跨平台等跨领域议题，而不失主线。' },
+  { key: 'execution',      en: 'Execution',      zh: '执行力',   score: 8.2, conf: 87,
+    enDesc: 'Strong structural instinct — cares about directory layout, scaffolding, downstream reuse. Willing to scope down once MVP is clear.',
+    zhDesc: '较强的结构化执行倾向：关注目录结构、脚手架与可复用性。MVP 明确后愿意收敛范围。' },
+  { key: 'depth',          en: 'Tech Depth',     zh: '技术深度', score: 8.1, conf: 83,
+    enDesc: 'Strong on architecture and system-level tradeoffs. Less direct evidence on low-level implementation, perf optimization, or complex debugging.',
+    zhDesc: '架构判断与系统权衡能力强。底层实现、性能优化或复杂排障的直接证据偏少。' },
+  { key: 'collab',         en: 'Collaboration',  zh: '协作能力', score: 7.1, conf: 74,
+    enDesc: 'Effective in human-AI collaboration. Clear expression lifts team efficiency. Less evidence in multi-person coordination and feedback loops.',
+    zhDesc: '人机协作高效。清晰表达有助于团队效率。多人协调与反馈闭环的直接证据偏少。' },
+  { key: 'leadership',     en: 'Leadership',     zh: '领导力',   score: 6.5, conf: 58,
+    enDesc: 'Initiates projects, sets constraints, accepts reasonable pushback. Missing: delegation, team dynamics, conflict resolution evidence.',
+    zhDesc: '能主导项目启动并设定边界，能接受合理建议。缺少：授权分工、团队冲突处理等直接案例。' },
+];
+
+// Hexagon geometry: 6 axes at 60° intervals, top axis = first facet
+// Origin at (200, 200), max radius = 140
+const CX = 200, CY = 200, R = 140;
+const N = 6;
+
+function hexPoint(i: number, r: number) {
+  const angle = (Math.PI / 2) - (2 * Math.PI * i / N); // start from top, clockwise
+  return { x: CX + r * Math.cos(angle), y: CY - r * Math.sin(angle) };
+}
+
+const gridLevels = [2, 4, 6, 8, 10];
+const gridPaths = gridLevels.map(v => {
+  const pts = Array.from({ length: N }, (_, i) => hexPoint(i, (v / 10) * R));
+  return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ') + ' Z';
+});
+
+const axisLines = Array.from({ length: N }, (_, i) => {
+  const p = hexPoint(i, R);
+  return { x2: p.x.toFixed(2), y2: p.y.toFixed(2) };
+});
+
+const dataPoints = facets.map((f, i) => hexPoint(i, (f.score / 10) * R));
+const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ') + ' Z';
+
+// Label positions (slightly beyond R)
+const labelPositions = facets.map((f, i) => {
+  const p = hexPoint(i, R + 24);
+  return { x: p.x, y: p.y, anchor: p.x < CX - 10 ? 'end' : p.x > CX + 10 ? 'start' : 'middle' };
+});
+
+// Score dot positions
+const scoreDots = dataPoints.map((p, i) => ({ ...p, score: facets[i].score }));
+---
+
+<div class="prism-card lang-section">
+  <!-- EN layer -->
+  <div class="prism-inner">
+    <div class="prism-header">
+      <span class="prism-badge">PRISM</span>
+      <span class="prism-subtitle">AI-generated profile · career · 2026-04-22</span>
+    </div>
+
+    <div class="prism-layout">
+      <!-- Radar chart -->
+      <div class="prism-radar-wrap">
+        <svg viewBox="0 0 400 400" class="prism-svg" aria-label="Hexagonal radar chart showing 6 trait scores">
+          <!-- Grid -->
+          {gridPaths.map((d, gi) => (
+            <path d={d} fill="none" stroke="var(--prism-grid)" stroke-width={gi === gridPaths.length - 1 ? '1.2' : '0.6'} opacity={gi === gridPaths.length - 1 ? '0.35' : '0.18'} />
+          ))}
+          <!-- Grid labels (score values) -->
+          {gridLevels.map((v) => {
+            const p = hexPoint(0, (v / 10) * R);
+            return <text x={p.x.toFixed(2)} y={(p.y - 4).toFixed(2)} text-anchor="middle" class="prism-grid-label">{v}</text>;
+          })}
+          <!-- Axes -->
+          {axisLines.map((l) => (
+            <line x1={CX} y1={CY} x2={l.x2} y2={l.y2} stroke="var(--prism-grid)" stroke-width="0.7" opacity="0.3" />
+          ))}
+          <!-- Data fill -->
+          <path d={dataPath} fill="var(--prism-fill)" stroke="var(--prism-stroke)" stroke-width="1.8" />
+          <!-- Score dots -->
+          {scoreDots.map((d) => (
+            <circle cx={d.x.toFixed(2)} cy={d.y.toFixed(2)} r="4" fill="var(--prism-dot)" />
+          ))}
+          <!-- Axis labels -->
+          {facets.map((f, i) => {
+            const lp = labelPositions[i];
+            return (
+              <text
+                x={lp.x.toFixed(2)}
+                y={(lp.y + 4).toFixed(2)}
+                text-anchor={lp.anchor}
+                class="prism-axis-label"
+              >{f.en}</text>
+            );
+          })}
+        </svg>
+      </div>
+
+      <!-- Score list -->
+      <div class="prism-scores">
+        {facets.map((f) => (
+          <div class="prism-score-row">
+            <div class="prism-score-meta">
+              <span class="prism-score-name">{f.en}</span>
+              <span class="prism-score-val">{f.score.toFixed(1)}</span>
+            </div>
+            <div class="prism-bar-track">
+              <div class="prism-bar-fill" style={`width:${f.score * 10}%`}></div>
+            </div>
+            <p class="prism-score-desc">{f.enDesc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="prism-note">
+      Scores reflect evidence density, not absolute ability.
+      Confidence range: {Math.min(...facets.map(f => f.conf))}–{Math.max(...facets.map(f => f.conf))}%.
+    </p>
+  </div>
+</div>
+
+<!-- ZH mirror injected via template in stream/index.astro -->
+<template id="prism-zh-tpl">
+  <div class="prism-card lang-section">
+    <div class="prism-inner">
+      <div class="prism-header">
+        <span class="prism-badge">PRISM</span>
+        <span class="prism-subtitle">AI 生成画像 · 求职方向 · 2026-04-22</span>
+      </div>
+      <div class="prism-layout">
+        <div class="prism-radar-wrap"><!-- SVG cloned by JS --></div>
+        <div class="prism-scores">
+          {facets.map((f) => (
+            <div class="prism-score-row">
+              <div class="prism-score-meta">
+                <span class="prism-score-name">{f.zh}</span>
+                <span class="prism-score-val">{f.score.toFixed(1)}</span>
+              </div>
+              <div class="prism-bar-track">
+                <div class="prism-bar-fill" style={`width:${f.score * 10}%`}></div>
+              </div>
+              <p class="prism-score-desc">{f.zhDesc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p class="prism-note">分数反映的是证据密度，而非绝对能力。置信区间：{Math.min(...facets.map(f => f.conf))}–{Math.max(...facets.map(f => f.conf))}%。</p>
+    </div>
+  </div>
+</template>
+
+<style>
+  .prism-card {
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .prism-inner {
+    padding: 1.75rem 2rem 1.5rem;
+  }
+
+  .prism-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .prism-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 0.2em 0.55em;
+    border-radius: 4px;
+  }
+
+  .prism-subtitle {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .prism-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 640px) {
+    .prism-layout { grid-template-columns: 1fr; }
+  }
+
+  .prism-radar-wrap {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  .prism-svg {
+    width: 100%;
+    height: auto;
+    --prism-grid:   var(--accent);
+    --prism-fill:   color-mix(in srgb, var(--accent) 18%, transparent);
+    --prism-stroke: var(--accent);
+    --prism-dot:    var(--accent);
+  }
+
+  :global(.prism-grid-label) {
+    font-size: 9px;
+    fill: var(--muted);
+    font-family: inherit;
+  }
+
+  :global(.prism-axis-label) {
+    font-size: 10px;
+    fill: var(--text);
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  .prism-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .prism-score-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .prism-score-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .prism-score-name {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .prism-score-val {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prism-bar-track {
+    height: 3px;
+    background: color-mix(in srgb, var(--accent) 15%, var(--border));
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .prism-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .prism-score-desc {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .prism-note {
+    margin-top: 1.25rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+  }
+</style>

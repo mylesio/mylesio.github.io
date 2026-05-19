@@ -17,8 +17,8 @@ const rendered = await Promise.all(
 <Base title="Stream" description="A living log of what I'm thinking about." noindex={true}>
   <section class="page-header">
     <h1 class="page-title" data-en="stream" data-zh="思维流">stream</h1>
-    <p class="page-subtitle" data-en="a log of what I'm actually thinking about, day to day." data-zh="每天在想什么，AI 提炼，持续更新。">
-      a log of what I'm actually thinking about, day to day.
+    <p class="page-subtitle">
+      a log of what I'm actually thinking about, day to day. also ran <a href="/stream/result">Prism</a> on myself — an AI-generated six-axis profile.
     </p>
   </section>
 
@@ -41,7 +41,7 @@ const rendered = await Promise.all(
   <template id="zh-content-tpl">
     <section class="page-header">
       <h1 class="page-title">思维流</h1>
-      <p class="page-subtitle">每天在想什么，AI 提炼，持续更新。</p>
+      <p class="page-subtitle">每天在想什么，AI 提炼，持续更新。也用 <a href="/stream/result">Prism</a> 跑了一次自我分析——六维 AI 生成画像。</p>
     </section>
     <div class="stream-list">
       {rendered.map(({ entry }) => (

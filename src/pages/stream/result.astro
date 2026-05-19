@@ -1,0 +1,354 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const facets = [
+  {
+    key: 'communication', en: 'Communication', zh: '沟通能力', score: 8.6, conf: 90,
+    enDesc: 'High-density, structured, executable — puts goals, constraints, boundaries, and output format in the same context. Reduces back-and-forth significantly.',
+    zhDesc: '高密度、结构化、可执行——把目标、约束、边界和输出格式放在同一上下文中。显著减少来回澄清成本。',
+    enDetail: 'Needs expressed in a single pass typically include the product goal, implementation constraints, boundary conditions, and output format requirements simultaneously — for example, defining Prism\'s product direction while specifying permission controls, security, server-side encapsulation, directory structure, and target platforms all at once. This style minimizes clarification overhead and increases execution efficiency.',
+    zhDetail: '需求表达通常把产品目标、实现约束、边界条件和输出格式一次说清——如在定义 Prism 产品方向的同时明确权限控制、安全、服务端封装、目录结构和目标平台。这种方式能减少来回澄清，提升执行效率。',
+  },
+  {
+    key: 'learning', en: 'Learning', zh: '学习能力', score: 8.3, conf: 89,
+    enDesc: 'Research-driven before committing. Handles multi-domain complexity — privacy, security, cross-platform — without losing the main thread.',
+    zhDesc: '先分析再承诺。能同时处理隐私、安全、跨平台等跨领域议题，不失主线。',
+    enDetail: 'When facing complex, high-impact decisions, the pattern is to seek thorough analysis before locking in. The clearest evidence: when the privacy stance for Prism was still open, detailed analysis was requested rather than making an irreversible early commitment. Also handles multi-domain topics (privacy, security, commercial encapsulation, cross-platform) simultaneously — indicating fast absorption of new domains and capacity for complex tradeoffs.',
+    zhDetail: '面对复杂的高影响决策时，倾向先做充分分析再形成承诺。典型证据：Prism 隐私立场尚未确定时，先寻求详细分析，而不是过早锁死。同时处理隐私、安全、商业封装、跨平台等多域议题，体现出对新领域的快速吸收能力和容纳复杂权衡的严谨性。',
+  },
+  {
+    key: 'execution', en: 'Execution', zh: '执行力', score: 8.2, conf: 87,
+    enDesc: 'Strong structural instinct — cares about directory layout, scaffolding, downstream reuse. Willing to scope down once MVP is clear.',
+    zhDesc: '较强的结构化执行倾向：关注目录结构、脚手架与可复用性。MVP 明确后愿意收敛范围。',
+    enDetail: 'Explicit attention to project directory structure, scaffolding, and organization signals a focus on maintainability and future extensibility. While the initial Prism vision was broad, scope was accepted once an explicit MVP was defined — demonstrating the pragmatism to move from concept to staged delivery. Requesting reusable, downstream-ready output formats also indicates execution focus beyond the conceptual layer.',
+    zhDetail: '明确关注项目目录结构、脚手架和组织方式，体现对可维护性和后续扩展的重视。Prism 一开始愿景较大，但 MVP 明确后接受了范围收敛，体现从想法走向阶段性交付的务实性。要求可复用、可下游使用的输出格式，说明不停留在概念层，关注实际落地。',
+  },
+  {
+    key: 'depth', en: 'Tech Depth', zh: '技术深度', score: 8.1, conf: 83,
+    enDesc: 'Strong on architecture and system-level tradeoffs. Less direct evidence on low-level implementation, perf optimization, or complex debugging.',
+    zhDesc: '架构判断与系统权衡能力强。底层实现、性能优化或复杂排障的直接证据偏少。',
+    enDetail: 'The Prism design simultaneously addresses multi-source parsing (OpenClaw JSONL, Markdown, conversation logs, memory files), cross-platform delivery (web, app, mini-program, Apple Watch, smart glasses), token permission validation, anti-jailbreak, anti-reverse-engineering, and the "local vs. server-side" value distribution and service encapsulation tradeoffs. This indicates deep understanding of system dependencies, boundaries, and security constraints. However, existing evidence leans toward architectural judgment rather than direct low-level implementation, performance optimization, or complex debugging — hence the score doesn\'t go higher.',
+    zhDetail: 'Prism 设想中同时考虑了多源数据解析（OpenClaw JSONL、Markdown、对话记录、memory 文件）、跨平台交付形态、token 权限校验、反 jailbreak、反逆向，以及"本地 vs 服务端"价值分配与服务化封装。说明对系统依赖、边界和安全约束有较深理解。但证据更多体现架构判断和取舍意识，较少体现底层实现、性能优化或复杂排障能力，因此不评到更高。',
+  },
+  {
+    key: 'collab', en: 'Collaboration', zh: '协作能力', score: 7.1, conf: 74,
+    enDesc: 'Effective in human-AI collaboration. Clear expression lifts team efficiency. Less evidence in multi-person coordination and feedback loops.',
+    zhDesc: '人机协作高效。清晰表达有助于团队效率。多人协调与反馈闭环的直接证据偏少。',
+    enDetail: 'Effective at leveraging AI/tools as a multiplier — delegates specific build tasks, and uses format, constraints, and boundary definitions to improve reusability of outputs. Also capable of accepting reasonable suggestions, such as accepting the Prism MVP scope reduction, indicating a non-unilateral control style. Clear expression also aids collaboration efficiency. However, current evidence mostly reflects human-AI collaboration rather than full multi-person team dynamics — missing direct cases of shared success criteria, cross-role coordination, or feedback cadence management.',
+    zhDetail: '善于使用 AI 和工具作为杠杆，会委派具体搭建任务，并通过格式、约束和边界定义提升输出的可复用性；能接受合理建议（如接受 Prism MVP 收敛），说明并非完全单向控制型。清晰表达也有助于协作效率。但现有证据更多反映人机协作，缺少多人团队中共享成功标准、跨角色协调、反馈节奏管理等直接案例。',
+  },
+  {
+    key: 'leadership', en: 'Leadership', zh: '领导力', score: 6.5, conf: 58,
+    enDesc: 'Initiates projects, sets constraints, accepts reasonable pushback. Missing: delegation, team dynamics, conflict resolution evidence.',
+    zhDesc: '能主导项目启动并设定边界，能接受合理建议。缺少：授权分工、团队冲突处理等直接案例。',
+    enDetail: 'Demonstrated initiative and ownership: proactively proposes side projects, names them (Prism), defines goal boundaries, and can accept MVP scope reduction — showing the ability to drive project initiation and control direction. Constraint-setting when delegating tasks also improves output usability. However, current evidence comes primarily from solo initiative and human-AI collaboration, lacking direct evidence of delegating to people, managing team dynamics, resolving conflict, or establishing feedback mechanisms.',
+    zhDetail: '有主导性和主人翁意识：会主动提出 side project、命名 Prism、定义目标边界，并能接受 MVP 收敛，说明具备推动项目启动和把控方向的能力。任务下发时设定明确约束，也提升了结果可用性。但当前证据主要来自个人驱动与人机协作，缺少直接带人分工、授权、激励、处理团队冲突或建立反馈机制的案例。',
+  },
+];
+
+// Hexagon geometry
+const CX = 200, CY = 200, R = 130;
+const N = 6;
+function hexPoint(i: number, r: number) {
+  const angle = Math.PI / 2 - (2 * Math.PI * i) / N;
+  return { x: CX + r * Math.cos(angle), y: CY - r * Math.sin(angle) };
+}
+const gridLevels = [2, 4, 6, 8, 10];
+const gridPaths = gridLevels.map(v => {
+  const pts = Array.from({ length: N }, (_, i) => hexPoint(i, (v / 10) * R));
+  return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ') + ' Z';
+});
+const axisLines = Array.from({ length: N }, (_, i) => {
+  const p = hexPoint(i, R);
+  return { x2: p.x.toFixed(2), y2: p.y.toFixed(2) };
+});
+const dataPoints = facets.map((f, i) => hexPoint(i, (f.score / 10) * R));
+const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ') + ' Z';
+const labelPositions = facets.map((_, i) => {
+  const p = hexPoint(i, R + 26);
+  return { x: p.x, y: p.y, anchor: p.x < CX - 10 ? 'end' : p.x > CX + 10 ? 'start' : 'middle' };
+});
+---
+
+<Base title="Prism Profile — myles" description="AI-generated six-axis personal profile. Career direction." noindex={true}>
+
+  <section class="result-header lang-section">
+    <div class="result-back"><a href="/stream">← stream</a></div>
+    <h1 class="result-title" data-en="Prism Profile" data-zh="Prism 画像">Prism Profile</h1>
+    <p class="result-meta" data-en="AI-generated · career direction · 2026-04-22 · 55 events analyzed" data-zh="AI 生成 · 求职方向 · 2026-04-22 · 分析事件 55 条">
+      AI-generated · career direction · 2026-04-22 · 55 events analyzed
+    </p>
+  </section>
+
+  <!-- Radar + score bars -->
+  <div class="result-overview lang-section">
+    <div class="radar-wrap">
+      <svg viewBox="0 0 400 400" class="radar-svg" aria-label="Hexagonal radar chart of six trait scores">
+        {gridPaths.map((d, gi) => (
+          <path d={d} fill="none"
+            stroke="var(--accent)"
+            stroke-width={gi === gridPaths.length - 1 ? '1.2' : '0.7'}
+            opacity={gi === gridPaths.length - 1 ? '0.3' : '0.12'} />
+        ))}
+        {gridLevels.map(v => {
+          const p = hexPoint(0, (v / 10) * R);
+          return <text x={p.x.toFixed(2)} y={(p.y - 5).toFixed(2)} text-anchor="middle" class="grid-label">{v}</text>;
+        })}
+        {axisLines.map(l => (
+          <line x1={CX} y1={CY} x2={l.x2} y2={l.y2} stroke="var(--accent)" stroke-width="0.8" opacity="0.2" />
+        ))}
+        <path d={dataPath} fill="color-mix(in srgb, var(--accent) 16%, transparent)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" />
+        {dataPoints.map(p => (
+          <circle cx={p.x.toFixed(2)} cy={p.y.toFixed(2)} r="4.5" fill="var(--accent)" />
+        ))}
+        {facets.map((f, i) => {
+          const lp = labelPositions[i];
+          return (
+            <text x={lp.x.toFixed(2)} y={(lp.y + 4).toFixed(2)} text-anchor={lp.anchor} class="axis-label">{f.en}</text>
+          );
+        })}
+      </svg>
+    </div>
+
+    <div class="score-list">
+      {facets.map(f => (
+        <div class="score-row">
+          <div class="score-top">
+            <span class="score-name">{f.en}</span>
+            <span class="score-num">{f.score.toFixed(1)}<span class="score-denom">/10</span></span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style={`width:${f.score * 10}%`}></div>
+          </div>
+          <p class="score-summary">{f.enDesc}</p>
+        </div>
+      ))}
+      <p class="conf-note">Confidence range: {Math.min(...facets.map(f => f.conf))}–{Math.max(...facets.map(f => f.conf))}%. Scores reflect evidence density, not absolute ability.</p>
+    </div>
+  </div>
+
+  <!-- Facet details -->
+  <div class="facet-details">
+    {facets.map(f => (
+      <div class="facet-block lang-section">
+        <div class="facet-heading">
+          <span class="facet-name">{f.en}</span>
+          <span class="facet-score">{f.score.toFixed(1)}</span>
+        </div>
+        <p class="facet-body">{f.enDetail}</p>
+        <span class="facet-conf">Confidence: {f.conf}%</span>
+      </div>
+    ))}
+  </div>
+
+  <!-- ZH template -->
+  <template id="zh-content-tpl">
+    <section class="result-header lang-section">
+      <div class="result-back"><a href="/stream">← 思维流</a></div>
+      <h1 class="result-title">Prism 画像</h1>
+      <p class="result-meta">AI 生成 · 求职方向 · 2026-04-22 · 分析事件 55 条</p>
+    </section>
+
+    <div class="result-overview lang-section">
+      <div class="radar-wrap"><!-- SVG injected by JS --></div>
+      <div class="score-list">
+        {facets.map(f => (
+          <div class="score-row">
+            <div class="score-top">
+              <span class="score-name">{f.zh}</span>
+              <span class="score-num">{f.score.toFixed(1)}<span class="score-denom">/10</span></span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style={`width:${f.score * 10}%`}></div>
+            </div>
+            <p class="score-summary">{f.zhDesc}</p>
+          </div>
+        ))}
+        <p class="conf-note">置信区间：{Math.min(...facets.map(f => f.conf))}–{Math.max(...facets.map(f => f.conf))}%。分数反映证据密度，而非绝对能力。</p>
+      </div>
+    </div>
+
+    <div class="facet-details">
+      {facets.map(f => (
+        <div class="facet-block lang-section">
+          <div class="facet-heading">
+            <span class="facet-name">{f.zh}</span>
+            <span class="facet-score">{f.score.toFixed(1)}</span>
+          </div>
+          <p class="facet-body">{f.zhDetail}</p>
+          <span class="facet-conf">置信度：{f.conf}%</span>
+        </div>
+      ))}
+    </div>
+  </template>
+</Base>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Clone SVG into ZH radar wrap
+    const enSvg = document.querySelector('.radar-wrap .radar-svg');
+    const zhWrap = document.querySelector('#lang-zh-layer .radar-wrap');
+    if (enSvg && zhWrap) {
+      zhWrap.appendChild(enSvg.cloneNode(true));
+    }
+  });
+</script>
+
+<style is:global>
+  .result-header {
+    padding: 2rem 0 2.5rem;
+  }
+  .result-back a {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    transition: color 0.15s;
+  }
+  .result-back a:hover { color: var(--accent); }
+
+  .result-title {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin: 0 0 0.5rem;
+  }
+  .result-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+
+  /* ── Overview: radar + bars ── */
+  .result-overview {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+    align-items: start;
+    padding: 2rem 0 3rem;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 720px) {
+    .result-overview { grid-template-columns: 1fr; gap: 2rem; }
+  }
+
+  .radar-wrap {
+    width: 100%;
+    max-width: 320px;
+  }
+  .radar-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .grid-label {
+    font-size: 9px;
+    fill: var(--muted);
+    font-family: 'OperatorMonoLig', 'SF Mono', monospace;
+  }
+  .axis-label {
+    font-size: 11px;
+    fill: var(--text);
+    font-weight: 500;
+    font-family: inherit;
+  }
+
+  .score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-top: 0.25rem;
+  }
+  .score-row { display: flex; flex-direction: column; gap: 0.3rem; }
+  .score-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .score-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .score-num {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .score-denom {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .bar-track {
+    height: 2px;
+    background: color-mix(in srgb, var(--accent) 15%, var(--border));
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .score-summary {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0.1rem 0 0;
+  }
+  .conf-note {
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0.6;
+    margin: 0.5rem 0 0;
+    line-height: 1.5;
+  }
+
+  /* ── Facet detail blocks ── */
+  .facet-details {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+  }
+  .facet-block {
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .facet-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+  }
+  .facet-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .facet-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .facet-body {
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: var(--text);
+    margin: 0 0 0.75rem;
+    max-width: 680px;
+  }
+  .facet-conf {
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0.6;
+    letter-spacing: 0.04em;
+  }
+</style>
