@@ -522,14 +522,12 @@ const showDivider = path === '/about' || path === '/about/'
           for (let i = 0; i < len; i++) {
             const enH = enSectionDivs[i].offsetHeight;
             const zhH = zhSectionDivs[i].offsetHeight;
-            const enW = enSectionDivs[i].offsetWidth;
-            const zhW = zhSectionDivs[i].offsetWidth;
-            console.log(`[align] [${i}] en=${enH}px(w=${enW}) zh=${zhH}px(w=${zhW})`);
-            if (enH > zhH + 4) {
-              zhSectionDivs[i].style.minHeight = enH + 'px';
-            } else if (zhH > enH + 4) {
-              enSectionDivs[i].style.minHeight = zhH + 'px';
-            }
+            console.log(`[align] [${i}] en=${enH}px zh=${zhH}px`);
+            const maxH = Math.max(enH, zhH);
+            // Always set both sides to the same height so absolute-positioned
+            // ZH layer stays visually in sync with the normal-flow EN layer.
+            enSectionDivs[i].style.minHeight = maxH + 'px';
+            zhSectionDivs[i].style.minHeight = maxH + 'px';
           }
         }
 
