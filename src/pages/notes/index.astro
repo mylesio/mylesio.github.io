@@ -61,6 +61,24 @@ const archived = allNotes.filter(n => n.data.archived);
     border-bottom: 1px solid var(--border);
     font-size: 0.9rem;
   }
+  .list-item a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: none;
+    transition: color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .list-item a:hover {
+    color: var(--accent);
+  }
+  .list-item a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: none;
+    transition: color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .list-item a:hover {
+    color: var(--accent);
+  }
   .list-item:first-child { border-top: 1px solid var(--border); }
   .list-item time { color: var(--muted); font-size: 0.78rem; white-space: nowrap; font-weight: 300; flex-shrink: 0; }
 
