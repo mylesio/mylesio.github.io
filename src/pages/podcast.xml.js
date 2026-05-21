@@ -30,8 +30,8 @@ export async function GET(context) {
     <item>
       <title>${escapeXml(note.data.title)}</title>
       <description>${escapeXml(note.data.description ?? '')}</description>
-      <link>${siteUrl}/notes/${note.slug}/</link>
-      <guid isPermaLink="true">${siteUrl}/notes/${note.slug}/</guid>
+      <link>${siteUrl}/notes/${note.data.enSlug ?? note.slug.replace(/-zh$/, '')}/</link>
+      <guid isPermaLink="true">${siteUrl}/notes/${note.data.enSlug ?? note.slug.replace(/-zh$/, '')}/</guid>
       <pubDate>${pubDate}</pubDate>
       <enclosure url="${audioUrl}" length="${fileSize}" type="audio/mpeg"/>
       <itunes:duration>0</itunes:duration>

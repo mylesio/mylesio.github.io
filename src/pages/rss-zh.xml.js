@@ -12,12 +12,17 @@ export async function GET(context) {
     site: context.site,
     items: notes
       .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-      .map(note => ({
-        title: note.data.title,
-        description: note.data.description ?? '',
-        pubDate: note.data.date,
-        link: `/notes/${note.slug}/`,
-      })),
+      .map(note => {
+        // ZH notes 没有独立页面，链到对应的 EN 页面
+        // enSlug 字段优先，否则去掉 -zh 后缀
+        const enSlug = note.data.enSlug ?? note.slug.replace(/-zh$/, '');
+        return {
+          title: note.data.title,
+          description: note.data.description ?? '',
+          pubDate: note.data.date,
+          link: `/notes/${enSlug}/`,
+        };
+      }),
     customData: `<language>zh-CN</language>`,
   });
 }
