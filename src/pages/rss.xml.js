@@ -22,7 +22,7 @@ export async function GET(context) {
         const description = zhNote?.data.description ?? note.data.description ?? '';
 
         return {
-          title: note.data.title,
+          title: zhNote?.data.title ?? note.data.title,
           description,
           pubDate: note.data.date,
           link: `/notes/${note.slug}/`,
