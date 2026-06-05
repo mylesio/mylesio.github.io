@@ -186,4 +186,4 @@ API 约束下（我们的现实）：
 
 每篇独立可读但建立在前篇之上。贯穿全系列的理论锚点是波兰尼的隐性知识框架——不是学术装饰，而是指导"提取什么、如何提取"的工程罗盘。
 
-下一篇：[Part 2 — 从原始日志到判断力模式](/notes/agent-self-evolution-2-pipeline-zh)
+下一篇：[Part 2 — 从原始日志到判断力模式](/notes/agent-self-evolution-2-pipeline)
