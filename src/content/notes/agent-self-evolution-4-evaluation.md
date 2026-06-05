@@ -9,7 +9,7 @@ series: agent-self-evolution
 seriesPart: 4
 ---
 
-*Part 4 of the series "Agent Self-Evolution Without Fine-Tuning." Previous: [Part 3 — Prompt Rewriting](/notes/agent-self-evolution-3-prompt-rewriting). Next: Part 5 — Closed-Loop Orchestration (coming soon).*
+*Part 4 of the series. Previous: [Part 3 — Behavioral Tuning Without Weights](/notes/agent-self-evolution-3-tuning). Next: [Part 5 — Distillation, Mutation Control, and Anti-Patterns](/notes/agent-self-evolution-5-safety).*
 
 ---
 
@@ -434,8 +434,8 @@ The pieces are almost complete. You can observe (Part 2), rewrite (Part 3), and 
 ---
 
 *Series: Agent Self-Evolution Without Fine-Tuning*
-1. *[Theoretical Foundations](/notes/agent-self-evolution-1-foundations)*
-2. *[Observation: Extracting Signal from Traces](/notes/agent-self-evolution-2-observation)*
-3. *[Prompt Rewriting as Evolution](/notes/agent-self-evolution-3-prompt-rewriting)*
+1. *[The Stateless Agent Problem](/notes/agent-self-evolution-1-problem)*
+2. *[From Raw Traces to Judgment Patterns](/notes/agent-self-evolution-2-pipeline)*
+3. *[Behavioral Tuning Without Weights](/notes/agent-self-evolution-3-tuning)*
 4. ***Evaluation: How to Know It's Actually Getting Better** (this post)*
-5. *Closed-Loop Orchestration (coming soon)*
+5. *[Distillation, Mutation Control, and Anti-Patterns](/notes/agent-self-evolution-5-safety)*

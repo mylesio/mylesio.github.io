@@ -8,7 +8,7 @@ series: agent-self-evolution
 seriesPart: 4
 ---
 
-*系列第 4 篇「无需微调的 Agent 自进化」。上篇：[第 3 篇 — Prompt 重写](/notes/agent-self-evolution-3-prompt-rewriting-zh)。下篇：第 5 篇 — 闭环编排（即将发布）。*
+*系列第 4 篇。上篇：[第 3 篇 — 不改权重的行为调优](/notes/agent-self-evolution-3-tuning-zh)。下篇：[第 5 篇 — 蠹馏、变异控制与反模式](/notes/agent-self-evolution-5-safety-zh)。*
 
 ---
 
@@ -430,8 +430,8 @@ rollback_action:
 ---
 
 *系列：无需微调的 Agent 自进化*
-1. *[理论基础](/notes/agent-self-evolution-1-foundations-zh)*
-2. *[观测：从 Trace 中提取信号](/notes/agent-self-evolution-2-observation-zh)*
-3. *[Prompt 重写即进化](/notes/agent-self-evolution-3-prompt-rewriting-zh)*
-4. ***评估：如何确认 Agent 真的在变好**（本篇）*
-5. *闭环编排（即将发布）*
+1. *[无状态 Agent 的有状态困境](/notes/agent-self-evolution-1-problem-zh)*
+2. *[从原始日志到判断力模式](/notes/agent-self-evolution-2-pipeline-zh)*
+3. *[不改权重的行为调优](/notes/agent-self-evolution-3-tuning-zh)*
+4. ***评估：怎么知道它真的变好了**（本篇）*
+5. *[蠹馏、变异控制与反模式](/notes/agent-self-evolution-5-safety-zh)*

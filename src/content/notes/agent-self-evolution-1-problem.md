@@ -188,3 +188,5 @@ This leads directly to the engineering challenge of the next four parts in this 
 | **5** | Distillation, Mutation Control, and Anti-Patterns | Safety nets for self-evolving systems |
 
 Each part is self-contained but builds on the prior. The theoretical anchor throughout is Polanyi's tacit knowledge framework — not as academic decoration, but as an engineering compass for what to extract and how.
+
+Next: [Part 2 — From Raw Traces to Judgment Patterns](/notes/agent-self-evolution-2-pipeline)
