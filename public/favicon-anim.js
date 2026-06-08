@@ -15,7 +15,9 @@
  *
  * Total loop: ~14s
  */
-(function () {
+// Disabled: old ">" collapse animation no longer matches dino favicon
+// Keeping file to avoid 404 on cached pages
+(function () { return; // NOOP
   const SIZE     = 32;
   const BG       = '#0f0f11';
   const COLOR    = '#7dd3fc';
