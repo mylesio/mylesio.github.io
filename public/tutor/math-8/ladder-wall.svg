@@ -1,0 +1,31 @@
+<svg viewBox="0 0 200 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13">
+  <!-- 地面 -->
+  <line x1="30" y1="170" x2="180" y2="170" stroke="#64748b" stroke-width="2"/>
+  <!-- 墙 -->
+  <line x1="70" y1="20" x2="70" y2="170" stroke="#64748b" stroke-width="2"/>
+  <text x="55" y="15" text-anchor="middle" fill="#475569" font-size="12">墙</text>
+
+  <!-- 直角标记 -->
+  <path d="M70,155 L85,155 L85,170" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+
+  <!-- 梯子 -->
+  <line x1="70" y1="50" x2="140" y2="170" stroke="#f97316" stroke-width="3"/>
+  <text x="120" y="103" text-anchor="start" fill="#c2410c" font-weight="700" font-size="13">10m（梯子）</text>
+
+  <!-- h 标注（墙高） -->
+  <line x1="40" y1="50" x2="40" y2="170" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="35" y1="50" x2="45" y2="50" stroke="#06b6d4" stroke-width="1.5"/>
+  <line x1="35" y1="170" x2="45" y2="170" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="28" y="115" text-anchor="middle" fill="#0e7490" font-weight="700" font-size="14">h</text>
+
+  <!-- 地面距离标注 -->
+  <line x1="70" y1="185" x2="140" y2="185" stroke="#10b981" stroke-width="1.5"/>
+  <line x1="70" y1="180" x2="70" y2="190" stroke="#10b981" stroke-width="1.5"/>
+  <line x1="140" y1="180" x2="140" y2="190" stroke="#10b981" stroke-width="1.5"/>
+  <text x="105" y="197" text-anchor="middle" fill="#065f46" font-weight="700" font-size="13">6m</text>
+
+  <!-- 顶部接触点 -->
+  <circle cx="70" cy="50" r="4" fill="#f97316"/>
+  <!-- 脚部接触点 -->
+  <circle cx="140" cy="170" r="4" fill="#f97316"/>
+</svg>

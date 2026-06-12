@@ -28,17 +28,7 @@ tags: ["勾股定理", "应用题", "最短路径", "距离计算"]
 
 你和二传手的位置关系：
 
-```
-          网
-─────────────────────
-    ·二传 (4.5m 偏右)
-    |
-    | 6m
-    |
-    ·你 (5号位)
-   ←─→
-   4.5m
-```
+<img src="/tutor/math-8/volleyball-court-positions.svg" alt="排球传球距离示意图" style="max-width:280px;width:100%;display:block;margin:1rem 0;" />
 
 水平距离 4.5 米，垂直距离 6 米（忽略球的高度差），传球距离 $d$：
 
@@ -48,15 +38,7 @@ $$d = \sqrt{4.5^2 + 6^2} = \sqrt{20.25 + 36} = \sqrt{56.25} = 7.5 \text{ 米}$$
 
 一架 10 米长的梯子斜靠在墙上，梯脚距墙 6 米，梯子顶端能到多高？
 
-```
-    墙
-    |╲
-    | ╲ 10m（梯子）
-  h |  ╲
-    |   ╲
-    └────·
-      6m
-```
+<img src="/tutor/math-8/ladder-wall.svg" alt="梯子靠墙示意图" style="max-width:220px;width:100%;display:block;margin:1rem 0;" />
 
 $$h^2 + 6^2 = 10^2$$
 $$h^2 = 100 - 36 = 64$$
@@ -76,16 +58,7 @@ $$h = 8 \text{ 米}$$
 
 **关键操作：把圆柱侧面展开成长方形！**
 
-```
-展开后：
-┌──────────────┐
-│B'            │ 
-│  ╱           │ 高 = 2.55m
-│ ╱            │
-│╱             │
-A──────────────┘
-  周长 = 0.4m
-```
+<img src="/tutor/math-8/cylinder-unroll.svg" alt="圆柱展开示意图" style="max-width:300px;width:100%;display:block;margin:1rem 0;" />
 
 "正上方"意味着 B' 在 A 的正上方偏移半个周长的位置... 不对，正上方就是展开后水平距离为 0（如果绕了整圈）或周长。
 
