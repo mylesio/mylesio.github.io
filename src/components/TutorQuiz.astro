@@ -1,0 +1,280 @@
+---
+interface Question {
+  question: string;
+  options: string[];
+  answer: number;
+  explanation: string;
+}
+
+interface Props {
+  questions: Question[];
+}
+
+const { questions } = Astro.props;
+---
+
+<div class="tutor-quiz" data-questions={JSON.stringify(questions)}>
+  <div class="quiz-header">
+    <h3 class="quiz-title">🏐 随堂测验</h3>
+    <span class="quiz-progress">
+      <span class="quiz-current">1</span> / <span class="quiz-total">{questions.length}</span>
+    </span>
+  </div>
+
+  <div class="quiz-body">
+    <div class="quiz-question"></div>
+    <div class="quiz-options"></div>
+    <div class="quiz-feedback"></div>
+  </div>
+
+  <div class="quiz-streak">
+    <span class="streak-label">连胜</span>
+    <span class="streak-count">0</span>
+    <span class="streak-emoji"></span>
+  </div>
+
+  <div class="quiz-result" style="display:none;">
+    <div class="result-score"></div>
+    <button class="result-retry">再来一次 🏐</button>
+  </div>
+</div>
+
+<style>
+  .tutor-quiz {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    --tutor-success: #10b981;
+    --tutor-danger: #ef4444;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface, #eeeae2);
+    border: 1px solid var(--border, #ddd8ce);
+    border-radius: 12px;
+  }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .quiz-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #1a1917);
+    margin: 0;
+  }
+
+  .quiz-progress {
+    font-size: 0.8rem;
+    color: var(--muted, #6b6860);
+  }
+
+  .quiz-question {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: var(--text, #1a1917);
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quiz-option {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg, #f5f2ec);
+    border: 1.5px solid var(--border, #ddd8ce);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    text-align: left;
+    color: var(--text, #1a1917);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .quiz-option:hover:not(.disabled) {
+    border-color: var(--tutor-primary);
+  }
+  .quiz-option.correct {
+    border-color: var(--tutor-success);
+    background: #ecfdf5;
+  }
+  .quiz-option.wrong {
+    border-color: var(--tutor-danger);
+    background: #fef2f2;
+  }
+  .quiz-option.disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+  .quiz-option.show-correct {
+    border-color: var(--tutor-success);
+    border-style: dashed;
+  }
+
+  .quiz-feedback {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .quiz-feedback.show {
+    display: block;
+  }
+  .quiz-feedback.correct {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .quiz-feedback.wrong {
+    background: #fef2f2;
+    color: #991b1b;
+  }
+
+  .quiz-streak {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--muted, #6b6860);
+  }
+  .streak-count {
+    font-weight: 600;
+    color: var(--tutor-primary);
+  }
+
+  .quiz-result {
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+  .result-score {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text, #1a1917);
+  }
+  .result-retry {
+    padding: 0.6rem 1.25rem;
+    background: var(--tutor-primary);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    transition: opacity 0.15s;
+  }
+  .result-retry:hover {
+    opacity: 0.85;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.tutor-quiz').forEach(quizEl => {
+    const questions = JSON.parse(quizEl.dataset.questions || '[]');
+    if (questions.length === 0) return;
+
+    const body = quizEl.querySelector('.quiz-body') as HTMLElement;
+    const questionEl = quizEl.querySelector('.quiz-question') as HTMLElement;
+    const optionsEl = quizEl.querySelector('.quiz-options') as HTMLElement;
+    const feedbackEl = quizEl.querySelector('.quiz-feedback') as HTMLElement;
+    const currentEl = quizEl.querySelector('.quiz-current') as HTMLElement;
+    const streakCountEl = quizEl.querySelector('.streak-count') as HTMLElement;
+    const streakEmojiEl = quizEl.querySelector('.streak-emoji') as HTMLElement;
+    const resultEl = quizEl.querySelector('.quiz-result') as HTMLElement;
+    const resultScore = quizEl.querySelector('.result-score') as HTMLElement;
+    const retryBtn = quizEl.querySelector('.result-retry') as HTMLElement;
+
+    let currentQ = 0;
+    let score = 0;
+    let streak = 0;
+
+    const encouragements = ['好球！🏐', '漂亮！💪', '得分！🎯', '绝杀！🔥', 'ACE！⚡'];
+
+    function renderQuestion() {
+      const q = questions[currentQ];
+      questionEl.textContent = q.question;
+      currentEl.textContent = String(currentQ + 1);
+      feedbackEl.classList.remove('show', 'correct', 'wrong');
+      optionsEl.innerHTML = '';
+
+      q.options.forEach((opt: string, i: number) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+        btn.addEventListener('click', () => handleAnswer(i, btn));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selected: number, btn: HTMLElement) {
+      const q = questions[currentQ];
+      const allBtns = optionsEl.querySelectorAll('.quiz-option');
+      allBtns.forEach(b => b.classList.add('disabled'));
+
+      if (selected === q.answer) {
+        btn.classList.add('correct');
+        score++;
+        streak++;
+        feedbackEl.className = 'quiz-feedback show correct';
+        const enc = encouragements[Math.min(streak - 1, encouragements.length - 1)];
+        feedbackEl.innerHTML = `✓ ${enc}<br><small>${q.explanation}</small>`;
+      } else {
+        btn.classList.add('wrong');
+        allBtns[q.answer]?.classList.add('show-correct');
+        streak = 0;
+        feedbackEl.className = 'quiz-feedback show wrong';
+        feedbackEl.innerHTML = `✗ 正确答案是 ${String.fromCharCode(65 + q.answer)}<br><small>${q.explanation}</small>`;
+      }
+
+      streakCountEl.textContent = String(streak);
+      streakEmojiEl.textContent = streak >= 3 ? '🔥' : streak >= 2 ? '⭐' : '';
+
+      // Auto advance after delay
+      setTimeout(() => {
+        currentQ++;
+        if (currentQ < questions.length) {
+          renderQuestion();
+        } else {
+          showResult();
+        }
+      }, 2000);
+    }
+
+    function showResult() {
+      body.style.display = 'none';
+      resultEl.style.display = 'block';
+      const pct = Math.round((score / questions.length) * 100);
+      let msg = '';
+      if (pct === 100) msg = '🏆 满分！完美扣杀！';
+      else if (pct >= 80) msg = '🏐 好球！继续保持！';
+      else if (pct >= 60) msg = '💪 及格了，再练练！';
+      else msg = '📚 别灰心，复习一下再来！';
+      resultScore.innerHTML = `${msg}<br><span style="font-size:1.5rem;font-weight:bold;color:var(--tutor-primary)">${score}/${questions.length}</span>`;
+    }
+
+    retryBtn?.addEventListener('click', () => {
+      currentQ = 0;
+      score = 0;
+      streak = 0;
+      streakCountEl.textContent = '0';
+      streakEmojiEl.textContent = '';
+      body.style.display = '';
+      resultEl.style.display = 'none';
+      renderQuestion();
+    });
+
+    renderQuestion();
+  });
+</script>

@@ -1,0 +1,301 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import TutorTimer from '../../../components/TutorTimer.astro';
+import TutorQuiz from '../../../components/TutorQuiz.astro';
+import TutorCard from '../../../components/TutorCard.astro';
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('tutor');
+  return lessons.map(lesson => ({
+    params: { subject: lesson.data.subject, slug: lesson.slug },
+    props: { lesson },
+  }));
+}
+
+const { lesson } = Astro.props;
+const { Content } = await lesson.render();
+
+// Extract quiz and cards from raw markdown body
+const rawBody = lesson.body || '';
+const quizMatch = rawBody.match(/<!--quiz\s*([\s\S]*?)\s*-->/);
+const cardsMatch = rawBody.match(/<!--cards\s*([\s\S]*?)\s*-->/);
+let quizData: any[] = [];
+let cardsData: any[] = [];
+try { if (quizMatch) quizData = JSON.parse(quizMatch[1]); } catch {}
+try { if (cardsMatch) cardsData = JSON.parse(cardsMatch[1]); } catch {}
+
+// Get all lessons for this subject for prev/next navigation
+const allLessons = await getCollection('tutor', ({ data }) => data.subject === lesson.data.subject);
+allLessons.sort((a, b) => {
+  if (a.data.grade !== b.data.grade) return a.data.grade.localeCompare(b.data.grade);
+  const semOrder = { '上': 0, '下': 1 };
+  if (a.data.semester !== b.data.semester) return semOrder[a.data.semester] - semOrder[b.data.semester];
+  if (a.data.chapter !== b.data.chapter) return a.data.chapter - b.data.chapter;
+  return a.data.lesson - b.data.lesson;
+});
+
+const currentIndex = allLessons.findIndex(l => l.slug === lesson.slug);
+const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+const subject = lesson.data.subject;
+---
+
+<Base title={lesson.data.title} noindex={true}>
+  <div class="tutor-lesson">
+    <header class="lesson-header">
+      <a href={`/tutor/${subject}/`} class="back-link">← 返回{lesson.data.subject === 'math' ? '数学' : lesson.data.subject === 'physics' ? '物理' : lesson.data.subject === 'chemistry' ? '化学' : lesson.data.subject === 'english' ? '英语' : lesson.data.subject === 'chinese' ? '语文' : lesson.data.subject === 'history' ? '历史' : '道德与法治'}</a>
+      <h1 class="lesson-title">{lesson.data.title}</h1>
+      <div class="lesson-meta">
+        <span>📖 {lesson.data.estimatedMinutes || 15} 分钟</span>
+        <span>·</span>
+        <span>{lesson.data.grade}年级{lesson.data.semester}学期</span>
+        <span>·</span>
+        <span>第{lesson.data.chapter}章 第{lesson.data.lesson}节</span>
+      </div>
+    </header>
+
+    <div class="lesson-timer-bar">
+      <TutorTimer minutes={lesson.data.estimatedMinutes || 15} />
+    </div>
+
+    <article class="lesson-content prose">
+      <Content />
+    </article>
+
+    {quizData.length > 0 && <TutorQuiz questions={quizData} />}
+    {cardsData.length > 0 && <TutorCard cards={cardsData} />}
+
+    <div class="lesson-actions">
+      <button class="complete-btn" id="complete-btn" data-subject={subject} data-slug={lesson.slug}>
+        <span class="complete-icon">○</span>
+        <span class="complete-text">标记完成</span>
+      </button>
+    </div>
+
+    <nav class="lesson-nav">
+      {prevLesson && (
+        <a href={`/tutor/${subject}/${prevLesson.slug}/`} class="nav-prev">
+          ← {prevLesson.data.title}
+        </a>
+      )}
+      {!prevLesson && <span />}
+      {nextLesson && (
+        <a href={`/tutor/${subject}/${nextLesson.slug}/`} class="nav-next">
+          {nextLesson.data.title} →
+        </a>
+      )}
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .tutor-lesson {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    --tutor-success: #10b981;
+    --tutor-danger: #ef4444;
+    padding: 1rem 0;
+  }
+
+  .lesson-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .back-link:hover {
+    color: var(--tutor-primary);
+  }
+
+  .lesson-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    color: var(--text);
+  }
+
+  .lesson-meta {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .lesson-timer-bar {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .lesson-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.8;
+    font-size: 0.95rem;
+  }
+
+  .lesson-content :global(h2) {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .lesson-content :global(h3) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .lesson-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .lesson-content :global(ul), .lesson-content :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .lesson-content :global(li) {
+    margin-bottom: 0.4rem;
+  }
+
+  .lesson-content :global(code) {
+    background: var(--surface);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  .lesson-content :global(blockquote) {
+    border-left: 3px solid var(--tutor-secondary);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .lesson-actions {
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+
+  .complete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .complete-btn:hover {
+    border-color: var(--tutor-success);
+    background: #ecfdf5;
+  }
+  .complete-btn.is-completed {
+    border-color: var(--tutor-success);
+    background: #ecfdf5;
+    color: var(--tutor-success);
+  }
+  .complete-btn.is-completed .complete-icon {
+    color: var(--tutor-success);
+  }
+
+  .lesson-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .nav-prev, .nav-next {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav-prev:hover, .nav-next:hover {
+    color: var(--tutor-primary);
+  }
+  .nav-next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  @media (max-width: 480px) {
+    .lesson-title {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('complete-btn') as HTMLButtonElement;
+  if (btn) {
+    const subject = btn.dataset.subject!;
+    const slug = btn.dataset.slug!;
+    const storageKey = `tutor-completed-${subject}`;
+
+    function getCompleted(): string[] {
+      try {
+        const data = localStorage.getItem(storageKey);
+        return data ? JSON.parse(data) : [];
+      } catch { return []; }
+    }
+
+    function updateUI(isCompleted: boolean) {
+      const icon = btn.querySelector('.complete-icon')!;
+      const text = btn.querySelector('.complete-text')!;
+      if (isCompleted) {
+        btn.classList.add('is-completed');
+        icon.textContent = '✓';
+        text.textContent = '已完成 🎉';
+      } else {
+        btn.classList.remove('is-completed');
+        icon.textContent = '○';
+        text.textContent = '标记完成';
+      }
+    }
+
+    // Check initial state
+    const completed = getCompleted();
+    updateUI(completed.includes(slug));
+
+    btn.addEventListener('click', () => {
+      const list = getCompleted();
+      const idx = list.indexOf(slug);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        updateUI(false);
+      } else {
+        list.push(slug);
+        updateUI(true);
+      }
+      localStorage.setItem(storageKey, JSON.stringify(list));
+    });
+  }
+</script>

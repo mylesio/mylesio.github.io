@@ -1,0 +1,255 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allLessons = await getCollection('tutor');
+
+const subjects = [
+  { id: 'math', name: '数学', icon: '📐' },
+  { id: 'physics', name: '物理', icon: '⚡' },
+  { id: 'chemistry', name: '化学', icon: '🧪' },
+  { id: 'english', name: '英语', icon: '🔤' },
+  { id: 'chinese', name: '语文', icon: '📖' },
+  { id: 'history', name: '历史', icon: '🏛️' },
+  { id: 'politics', name: '道德与法治', icon: '⚖️' },
+];
+
+// Count lessons per subject
+const lessonCounts: Record<string, number> = {};
+for (const s of subjects) {
+  lessonCounts[s.id] = allLessons.filter(l => l.data.subject === s.id).length;
+}
+---
+
+<Base title="🏐 开球！" noindex={true}>
+  <div class="tutor-home">
+    <header class="tutor-hero">
+      <h1 class="tutor-title">🏐 开球！</h1>
+      <p class="tutor-subtitle">每天进步一点点，像发球一样——抛起来，然后狠狠打出去！</p>
+    </header>
+
+    <section class="subject-grid">
+      {subjects.map((s) => (
+        <a href={`/tutor/${s.id}/`} class="subject-card" data-subject={s.id}>
+          <span class="subject-icon">{s.icon}</span>
+          <span class="subject-name">{s.name}</span>
+          <svg class="progress-ring" viewBox="0 0 36 36">
+            <circle class="progress-ring__bg" cx="18" cy="18" r="15.9" />
+            <circle
+              class="progress-ring__fg"
+              cx="18" cy="18" r="15.9"
+              data-subject={s.id}
+              stroke-dasharray="0 100"
+            />
+          </svg>
+          <span class="lesson-count">{lessonCounts[s.id]} 课</span>
+        </a>
+      ))}
+    </section>
+
+    <section class="study-stats">
+      <div class="stat-card">
+        <span class="stat-icon">⏱️</span>
+        <span class="stat-value" id="total-minutes">0</span>
+        <span class="stat-label">总学习分钟</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">✅</span>
+        <span class="stat-value" id="total-completed">0</span>
+        <span class="stat-label">已完成课程</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🔥</span>
+        <span class="stat-value" id="streak-days">0</span>
+        <span class="stat-label">连续学习天数</span>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .tutor-home {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    --tutor-success: #10b981;
+    --tutor-danger: #ef4444;
+    padding: 1rem 0;
+  }
+
+  .tutor-hero {
+    text-align: center;
+    padding: 2rem 0 2.5rem;
+  }
+
+  .tutor-title {
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .tutor-subtitle {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .subject-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+  }
+
+  .subject-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-color: var(--tutor-primary);
+  }
+
+  .subject-icon {
+    font-size: 1.75rem;
+  }
+
+  .subject-name {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .progress-ring {
+    width: 36px;
+    height: 36px;
+  }
+
+  .progress-ring__bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 3;
+  }
+
+  .progress-ring__fg {
+    fill: none;
+    stroke: var(--tutor-primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dasharray 0.6s ease;
+  }
+
+  .lesson-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .study-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .stat-icon {
+    font-size: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--tutor-primary);
+  }
+
+  .stat-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 480px) {
+    .subject-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .study-stats {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .tutor-title {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+
+<script>
+  // Read progress from localStorage
+  const subjects = ['math', 'physics', 'chemistry', 'english', 'chinese', 'history', 'politics'];
+
+  function getCompleted(subject: string): string[] {
+    try {
+      const data = localStorage.getItem(`tutor-completed-${subject}`);
+      return data ? JSON.parse(data) : [];
+    } catch { return []; }
+  }
+
+  function getTotalMinutes(): number {
+    try {
+      return parseInt(localStorage.getItem('tutor-total-minutes') || '0', 10);
+    } catch { return 0; }
+  }
+
+  function getStreakDays(): number {
+    try {
+      return parseInt(localStorage.getItem('tutor-streak-days') || '0', 10);
+    } catch { return 0; }
+  }
+
+  // Update progress rings
+  document.querySelectorAll<SVGCircleElement>('.progress-ring__fg[data-subject]').forEach(circle => {
+    const subject = circle.dataset.subject!;
+    const completed = getCompleted(subject).length;
+    const totalEl = circle.closest('.subject-card')?.querySelector('.lesson-count');
+    const total = totalEl ? parseInt(totalEl.textContent || '0', 10) : 0;
+    if (total > 0) {
+      const pct = Math.round((completed / total) * 100);
+      circle.style.strokeDasharray = `${pct} ${100 - pct}`;
+    }
+  });
+
+  // Update stats
+  let totalCompleted = 0;
+  subjects.forEach(s => { totalCompleted += getCompleted(s).length; });
+
+  const minutesEl = document.getElementById('total-minutes');
+  const completedEl = document.getElementById('total-completed');
+  const streakEl = document.getElementById('streak-days');
+
+  if (minutesEl) minutesEl.textContent = String(getTotalMinutes());
+  if (completedEl) completedEl.textContent = String(totalCompleted);
+  if (streakEl) streakEl.textContent = String(getStreakDays());
+</script>

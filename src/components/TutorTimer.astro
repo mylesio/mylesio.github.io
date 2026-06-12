@@ -1,0 +1,198 @@
+---
+interface Props {
+  minutes?: number;
+}
+
+const { minutes = 15 } = Astro.props;
+---
+
+<div class="tutor-timer" data-minutes={minutes}>
+  <div class="timer-display">
+    <svg class="timer-ring" viewBox="0 0 100 100">
+      <circle class="timer-ring__bg" cx="50" cy="50" r="42" />
+      <circle class="timer-ring__fg" cx="50" cy="50" r="42" />
+    </svg>
+    <span class="timer-text">
+      <span class="timer-minutes">{String(minutes).padStart(2, '0')}</span>:<span class="timer-seconds">00</span>
+    </span>
+  </div>
+
+  <div class="timer-controls">
+    <button class="timer-btn timer-start">▶ 开始</button>
+    <button class="timer-btn timer-pause" style="display:none;">⏸ 暂停</button>
+    <button class="timer-btn timer-reset">↺ 重置</button>
+  </div>
+
+  <div class="timer-done" style="display:none;">
+    <p>🏐 休息一下吧！做几个拉伸~</p>
+  </div>
+</div>
+
+<style>
+  .tutor-timer {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    --tutor-success: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .timer-display {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+
+  .timer-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .timer-ring__bg {
+    fill: none;
+    stroke: var(--border, #ddd8ce);
+    stroke-width: 6;
+  }
+
+  .timer-ring__fg {
+    fill: none;
+    stroke: var(--tutor-primary);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 263.89;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text, #1a1917);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timer-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .timer-btn {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border, #ddd8ce);
+    border-radius: 6px;
+    background: var(--bg, #f5f2ec);
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text, #1a1917);
+    transition: border-color 0.15s;
+  }
+  .timer-btn:hover {
+    border-color: var(--tutor-primary);
+  }
+
+  .timer-done {
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    color: var(--tutor-primary);
+    animation: bounce 0.5s ease;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.tutor-timer').forEach(el => {
+    const totalMinutes = parseInt(el.dataset.minutes || '15', 10);
+    const totalSeconds = totalMinutes * 60;
+    let remaining = totalSeconds;
+    let intervalId: number | null = null;
+    let running = false;
+
+    const fg = el.querySelector('.timer-ring__fg') as SVGCircleElement;
+    const minutesEl = el.querySelector('.timer-minutes') as HTMLElement;
+    const secondsEl = el.querySelector('.timer-seconds') as HTMLElement;
+    const startBtn = el.querySelector('.timer-start') as HTMLButtonElement;
+    const pauseBtn = el.querySelector('.timer-pause') as HTMLButtonElement;
+    const resetBtn = el.querySelector('.timer-reset') as HTMLButtonElement;
+    const doneEl = el.querySelector('.timer-done') as HTMLElement;
+
+    const circumference = 2 * Math.PI * 42; // ~263.89
+
+    function updateDisplay() {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      minutesEl.textContent = String(m).padStart(2, '0');
+      secondsEl.textContent = String(s).padStart(2, '0');
+
+      const progress = (totalSeconds - remaining) / totalSeconds;
+      fg.style.strokeDashoffset = String(circumference * progress);
+    }
+
+    function tick() {
+      remaining--;
+      updateDisplay();
+      if (remaining <= 0) {
+        stop();
+        doneEl.style.display = 'block';
+        // Add study time
+        try {
+          const prev = parseInt(localStorage.getItem('tutor-total-minutes') || '0', 10);
+          localStorage.setItem('tutor-total-minutes', String(prev + totalMinutes));
+        } catch {}
+      }
+    }
+
+    function start() {
+      if (remaining <= 0) return;
+      running = true;
+      intervalId = window.setInterval(tick, 1000);
+      startBtn.style.display = 'none';
+      pauseBtn.style.display = '';
+    }
+
+    function pause() {
+      running = false;
+      if (intervalId) { clearInterval(intervalId); intervalId = null; }
+      startBtn.style.display = '';
+      pauseBtn.style.display = 'none';
+      startBtn.textContent = '▶ 继续';
+    }
+
+    function stop() {
+      running = false;
+      if (intervalId) { clearInterval(intervalId); intervalId = null; }
+      startBtn.style.display = '';
+      pauseBtn.style.display = 'none';
+    }
+
+    function reset() {
+      stop();
+      remaining = totalSeconds;
+      updateDisplay();
+      doneEl.style.display = 'none';
+      startBtn.textContent = '▶ 开始';
+      fg.style.strokeDashoffset = '0';
+    }
+
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
+
+    updateDisplay();
+  });
+</script>

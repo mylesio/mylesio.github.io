@@ -1,0 +1,211 @@
+---
+interface Card {
+  front: string;
+  back: string;
+}
+
+interface Props {
+  cards: Card[];
+}
+
+const { cards } = Astro.props;
+---
+
+<div class="tutor-cards" data-cards={JSON.stringify(cards)}>
+  <div class="cards-header">
+    <h3 class="cards-title">📋 知识卡片</h3>
+    <span class="cards-progress">
+      <span class="cards-current">1</span> / {cards.length}
+    </span>
+  </div>
+
+  <div class="cards-viewport">
+    <div class="card-container">
+      <div class="card-face card-front"></div>
+      <div class="card-face card-back"></div>
+    </div>
+  </div>
+
+  <div class="cards-controls">
+    <button class="cards-prev" aria-label="上一张">←</button>
+    <span class="cards-hint">点击翻转</span>
+    <button class="cards-next" aria-label="下一张">→</button>
+  </div>
+</div>
+
+<style>
+  .tutor-cards {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface, #eeeae2);
+    border: 1px solid var(--border, #ddd8ce);
+    border-radius: 12px;
+  }
+
+  .cards-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .cards-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #1a1917);
+    margin: 0;
+  }
+
+  .cards-progress {
+    font-size: 0.8rem;
+    color: var(--muted, #6b6860);
+  }
+
+  .cards-viewport {
+    perspective: 800px;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .card-container {
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-container.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .card-front {
+    background: var(--bg, #f5f2ec);
+    border: 2px solid var(--tutor-primary);
+    color: var(--text, #1a1917);
+  }
+
+  .card-back {
+    background: var(--tutor-secondary);
+    color: white;
+    transform: rotateY(180deg);
+    border: 2px solid var(--tutor-secondary);
+  }
+
+  .cards-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  .cards-prev, .cards-next {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border, #ddd8ce);
+    background: var(--bg, #f5f2ec);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text, #1a1917);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .cards-prev:hover, .cards-next:hover {
+    border-color: var(--tutor-primary);
+  }
+  .cards-prev:disabled, .cards-next:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .cards-hint {
+    font-size: 0.7rem;
+    color: var(--muted, #6b6860);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.tutor-cards').forEach(el => {
+    const cards = JSON.parse(el.dataset.cards || '[]');
+    if (cards.length === 0) return;
+
+    let current = 0;
+    let flipped = false;
+
+    const container = el.querySelector('.card-container') as HTMLElement;
+    const frontEl = el.querySelector('.card-front') as HTMLElement;
+    const backEl = el.querySelector('.card-back') as HTMLElement;
+    const currentEl = el.querySelector('.cards-current') as HTMLElement;
+    const prevBtn = el.querySelector('.cards-prev') as HTMLButtonElement;
+    const nextBtn = el.querySelector('.cards-next') as HTMLButtonElement;
+    const viewport = el.querySelector('.cards-viewport') as HTMLElement;
+
+    function render() {
+      const c = cards[current];
+      frontEl.textContent = c.front;
+      backEl.textContent = c.back;
+      currentEl.textContent = String(current + 1);
+      container.classList.remove('flipped');
+      flipped = false;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === cards.length - 1;
+    }
+
+    viewport.addEventListener('click', () => {
+      flipped = !flipped;
+      container.classList.toggle('flipped', flipped);
+    });
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (current > 0) { current--; render(); }
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (current < cards.length - 1) { current++; render(); }
+    });
+
+    // Swipe support
+    let startX = 0;
+    viewport.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      const diff = e.changedTouches[0].clientX - startX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0 && current < cards.length - 1) { current++; render(); }
+        else if (diff > 0 && current > 0) { current--; render(); }
+      }
+    });
+
+    render();
+  });
+</script>

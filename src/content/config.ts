@@ -24,4 +24,20 @@ const stream = defineCollection({
   }),
 });
 
-export const collections = { notes, stream };
+const tutor = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    subject: z.enum(['math', 'physics', 'chemistry', 'english', 'chinese', 'history', 'politics']),
+    grade: z.enum(['8', '9']),
+    semester: z.enum(['上', '下']),
+    chapter: z.number(),
+    lesson: z.number(),
+    description: z.string().optional(),
+    prerequisites: z.array(z.string()).optional(),
+    estimatedMinutes: z.number().optional().default(15),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { notes, stream, tutor };
