@@ -42,6 +42,9 @@ const { cards } = Astro.props;
     background: var(--surface, #eeeae2);
     border: 1px solid var(--border, #ddd8ce);
     border-radius: 12px;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .cards-header {
@@ -76,6 +79,7 @@ const { cards } = Astro.props;
   .card-container {
     position: relative;
     width: 100%;
+    max-width: 100%;
     min-height: 140px;
     transform-style: preserve-3d;
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -89,6 +93,7 @@ const { cards } = Astro.props;
     top: 0;
     left: 0;
     width: 100%;
+    max-width: 100%;
     min-height: 140px;
     display: flex;
     align-items: center;
@@ -100,6 +105,9 @@ const { cards } = Astro.props;
     font-size: 0.9rem;
     line-height: 1.6;
     text-align: center;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .card-front {
@@ -166,10 +174,24 @@ const { cards } = Astro.props;
     const nextBtn = el.querySelector('.cards-next') as HTMLButtonElement;
     const viewport = el.querySelector('.cards-viewport') as HTMLElement;
 
+    function renderMath(el: HTMLElement) {
+      if (typeof (window as any).renderMathInElement === 'function') {
+        (window as any).renderMathInElement(el, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
     function render() {
       const c = cards[current];
-      frontEl.textContent = c.front;
-      backEl.textContent = c.back;
+      frontEl.innerHTML = c.front;
+      backEl.innerHTML = c.back;
+      renderMath(frontEl);
+      renderMath(backEl);
       currentEl.textContent = String(current + 1);
       container.classList.remove('flipped');
       flipped = false;

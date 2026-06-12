@@ -42,6 +42,13 @@ const subject = lesson.data.subject;
 ---
 
 <Base title={lesson.data.title} noindex={true}>
+  <!-- KaTeX CSS: must hide .katex-mathml (MathML annotation, screen-reader only) -->
+  <style is:inline>
+    @import url('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
+    .katex-mathml { display: none !important; }
+  </style>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   <div class="tutor-lesson">
     <header class="lesson-header">
       <a href={`/tutor/${subject}/`} class="back-link">← 返回{lesson.data.subject === 'math' ? '数学' : lesson.data.subject === 'physics' ? '物理' : lesson.data.subject === 'chemistry' ? '化学' : lesson.data.subject === 'english' ? '英语' : lesson.data.subject === 'chinese' ? '语文' : lesson.data.subject === 'history' ? '历史' : '道德与法治'}</a>
@@ -177,6 +184,29 @@ const subject = lesson.data.subject;
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
     font-size: 0.85em;
+    color: var(--text, #1a1917);
+  }
+
+  .lesson-content :global(pre) {
+    background: #2d2d2d;
+    color: #f8f8f2;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    font-family: 'Courier New', Courier, 'Noto Sans Mono CJK SC', 'SimHei', monospace;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  .lesson-content :global(pre code) {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
   }
 
   .lesson-content :global(blockquote) {
@@ -299,3 +329,5 @@ const subject = lesson.data.subject;
     });
   }
 </script>
+
+

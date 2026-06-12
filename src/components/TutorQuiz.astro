@@ -202,9 +202,22 @@ const { questions } = Astro.props;
 
     const encouragements = ['好球！🏐', '漂亮！💪', '得分！🎯', '绝杀！🔥', 'ACE！⚡'];
 
+    function renderMath(el: HTMLElement) {
+      if (typeof (window as any).renderMathInElement === 'function') {
+        (window as any).renderMathInElement(el, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
     function renderQuestion() {
       const q = questions[currentQ];
-      questionEl.textContent = q.question;
+      questionEl.innerHTML = q.question;
+      renderMath(questionEl);
       currentEl.textContent = String(currentQ + 1);
       feedbackEl.classList.remove('show', 'correct', 'wrong');
       optionsEl.innerHTML = '';
@@ -212,7 +225,8 @@ const { questions } = Astro.props;
       q.options.forEach((opt: string, i: number) => {
         const btn = document.createElement('button');
         btn.className = 'quiz-option';
-        btn.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+        btn.innerHTML = opt;
+        renderMath(btn);
         btn.addEventListener('click', () => handleAnswer(i, btn));
         optionsEl.appendChild(btn);
       });
@@ -230,12 +244,14 @@ const { questions } = Astro.props;
         feedbackEl.className = 'quiz-feedback show correct';
         const enc = encouragements[Math.min(streak - 1, encouragements.length - 1)];
         feedbackEl.innerHTML = `✓ ${enc}<br><small>${q.explanation}</small>`;
+        renderMath(feedbackEl);
       } else {
         btn.classList.add('wrong');
         allBtns[q.answer]?.classList.add('show-correct');
         streak = 0;
         feedbackEl.className = 'quiz-feedback show wrong';
         feedbackEl.innerHTML = `✗ 正确答案是 ${String.fromCharCode(65 + q.answer)}<br><small>${q.explanation}</small>`;
+        renderMath(feedbackEl);
       }
 
       streakCountEl.textContent = String(streak);

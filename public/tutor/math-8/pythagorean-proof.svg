@@ -1,0 +1,24 @@
+<svg viewBox="20 20 200 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,sans-serif">
+  <!-- outer square (a+b) × (a+b): (40,40)-(200,40)-(200,200)-(40,200), a=60 b=100 -->
+  <rect x="40" y="40" width="160" height="160" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- 4 orange triangles: a=60, b=100 -->
+  <!-- top-left: (40,40)-(140,40)-(40,100) -->
+  <polygon points="40,40 140,40 40,100" fill="#fff9f0" stroke="#f97316" stroke-width="1.5"/>
+  <!-- top-right: (140,40)-(200,40)-(200,140) -->
+  <polygon points="140,40 200,40 200,140" fill="#fff9f0" stroke="#f97316" stroke-width="1.5"/>
+  <!-- bottom-right: (200,140)-(200,200)-(100,200) -->
+  <polygon points="200,140 200,200 100,200" fill="#fff9f0" stroke="#f97316" stroke-width="1.5"/>
+  <!-- bottom-left: (100,200)-(40,200)-(40,100) -->
+  <polygon points="100,200 40,200 40,100" fill="#fff9f0" stroke="#f97316" stroke-width="1.5"/>
+
+  <!-- inner c² square: vertices (140,40)-(200,140)-(100,200)-(40,100) -->
+  <polygon points="140,40 200,140 100,200 40,100" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="120" y="128" text-anchor="middle" fill="#4c1d95" font-weight="700" font-size="14">c²</text>
+
+  <!-- labels -->
+  <text x="90" y="36" text-anchor="middle" fill="#92400e" font-weight="700" font-size="12">b</text>
+  <text x="152" y="36" text-anchor="middle" fill="#92400e" font-weight="700" font-size="12">a</text>
+  <text x="207" y="95" text-anchor="start" fill="#92400e" font-weight="700" font-size="12">a</text>
+  <text x="207" y="152" text-anchor="start" fill="#92400e" font-weight="700" font-size="12">b</text>
+</svg>

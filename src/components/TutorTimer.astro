@@ -143,12 +143,44 @@ const { minutes = 15 } = Astro.props;
       fg.style.strokeDashoffset = String(circumference * progress);
     }
 
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+        // Second beep
+        setTimeout(() => {
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.value = 1000;
+          osc2.type = 'sine';
+          gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+          osc2.start(ctx.currentTime);
+          osc2.stop(ctx.currentTime + 0.5);
+        }, 300);
+      } catch {}
+    }
+
     function tick() {
       remaining--;
       updateDisplay();
       if (remaining <= 0) {
         stop();
         doneEl.style.display = 'block';
+        playBeep();
+        // Vibrate on mobile if supported
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         // Add study time
         try {
           const prev = parseInt(localStorage.getItem('tutor-total-minutes') || '0', 10);
