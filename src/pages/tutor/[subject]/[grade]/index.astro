@@ -1,0 +1,151 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const subjectMap: Record<string, string> = {
+  math: '数学', physics: '物理', chemistry: '化学',
+  english: '英语', chinese: '语文', history: '历史', politics: '道德与法治',
+};
+const subjectIcons: Record<string, string> = {
+  math: '📐', physics: '⚡', chemistry: '🧪',
+  english: '🔤', chinese: '📖', history: '🏛️', politics: '⚖️',
+};
+const gradeLabels: Record<string, string> = {
+  '7': '七年级', '8': '八年级', '9': '九年级',
+};
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('tutor');
+  // Get unique subject+grade combinations
+  const seen = new Set<string>();
+  const paths = [];
+  for (const l of lessons) {
+    const key = `${l.data.subject}/${l.data.grade}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      paths.push({ params: { subject: l.data.subject, grade: l.data.grade } });
+    }
+  }
+  return paths;
+}
+
+const { subject, grade } = Astro.params;
+const subjectName = subjectMap[subject!] || subject;
+const subjectIcon = subjectIcons[subject!] || '📚';
+const gradeName = gradeLabels[grade!] || `${grade}年级`;
+
+const allLessons = await getCollection('tutor', ({ data }) =>
+  data.subject === subject && data.grade === grade
+);
+
+// Count per semester
+const semCount: Record<string, number> = { '上': 0, '下': 0 };
+for (const l of allLessons) {
+  if (l.data.semester === '上' || l.data.semester === '下') semCount[l.data.semester]++;
+}
+const semesters = (['上', '下'] as const).filter(s => semCount[s] > 0);
+---
+
+<Base title={`${subjectIcon} ${subjectName} · ${gradeName}`} noindex={true}>
+  <div class="tutor-subject">
+    <header class="subject-header">
+      <a href={`/tutor/${subject}/`} class="back-link">← {subjectIcon} {subjectName}</a>
+      <h1 class="subject-title">{gradeName}</h1>
+      <p class="subject-meta">{allLessons.length} 课 · {semesters.length} 个学期</p>
+    </header>
+
+    <div class="sem-grid">
+      {semesters.map((sem) => (
+        <a href={`/tutor/${subject}/${grade}/${encodeURIComponent(sem)}/`} class="sem-card">
+          <span class="sem-emoji">{sem === '上' ? '🌱' : '🍂'}</span>
+          <span class="sem-name">{sem}学期</span>
+          <span class="sem-count">{semCount[sem]} 课</span>
+          <span class="sem-cta">开始学习 →</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .tutor-subject {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    padding: 1rem 0;
+  }
+
+  .subject-header { margin-bottom: 2rem; }
+
+  .back-link {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--tutor-primary); }
+
+  .subject-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-top: 0.75rem;
+    color: var(--text);
+  }
+
+  .subject-meta {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  .sem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .sem-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 2rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .sem-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-color: var(--tutor-primary);
+  }
+
+  .sem-emoji { font-size: 2.5rem; }
+
+  .sem-name {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .sem-count {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .sem-cta {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8rem;
+    color: var(--tutor-primary);
+    margin-top: 0.25rem;
+  }
+
+  @media (max-width: 480px) {
+    .sem-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

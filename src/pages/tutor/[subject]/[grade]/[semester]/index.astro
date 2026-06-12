@@ -1,0 +1,222 @@
+---
+import Base from '../../../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const subjectMap: Record<string, string> = {
+  math: '数学', physics: '物理', chemistry: '化学',
+  english: '英语', chinese: '语文', history: '历史', politics: '道德与法治',
+};
+const subjectIcons: Record<string, string> = {
+  math: '📐', physics: '⚡', chemistry: '🧪',
+  english: '🔤', chinese: '📖', history: '🏛️', politics: '⚖️',
+};
+const gradeLabels: Record<string, string> = {
+  '7': '七年级', '8': '八年级', '9': '九年级',
+};
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('tutor');
+  const seen = new Set<string>();
+  const paths = [];
+  for (const l of lessons) {
+    const key = `${l.data.subject}/${l.data.grade}/${l.data.semester}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      paths.push({
+        params: {
+          subject: l.data.subject,
+          grade: l.data.grade,
+          semester: l.data.semester,
+        },
+      });
+    }
+  }
+  return paths;
+}
+
+const { subject, grade, semester } = Astro.params;
+const subjectName = subjectMap[subject!] || subject;
+const subjectIcon = subjectIcons[subject!] || '📚';
+const gradeName = gradeLabels[grade!] || `${grade}年级`;
+
+const allLessons = await getCollection('tutor', ({ data }) =>
+  data.subject === subject && data.grade === grade && data.semester === semester
+);
+
+// Sort by chapter → lesson
+allLessons.sort((a, b) => {
+  if (a.data.chapter !== b.data.chapter) return a.data.chapter - b.data.chapter;
+  return a.data.lesson - b.data.lesson;
+});
+
+// Group by chapter
+type LessonEntry = typeof allLessons[number];
+interface Group { label: string; lessons: LessonEntry[]; }
+
+const groups: Group[] = [];
+let currentChapter = -1;
+for (const lesson of allLessons) {
+  if (lesson.data.chapter !== currentChapter) {
+    currentChapter = lesson.data.chapter;
+    groups.push({
+      label: `第${lesson.data.chapter}章`,
+      lessons: [],
+    });
+  }
+  groups[groups.length - 1].lessons.push(lesson);
+}
+---
+
+<Base title={`${subjectIcon} ${subjectName} · ${gradeName}${semester}学期`} noindex={true}>
+  <div class="tutor-subject">
+    <header class="subject-header">
+      <a href={`/tutor/${subject}/${grade}/`} class="back-link">← {gradeName}</a>
+      <h1 class="subject-title">{subjectIcon} {gradeName}{semester}学期</h1>
+      <p class="subject-meta">{allLessons.length} 课 · {groups.length} 章</p>
+    </header>
+
+    {groups.length === 0 && (
+      <div class="empty-state">
+        <p>🏐 还没有课程，敬请期待！</p>
+      </div>
+    )}
+
+    {groups.map((group) => (
+      <section class="chapter-group">
+        <h2 class="chapter-title">{group.label}</h2>
+        <ul class="lesson-list">
+          {group.lessons.map((lesson) => (
+            <li class="lesson-item">
+              <a href={`/tutor/${subject}/${lesson.slug}/`} class="lesson-link">
+                <span class="lesson-status" data-slug={lesson.slug}>○</span>
+                <span class="lesson-info">
+                  <span class="lesson-name">{lesson.data.title}</span>
+                  <span class="lesson-time">{lesson.data.estimatedMinutes || 15} 分钟</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .tutor-subject {
+    --tutor-primary: #f97316;
+    --tutor-secondary: #06b6d4;
+    --tutor-success: #10b981;
+    padding: 1rem 0;
+  }
+
+  .subject-header { margin-bottom: 2rem; }
+
+  .back-link {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--tutor-primary); }
+
+  .subject-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-top: 0.75rem;
+    color: var(--text);
+  }
+
+  .subject-meta {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .chapter-group { margin-bottom: 2rem; }
+
+  .chapter-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tutor-secondary);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+  }
+
+  .lesson-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .lesson-item {
+    border-bottom: 1px solid var(--border);
+  }
+  .lesson-item:last-child { border-bottom: none; }
+
+  .lesson-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.5rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.15s;
+    border-radius: 6px;
+  }
+  .lesson-link:hover { background: var(--surface); }
+
+  .lesson-status {
+    font-size: 1rem;
+    width: 1.5rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .lesson-status.completed { color: var(--tutor-success); }
+
+  .lesson-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .lesson-name {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .lesson-time {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 480px) {
+    .subject-title { font-size: 1.3rem; }
+  }
+</style>
+
+<script define:vars={{ subject }}>
+  try {
+    const data = localStorage.getItem(`tutor-completed-${subject}`);
+    const completed = data ? JSON.parse(data) : [];
+    document.querySelectorAll('.lesson-status[data-slug]').forEach(el => {
+      if (completed.includes(el.dataset.slug)) {
+        el.textContent = '✓';
+        el.classList.add('completed');
+      }
+    });
+  } catch {}
+</script>

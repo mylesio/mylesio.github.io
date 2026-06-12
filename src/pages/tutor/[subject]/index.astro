@@ -40,35 +40,19 @@ const subjectIcon = subjectIcons[subject!] || '📚';
 
 const allLessons = await getCollection('tutor', ({ data }) => data.subject === subject);
 
-// Sort: grade → semester → chapter → lesson
-allLessons.sort((a, b) => {
-  if (a.data.grade !== b.data.grade) return a.data.grade.localeCompare(b.data.grade);
-  const semOrder = { '上': 0, '下': 1 };
-  if (a.data.semester !== b.data.semester) return semOrder[a.data.semester] - semOrder[b.data.semester];
-  if (a.data.chapter !== b.data.chapter) return a.data.chapter - b.data.chapter;
-  return a.data.lesson - b.data.lesson;
-});
-
-// Group by grade + semester + chapter
-type LessonEntry = typeof allLessons[number];
-interface Group {
-  label: string;
-  lessons: LessonEntry[];
+// Group by grade, count lessons per grade+semester
+const gradeMap: Record<string, { upper: number; lower: number }> = {};
+for (const l of allLessons) {
+  const g = l.data.grade;
+  if (!gradeMap[g]) gradeMap[g] = { upper: 0, lower: 0 };
+  if (l.data.semester === '上') gradeMap[g].upper++;
+  else gradeMap[g].lower++;
 }
 
-const groups: Group[] = [];
-let currentKey = '';
-for (const lesson of allLessons) {
-  const key = `${lesson.data.grade}-${lesson.data.semester}-${lesson.data.chapter}`;
-  if (key !== currentKey) {
-    currentKey = key;
-    groups.push({
-      label: `${lesson.data.grade}年级${lesson.data.semester}学期 · 第${lesson.data.chapter}章`,
-      lessons: [],
-    });
-  }
-  groups[groups.length - 1].lessons.push(lesson);
-}
+const grades = Object.keys(gradeMap).sort();
+const gradeLabels: Record<string, string> = {
+  '7': '七年级', '8': '八年级', '9': '九年级',
+};
 ---
 
 <Base title={`${subjectIcon} ${subjectName}`} noindex={true}>
@@ -76,33 +60,31 @@ for (const lesson of allLessons) {
     <header class="subject-header">
       <a href="/tutor/" class="back-link">← 返回首页</a>
       <h1 class="subject-title">{subjectIcon} {subjectName}</h1>
-      <p class="subject-meta">{allLessons.length} 课</p>
+      <p class="subject-meta">{allLessons.length} 课 · {grades.length} 个年级</p>
     </header>
 
-    {groups.length === 0 && (
+    {grades.length === 0 && (
       <div class="empty-state">
         <p>🏐 这个科目还没有课程，敬请期待！</p>
       </div>
     )}
 
-    {groups.map((group) => (
-      <section class="chapter-group">
-        <h2 class="chapter-title">{group.label}</h2>
-        <ul class="lesson-list">
-          {group.lessons.map((lesson) => (
-            <li class="lesson-item">
-              <a href={`/tutor/${subject}/${lesson.slug}/`} class="lesson-link">
-                <span class="lesson-status" data-slug={lesson.slug}>○</span>
-                <span class="lesson-info">
-                  <span class="lesson-name">{lesson.data.title}</span>
-                  <span class="lesson-time">{lesson.data.estimatedMinutes || 15} 分钟</span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    <div class="grade-grid">
+      {grades.map((grade) => {
+        const total = (gradeMap[grade].upper || 0) + (gradeMap[grade].lower || 0);
+        return (
+          <a href={`/tutor/${subject}/${grade}/`} class="grade-card">
+            <span class="grade-icon">📚</span>
+            <span class="grade-name">{gradeLabels[grade] || `${grade}年级`}</span>
+            <div class="grade-semesters">
+              {gradeMap[grade].upper > 0 && <span class="sem-tag">上学期 {gradeMap[grade].upper}课</span>}
+              {gradeMap[grade].lower > 0 && <span class="sem-tag">下学期 {gradeMap[grade].lower}课</span>}
+            </div>
+            <span class="grade-total">{total} 课</span>
+          </a>
+        );
+      })}
+    </div>
   </div>
 </Base>
 
@@ -124,9 +106,7 @@ for (const lesson of allLessons) {
     text-decoration: none;
     transition: color 0.15s;
   }
-  .back-link:hover {
-    color: var(--tutor-primary);
-  }
+  .back-link:hover { color: var(--tutor-primary); }
 
   .subject-title {
     font-size: 1.5rem;
@@ -149,93 +129,68 @@ for (const lesson of allLessons) {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  .chapter-group {
-    margin-bottom: 2rem;
+  .grade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
   }
 
-  .chapter-title {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--tutor-secondary);
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.5rem;
-  }
-
-  .lesson-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .lesson-item {
-    border-bottom: 1px solid var(--border);
-  }
-  .lesson-item:last-child {
-    border-bottom: none;
-  }
-
-  .lesson-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0.5rem;
-    text-decoration: none;
-    color: var(--text);
-    transition: background 0.15s;
-    border-radius: 6px;
-  }
-  .lesson-link:hover {
-    background: var(--surface);
-  }
-
-  .lesson-status {
-    font-size: 1rem;
-    width: 1.5rem;
-    text-align: center;
-    flex-shrink: 0;
-  }
-  .lesson-status.completed {
-    color: var(--tutor-success);
-  }
-
-  .lesson-info {
+  .grade-card {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
-  .lesson-name {
+  .grade-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-color: var(--tutor-primary);
+  }
+
+  .grade-icon {
+    font-size: 2rem;
+  }
+
+  .grade-name {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--text);
   }
 
-  .lesson-time {
+  .grade-semesters {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .sem-tag {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.7rem;
+    color: var(--tutor-secondary);
+    background: color-mix(in srgb, var(--tutor-secondary) 10%, transparent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .grade-total {
     font-size: 0.7rem;
     color: var(--muted);
+    margin-top: 0.25rem;
   }
 
   @media (max-width: 480px) {
-    .subject-title {
-      font-size: 1.3rem;
+    .grade-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
-
-<script define:vars={{ subject }}>
-  // Mark completed lessons
-  try {
-    const data = localStorage.getItem(`tutor-completed-${subject}`);
-    const completed = data ? JSON.parse(data) : [];
-    document.querySelectorAll('.lesson-status[data-slug]').forEach(el => {
-      if (completed.includes(el.dataset.slug)) {
-        el.textContent = '✓';
-        el.classList.add('completed');
-      }
-    });
-  } catch {}
-</script>
