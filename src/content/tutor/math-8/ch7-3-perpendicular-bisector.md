@@ -90,18 +90,18 @@ $= AB+6$（等腰三角形 $AB=AC$）
 <!--quiz
 [
   {
-    "question": "$\triangle ABC$ 中，$AB=AC=10$，$BC=12$，$AB$ 的垂直平分线交 $AC$ 于点 $D$。则 $\triangle BDC$ 的周长为",
+    "question": "$\\triangle ABC$ 中，$AB=AC=10$，$BC=12$，$AB$ 的垂直平分线交 $AC$ 于点 $D$。则 $\\triangle BDC$ 的周长为",
     "svg": "<svg width=\"165\" height=\"150\" viewBox=\"0 0 165 150\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"80,10 20,140 140,140\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"110\" cy=\"75\" r=\"2.5\" fill=\"#1a1917\"/><line x1=\"20\" y1=\"140\" x2=\"110\" y2=\"75\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><line x1=\"110\" y1=\"75\" x2=\"140\" y2=\"140\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"74\" y=\"8\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"6\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"142\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"114\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text></svg>",
     "options": ["A. 22", "B. 28", "C. 32", "D. 18"],
     "answer": 0,
-    "explanation": "$D$ 在 $AB$ 的垂直平分线上，故 $DA=DB$。$\triangle BDC$ 周长 $=BD+DC+BC=DA+DC+12=AC+12=10+12=22$。B项错将 $AB+BC=22$ 再加 $DC$；C项将两腰都计入；D项只加底边和一条腰的一段。"
+    "explanation": "$D$ 在 $AB$ 的垂直平分线上，故 $DA=DB$。$\\triangle BDC$ 周长 $=BD+DC+BC=DA+DC+12=AC+12=10+12=22$。B项错将 $AB+BC=22$ 再加 $DC$；C项将两腰都计入；D项只加底边和一条腰的一段。"
   },
   {
     "question": "$PA=PB=5$，$AB=8$，则点 $P$ 到 $AB$ 中点 $M$ 的距离为",
     "svg": "<svg width=\"180\" height=\"140\" viewBox=\"0 0 180 140\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"30\" y1=\"120\" x2=\"150\" y2=\"120\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"30\" cy=\"120\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"150\" cy=\"120\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"90\" cy=\"120\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"90\" cy=\"20\" r=\"2.5\" fill=\"#1a1917\"/><line x1=\"30\" y1=\"120\" x2=\"90\" y2=\"20\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"150\" y1=\"120\" x2=\"90\" y2=\"20\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"90\" y1=\"20\" x2=\"90\" y2=\"120\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><text x=\"16\" y=\"132\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"152\" y=\"132\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"94\" y=\"118\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">M</text><text x=\"94\" y=\"18\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">P</text></svg>",
     "options": ["A. 2", "B. 4", "C. 3", "D. 5"],
     "answer": 2,
-    "explanation": "$PA=PB$ 说明 $P$ 在 $AB$ 的垂直平分线上，$PM\perp AB$，$AM=4$，$PM=\sqrt{PA^2-AM^2}=\sqrt{25-16}=3$。A项错用 $AM=3$（混淆半底）；B项将 $PM$ 与 $AM$ 混淆；D项直接取 $PA$ 的值。"
+    "explanation": "$PA=PB$ 说明 $P$ 在 $AB$ 的垂直平分线上，$PM\\perp AB$，$AM=4$，$PM=\\sqrt{PA^2-AM^2}=\\sqrt{25-16}=3$。A项错用 $AM=3$（混淆半底）；B项将 $PM$ 与 $AM$ 混淆；D项直接取 $PA$ 的值。"
   },
   {
     "question": "已知 $PA=PB$，$QA=QB$，则直线 $PQ$ 与线段 $AB$ 的关系是",
@@ -116,11 +116,11 @@ $= AB+6$（等腰三角形 $AB=AC$）
     "explanation": "外心（三边垂直平分线交点）：锐角三角形在**内部**；直角三角形恰好在**斜边中点**；钝角三角形在**外部**。A项错误认为都在内部；B、C项位置顺序混乱。"
   },
   {
-    "question": "$\triangle ABC$ 中，$\angle A=40°$，三条边的垂直平分线交于外心 $O$，则 $\angle BOC=$",
+    "question": "$\\triangle ABC$ 中，$\\angle A=40°$，三条边的垂直平分线交于外心 $O$，则 $\\angle BOC=$",
     "svg": "<svg width=\"175\" height=\"155\" viewBox=\"0 0 175 155\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"87,10 20,140 155,140\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"87\" cy=\"68\" r=\"3\" fill=\"#1a1917\"/><line x1=\"87\" y1=\"68\" x2=\"20\" y2=\"140\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"3,3\"/><line x1=\"87\" y1=\"68\" x2=\"155\" y2=\"140\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"3,3\"/><text x=\"80\" y=\"8\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"6\" y=\"150\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"158\" y=\"150\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"91\" y=\"65\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text></svg>",
     "options": ["A. 40°", "B. 70°", "C. 80°", "D. 140°"],
     "answer": 2,
-    "explanation": "外心角定理（类比内心）：$\angle BOC=2\angle A=2\times40°=80°$。此结论来自：$OB=OC=$ 外接圆半径，$\triangle BOC$ 等腰，$\angle OBC=\angle OCB=\frac{180°-\angle BOC}{2}$，且弧 $BC$ 所对圆心角为 $\angle BOC=2\angle A$。A项直接取 $\angle A$；B项取底角；D项取 $180°-\angle A$（内心公式误用）。"
+    "explanation": "外心角定理（类比内心）：$\\angle BOC=2\\angle A=2\\times40°=80°$。此结论来自：$OB=OC=$ 外接圆半径，$\\triangle BOC$ 等腰，$\\angle OBC=\\angle OCB=\\frac{180°-\\angle BOC}{2}$，且弧 $BC$ 所对圆心角为 $\\angle BOC=2\\angle A$。A项直接取 $\\angle A$；B项取底角；D项取 $180°-\\angle A$（内心公式误用）。"
   }
 ]
 -->
