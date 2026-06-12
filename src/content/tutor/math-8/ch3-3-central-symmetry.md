@@ -110,7 +110,8 @@ $$\therefore A'=(3,4)$$
       "D. $(-5,3)$"
     ],
     "answer": 2,
-    "explanation": "关于原点对称，坐标各取反：$(-3,5)\\to(3,-5)$，选C。干扰项A(3,5)只把 $x$ 取反；B(-3,-5)只把 $y$ 取反；D(-5,3)是坐标互换后取反（既换顺序又取反，完全错误）。"
+    "explanation": "关于原点对称，坐标各取反：$(-3,5)\\to(3,-5)$，选C。干扰项A(3,5)只把 $x$ 取反；B(-3,-5)只把 $y$ 取反；D(-5,3)是坐标互换后取反（既换顺序又取反，完全错误）。",
+    "svg": "<svg width=\"220\" height=\"210\" viewBox=\"0 0 220 210\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"105\" x2=\"210\" y2=\"105\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"110\" y1=\"200\" x2=\"110\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"211\" y=\"109\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"113\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"98\" y=\"117\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><line x1=\"56\" y1=\"15\" x2=\"164\" y2=\"195\" stroke=\"#888\" stroke-width=\"1.2\" stroke-dasharray=\"4,2\"/><circle cx=\"56\" cy=\"15\" r=\"4\" fill=\"#2563eb\"/><circle cx=\"164\" cy=\"195\" r=\"4\" fill=\"#e11d48\"/><circle cx=\"110\" cy=\"105\" r=\"3\" fill=\"#1a1917\"/><text x=\"12\" y=\"15\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#2563eb\">A(-3,5)</text><text x=\"168\" y=\"199\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#e11d48\">A'(3,-5)</text></svg>"
   },
   {
     "question": "已知 $A(1,4)$ 与 $B$ 关于点 $C(3,2)$ 成中心对称，则 $B$ 的坐标为",
@@ -121,7 +122,8 @@ $$\therefore A'=(3,4)$$
       "D. $(-1,0)$"
     ],
     "answer": 1,
-    "explanation": "$C$ 是 $AB$ 中点，用公式 $B=(2x_C-x_A,2y_C-y_A)=(2\\times3-1,2\\times2-4)=(5,0)$，选B。干扰项A(4,6)误用 $B=(x_C+x_A,y_C+y_A)=(3+1,2+4)$；C(2,3)是 $\\frac{A+C}{2}$（取了中点而非逆推对称点）；D(-1,0)是 $(x_A-x_C,y_A-y_C)=(1-3+1,4-2-2)$ 乱算。"
+    "explanation": "$C$ 是 $AB$ 中点，用公式 $B=(2x_C-x_A,2y_C-y_A)=(2\\times3-1,2\\times2-4)=(5,0)$，选B。干扰项A(4,6)误用 $B=(x_C+x_A,y_C+y_A)=(3+1,2+4)$；C(2,3)是 $\\frac{A+C}{2}$（取了中点而非逆推对称点）；D(-1,0)是 $(x_A-x_C,y_A-y_C)=(1-3+1,4-2-2)$ 乱算。",
+    "svg": "<svg width=\"215\" height=\"190\" viewBox=\"0 0 215 190\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"155\" x2=\"210\" y2=\"155\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"55\" y1=\"180\" x2=\"55\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"211\" y=\"159\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"58\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"43\" y=\"167\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><line x1=\"85\" y1=\"35\" x2=\"205\" y2=\"155\" stroke=\"#888\" stroke-width=\"1.2\" stroke-dasharray=\"4,2\"/><circle cx=\"85\" cy=\"35\" r=\"4\" fill=\"#2563eb\"/><circle cx=\"145\" cy=\"95\" r=\"4\" fill=\"#1a1917\"/><circle cx=\"205\" cy=\"155\" r=\"4\" fill=\"#e11d48\"/><text x=\"89\" y=\"31\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#2563eb\">A(1,4)</text><text x=\"149\" y=\"91\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">C(3,2)</text><text x=\"209\" y=\"151\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#e11d48\">B(5,0)</text></svg>"
   },
   {
     "question": "下列图形中，是中心对称图形但不是轴对称图形的是",
@@ -154,9 +156,11 @@ $$\therefore A'=(3,4)$$
       "D. $(-1,3)$"
     ],
     "answer": 0,
-    "explanation": "平行四边形对角线互相平分，$O$ 是 $AC$ 的中点也是 $BD$ 的中点。$O=\\left(\\frac{0+4}{2},\\frac{2+6}{2}\\right)=(2,4)$。由 $O$ 为 $BD$ 中点：$D=(2\\times2-5,2\\times4-1)=(-1,7)$，选A。干扰项B(9,7)误用 $D=(2O_x+B_x,2O_y+B_y)=(4+5,8+1)$；C(1,5)误把 $\\frac{B+C}{2}$ 当成 $D$；D(-1,3)误算 $O$ 坐标为 $(1,3)$ 再代入。"
+    "explanation": "平行四边形对角线互相平分，$O$ 是 $AC$ 的中点也是 $BD$ 的中点。$O=\\left(\\frac{0+4}{2},\\frac{2+6}{2}\\right)=(2,4)$。由 $O$ 为 $BD$ 中点：$D=(2\\times2-5,2\\times4-1)=(-1,7)$，选A。干扰项B(9,7)误用 $D=(2O_x+B_x,2O_y+B_y)=(4+5,8+1)$；C(1,5)误把 $\\frac{B+C}{2}$ 当成 $D$；D(-1,3)误算 $O$ 坐标为 $(1,3)$ 再代入。",
+    "svg": "<svg width=\"220\" height=\"200\" viewBox=\"0 0 220 200\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"165\" x2=\"215\" y2=\"165\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"55\" y1=\"192\" x2=\"55\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"216\" y=\"169\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"58\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"43\" y=\"177\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><polygon points=\"55,115 180,140 155,15 30,-10\" fill=\"#f5f5f3\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"55\" y1=\"115\" x2=\"155\" y2=\"15\" stroke=\"#888\" stroke-width=\"1\" stroke-dasharray=\"4,2\"/><line x1=\"180\" y1=\"140\" x2=\"30\" y2=\"-10\" stroke=\"#888\" stroke-width=\"1\" stroke-dasharray=\"4,2\"/><circle cx=\"105\" cy=\"65\" r=\"3.5\" fill=\"#e11d48\"/><text x=\"37\" y=\"119\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">A(0,2)</text><text x=\"183\" y=\"152\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">B(5,1)</text><text x=\"158\" y=\"12\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">C(4,6)</text><text x=\"-8\" y=\"-13\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">D(-1,7)</text><text x=\"109\" y=\"61\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#e11d48\">O'(2,4)</text></svg>"
   }
 ]
+
 -->
 
 <!--cards

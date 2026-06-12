@@ -97,7 +97,8 @@ $$d = \sqrt{405} = 9\sqrt{5} \approx 20.1 \text{ 米}$$
       "D. $96$"
     ],
     "answer": 0,
-    "explanation": "作底边上的高，将等腰三角形分为两个全等直角三角形。腰为斜边10，底边一半为6，由勾股定理 $h=\\sqrt{10^2-6^2}=\\sqrt{64}=8$。面积 $=\\frac{1}{2}\\times12\\times8=48$，选A。干扰项B(60)误用腰长为高 $\\frac{1}{2}\\times12\\times10=60$；C(72)是12×6不除以2；D(96)是12×8不除以2。"
+    "explanation": "作底边上的高，将等腰三角形分为两个全等直角三角形。腰为斜边10，底边一半为6，由勾股定理 $h=\\sqrt{10^2-6^2}=\\sqrt{64}=8$。面积 $=\\frac{1}{2}\\times12\\times8=48$，选A。干扰项B(60)误用腰长为高 $\\frac{1}{2}\\times12\\times10=60$；C(72)是12×6不除以2；D(96)是12×8不除以2。",
+    "svg": "<svg width=\"200\" height=\"160\" viewBox=\"0 0 200 160\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"100,15 20,135 180,135\" fill=\"#f5f5f3\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"15\" x2=\"100\" y2=\"135\" stroke=\"#1a1917\" stroke-width=\"1.2\" stroke-dasharray=\"4,3\"/><rect x=\"100\" y=\"127\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.2\"/><text x=\"100\" y=\"10\" text-anchor=\"middle\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"12\" y=\"148\" text-anchor=\"middle\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"188\" y=\"148\" text-anchor=\"middle\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"113\" y=\"80\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#555\">h</text><text x=\"143\" y=\"148\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#555\">6</text><text x=\"50\" y=\"148\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#555\">6</text></svg>"
   },
   {
     "question": "正方形 $ABCD$ 的边长为 $a$，$E$ 是 $BC$ 的中点，则 $AE$ 的长为",
@@ -108,7 +109,8 @@ $$d = \sqrt{405} = 9\sqrt{5} \approx 20.1 \text{ 米}$$
       "D. $\\sqrt{5}a$"
     ],
     "answer": 1,
-    "explanation": "在直角三角形 $ABE$ 中，$AB=a$，$BE=\\frac{a}{2}$（$E$是$BC$中点）。$AE^2=a^2+\\frac{a^2}{4}=\\frac{5a^2}{4}$，$AE=\\frac{\\sqrt{5}}{2}a$，选B。干扰项A混淆等边三角形高的公式 $\\frac{\\sqrt{3}}{2}a$；C是直接将 $AB+BE=a+\\frac{a}{2}=\\frac{3}{2}a$（不能直接加边）；D漏了分母2，写成 $\\sqrt{a^2+a^2}=\\sqrt{2}a$（又搞错了变成了D）。"
+    "explanation": "在直角三角形 $ABE$ 中，$AB=a$，$BE=\\frac{a}{2}$（$E$是$BC$中点）。$AE^2=a^2+\\frac{a^2}{4}=\\frac{5a^2}{4}$，$AE=\\frac{\\sqrt{5}}{2}a$，选B。干扰项A混淆等边三角形高的公式 $\\frac{\\sqrt{3}}{2}a$；C是直接将 $AB+BE=a+\\frac{a}{2}=\\frac{3}{2}a$（不能直接加边）；D漏了分母2，写成 $\\sqrt{a^2+a^2}=\\sqrt{2}a$（又搞错了变成了D）。",
+    "svg": "<svg width=\"190\" height=\"170\" viewBox=\"0 0 190 170\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"40\" y=\"20\" width=\"110\" height=\"110\" fill=\"#f5f5f3\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"150\" cy=\"75\" r=\"3\" fill=\"#1a1917\"/><line x1=\"40\" y1=\"20\" x2=\"150\" y2=\"75\" stroke=\"#1a1917\" stroke-width=\"1.8\" stroke-dasharray=\"5,3\"/><text x=\"28\" y=\"18\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"153\" y=\"18\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"153\" y=\"140\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"28\" y=\"140\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"155\" y=\"79\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">E</text><text x=\"75\" y=\"55\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#555\">AE</text></svg>"
   },
   {
     "question": "已知 $a+b=7$，$a-b=1$（$a$、$b$ 为直角三角形的两条直角边），则斜边 $c$ 的长为",
@@ -130,7 +132,8 @@ $$d = \sqrt{405} = 9\sqrt{5} \approx 20.1 \text{ 米}$$
       "D. $\\dfrac{\\sqrt{3}}{2}$"
     ],
     "answer": 2,
-    "explanation": "斜边 $AB=\\sqrt{(\\sqrt{3})^2+1^2}=2$，直角三角形斜边上的中线等于斜边的一半：$CD=\\frac{AB}{2}=1$，选A。干扰项B($\\sqrt{2}$)误用勾股定理把 $CD$ 当成某条边 $\\sqrt{(\\frac{\\sqrt{3}}{2})^2+(\\frac{1}{2})^2}$ 等错算；C($\\frac{\\sqrt{7}}{2}$)错误应用中线长公式代入；D($\\frac{\\sqrt{3}}{2}$)是把 $AC$ 的一半当答案。"
+    "explanation": "斜边 $AB=\\sqrt{(\\sqrt{3})^2+1^2}=2$，直角三角形斜边上的中线等于斜边的一半：$CD=\\frac{AB}{2}=1$，选A。干扰项B($\\sqrt{2}$)误用勾股定理把 $CD$ 当成某条边 $\\sqrt{(\\frac{\\sqrt{3}}{2})^2+(\\frac{1}{2})^2}$ 等错算；C($\\frac{\\sqrt{7}}{2}$)错误应用中线长公式代入；D($\\frac{\\sqrt{3}}{2}$)是把 $AC$ 的一半当答案。",
+    "svg": "<svg width=\"200\" height=\"165\" viewBox=\"0 0 200 165\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"30,135 30,25 165,135\" fill=\"#f5f5f3\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><rect x=\"30\" y=\"127\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.2\"/><circle cx=\"97\" cy=\"80\" r=\"3\" fill=\"#1a1917\"/><line x1=\"30\" y1=\"135\" x2=\"97\" y2=\"80\" stroke=\"#1a1917\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\"/><text x=\"18\" y=\"24\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"168\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"16\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"99\" y=\"74\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"42\" y=\"120\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#555\">CD=AB/2</text></svg>"
   },
   {
     "question": "正方形 $ABCD$ 对角线交于 $O$，$AB=6$，则 $OA$ 的长为",
@@ -141,9 +144,11 @@ $$d = \sqrt{405} = 9\sqrt{5} \approx 20.1 \text{ 米}$$
       "D. $9$"
     ],
     "answer": 1,
-    "explanation": "正方形对角线 $AC=\\sqrt{AB^2+BC^2}=\\sqrt{36+36}=6\\sqrt{2}$，$O$ 是中点，$OA=\\frac{6\\sqrt{2}}{2}=3\\sqrt{2}$，选B。干扰项A(3)误认为 $OA=\\frac{AB}{2}=3$；C($6\\sqrt{2}$)求出 $AC$ 忘了除以2；D(9)错误计算 $OA=AB+\\frac{AB}{2}$。"
+    "explanation": "正方形对角线 $AC=\\sqrt{AB^2+BC^2}=\\sqrt{36+36}=6\\sqrt{2}$，$O$ 是中点，$OA=\\frac{6\\sqrt{2}}{2}=3\\sqrt{2}$，选B。干扰项A(3)误认为 $OA=\\frac{AB}{2}=3$；C($6\\sqrt{2}$)求出 $AC$ 忘了除以2；D(9)错误计算 $OA=AB+\\frac{AB}{2}$。",
+    "svg": "<svg width=\"180\" height=\"175\" viewBox=\"0 0 180 175\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"20\" width=\"120\" height=\"120\" fill=\"#f5f5f3\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"140\" stroke=\"#1a1917\" stroke-width=\"1.2\" stroke-dasharray=\"5,3\"/><line x1=\"150\" y1=\"20\" x2=\"30\" y2=\"140\" stroke=\"#1a1917\" stroke-width=\"1.2\" stroke-dasharray=\"5,3\"/><circle cx=\"90\" cy=\"80\" r=\"3\" fill=\"#1a1917\"/><text x=\"18\" y=\"18\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"153\" y=\"18\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"153\" y=\"153\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"18\" y=\"153\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"93\" y=\"77\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><text x=\"90\" y=\"165\" text-anchor=\"middle\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#888\">AB=6</text></svg>"
   }
 ]
+
 -->
 
 <!--cards

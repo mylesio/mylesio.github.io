@@ -103,24 +103,28 @@ $\triangle ABC$ 中，$DE \parallel BC$，$D$ 在 $AB$ 上，$E$ 在 $AC$ 上，
 [
   {
     "question": "$\triangle ABC$ 中，$D$、$E$ 分别是 $AB$、$AC$ 的中点，$BC=10$。点 $F$ 在 $DE$ 上且 $BF\perp DE$。若 $BF=6$，则 $\triangle BDE$ 的面积为",
+    "svg": "<svg width=\"180\" height=\"150\" viewBox=\"0 0 180 150\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"90,10 20,140 160,140\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"55\" y1=\"75\" x2=\"125\" y2=\"75\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"55\" cy=\"75\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"125\" cy=\"75\" r=\"2.5\" fill=\"#1a1917\"/><line x1=\"20\" y1=\"140\" x2=\"80\" y2=\"75\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><text x=\"84\" y=\"8\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"6\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"162\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"40\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"128\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">E</text></svg>",
     "options": ["A. 15", "B. 30", "C. 20", "D. 25"],
     "answer": 0,
     "explanation": "中位线定理：$DE=\frac{1}{2}BC=5$，底为 $DE=5$，高为 $BF=6$，面积 $=\frac{1}{2}\times5\times6=15$。B项错用 $BC=10$ 为底；C项错算为 $\frac{1}{2}\times10\times4$；D项错算为 $5\times5$。"
   },
   {
     "question": "梯形 $ABCD$ 中，$AD\parallel BC$，$M$、$N$ 分别是 $AB$、$CD$ 的中点，$MN=9$，$BC=14$，则 $AD=$",
+    "svg": "<svg width=\"200\" height=\"130\" viewBox=\"0 0 200 130\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"50,110 30,30 140,30 170,110\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"40\" cy=\"70\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"155\" cy=\"70\" r=\"2.5\" fill=\"#1a1917\"/><line x1=\"40\" y1=\"70\" x2=\"155\" y2=\"70\" stroke=\"#1a1917\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\"/><text x=\"38\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"18\" y=\"28\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"140\" y=\"28\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"168\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"22\" y=\"66\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">M</text><text x=\"158\" y=\"66\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">N</text></svg>",
     "options": ["A. 2", "B. 4", "C. 5", "D. 23"],
     "answer": 1,
     "explanation": "梯形中位线公式：$MN=\frac{AD+BC}{2}$，故 $9=\frac{AD+14}{2}$，$AD=18-14=4$。A项错用 $MN=\frac{BC-AD}{2}$；C项错误配算；D项直接相加不除以2。"
   },
   {
     "question": "$\triangle ABC$ 中，$D$、$E$、$F$ 分别是 $AB$、$BC$、$CA$ 的中点，$AB=8$，$BC=10$，$CA=6$，则 $\triangle DEF$ 的周长为",
+    "svg": "<svg width=\"180\" height=\"150\" viewBox=\"0 0 180 150\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"90,10 20,140 160,140\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><polygon points=\"55,75 90,140 125,75\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\"/><circle cx=\"55\" cy=\"75\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"125\" cy=\"75\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"90\" cy=\"140\" r=\"2.5\" fill=\"#1a1917\"/><text x=\"84\" y=\"8\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"6\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"162\" y=\"148\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"38\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"87\" y=\"152\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">E</text><text x=\"128\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">F</text></svg>",
     "options": ["A. 6", "B. 12", "C. 24", "D. 8"],
     "answer": 1,
     "explanation": "$DE=\frac{1}{2}CA=3$，$EF=\frac{1}{2}AB=4$，$FD=\frac{1}{2}BC=5$，周长 $=3+4+5=12$。A项只算一条中位线；C项不取一半；D项只用 $AB$ 中位线乘三。"
   },
   {
     "question": "$\triangle ABC$ 中，$M$ 是 $BC$ 中点，$D$ 是 $AM$ 中点，连 $BD$ 并延长交 $AC$ 于点 $E$。已知 $AE=3$，则 $AC=$",
+    "svg": "<svg width=\"190\" height=\"155\" viewBox=\"0 0 190 155\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"80,10 20,145 170,145\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><circle cx=\"95\" cy=\"145\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"87.5\" cy=\"77.5\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"127\" cy=\"72\" r=\"2.5\" fill=\"#1a1917\"/><line x1=\"80\" y1=\"10\" x2=\"95\" y2=\"145\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><line x1=\"20\" y1=\"145\" x2=\"127\" y2=\"72\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><text x=\"74\" y=\"8\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"6\" y=\"152\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"172\" y=\"152\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"97\" y=\"152\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">M</text><text x=\"76\" y=\"76\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"130\" y=\"70\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">E</text></svg>",
     "options": ["A. 6", "B. 9", "C. 12", "D. 4.5"],
     "answer": 1,
     "explanation": "过 $C$ 作 $CF\parallel BE$ 交 $AM$ 延长线于 $F$。在 $\triangle AMC$ 中，$M$ 为 $BC$ 中点推出 $\triangle$ 中 $E$ 是 $AC$ 的三等分点，$AE=\frac{1}{3}AC$，故 $AC=3\times3=9$。A项误认为 $AE=\frac{1}{2}AC$；C项误认为 $AE=\frac{1}{4}AC$；D项将 $AE$ 和 $EC$ 弄反。"

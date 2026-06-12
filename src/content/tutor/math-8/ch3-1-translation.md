@@ -104,7 +104,8 @@ $$AA' = \sqrt{(3-0)^2 + (4-0)^2} = \sqrt{9+16} = 5$$
       "D. $(-1,2)$"
     ],
     "answer": 0,
-    "explanation": "平移向量：$x$ 方向 $-2-1=-3$（向左3），$y$ 方向 $5-2=3$（向上3）。$B'=(3-3,-1+3)=(0,2)$，选A。干扰项B(0,-4)向上方向搞反算成向下3；C(6,2)向左方向搞反算成向右3；D(-1,2)$x$ 方向只移了2。"
+    "explanation": "平移向量：$x$ 方向 $-2-1=-3$（向左3），$y$ 方向 $5-2=3$（向上3）。$B'=(3-3,-1+3)=(0,2)$，选A。干扰项B(0,-4)向上方向搞反算成向下3；C(6,2)向左方向搞反算成向右3；D(-1,2)$x$ 方向只移了2。",
+    "svg": "<svg width=\"225\" height=\"205\" viewBox=\"0 0 225 205\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"115\" x2=\"215\" y2=\"115\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"90\" y1=\"195\" x2=\"90\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"216\" y=\"119\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"93\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"78\" y=\"127\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><polygon points=\"112,71 156,137 134,49\" fill=\"#fef3c7\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><polygon points=\"46,5 90,71 68,27\" fill=\"#dbeafe\" stroke=\"#2563eb\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\"/><line x1=\"112\" y1=\"71\" x2=\"46\" y2=\"5\" stroke=\"#aaa\" stroke-width=\"1\" stroke-dasharray=\"3,2\"/><line x1=\"156\" y1=\"137\" x2=\"90\" y2=\"71\" stroke=\"#aaa\" stroke-width=\"1\" stroke-dasharray=\"3,2\"/><text x=\"115\" y=\"67\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#1a1917\">A(1,2)</text><text x=\"159\" y=\"150\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#1a1917\">B(3,-1)</text><text x=\"2\" y=\"1\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#2563eb\">A'(-2,5)</text><text x=\"93\" y=\"67\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#2563eb\">B'(0,2)</text></svg>"
   },
   {
     "question": "平行四边形 $ABCD$ 中，$A(0,0)$，$B(4,0)$，$C(5,2)$，$D(1,2)$。将该图形向右移动 $3$ 个单位，则 $C'$ 的坐标是",
@@ -115,7 +116,8 @@ $$AA' = \sqrt{(3-0)^2 + (4-0)^2} = \sqrt{9+16} = 5$$
       "D. $(8,5)$"
     ],
     "answer": 1,
-    "explanation": "向右移3，$x$ 坐标加3，$y$ 不变。$C(5,2)\\to C'=(5+3,2)=(8,2)$，选B。干扰项A(2,2)是 $x$ 减了3（向左）；C(5,5)是 $y$ 加了3（向上非向右）；D(8,5)是 $x$ 和 $y$ 都加了3（混淆方向）。"
+    "explanation": "向右移3，$x$ 坐标加3，$y$ 不变。$C(5,2)\\to C'=(5+3,2)=(8,2)$，选B。干扰项A(2,2)是 $x$ 减了3（向左）；C(5,5)是 $y$ 加了3（向上非向右）；D(8,5)是 $x$ 和 $y$ 都加了3（混淆方向）。",
+    "svg": "<svg width=\"240\" height=\"175\" viewBox=\"0 0 240 175\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"135\" x2=\"235\" y2=\"135\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"22\" y1=\"165\" x2=\"22\" y2=\"15\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"236\" y=\"139\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"25\" y=\"13\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"10\" y=\"147\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><polygon points=\"22,135 118,135 142,87 46,87\" fill=\"#fef3c7\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><polygon points=\"94,135 190,135 214,87 118,87\" fill=\"#dbeafe\" stroke=\"#2563eb\" stroke-width=\"1.5\" stroke-dasharray=\"5,3\"/><circle cx=\"142\" cy=\"87\" r=\"3.5\" fill=\"#e11d48\"/><circle cx=\"214\" cy=\"87\" r=\"3.5\" fill=\"#2563eb\"/><text x=\"146\" y=\"82\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#e11d48\">C(5,2)</text><text x=\"218\" y=\"82\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#2563eb\">C'(8,2)</text><text x=\"19\" y=\"149\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#555\">A</text><text x=\"120\" y=\"149\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#555\">B</text><text x=\"33\" y=\"91\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#555\">D</text></svg>"
   },
   {
     "question": "$\\triangle ABC$ 经两次平移：先向右移 $2$，再向上移 $3$，最终得 $\\triangle A'B'C'$，若 $A'(5,4)$，则原点 $A$ 的坐标为",
@@ -137,9 +139,11 @@ $$AA' = \sqrt{(3-0)^2 + (4-0)^2} = \sqrt{9+16} = 5$$
       "D. $6$"
     ],
     "answer": 2,
-    "explanation": "原矩形：$x\\in[1,4]$（宽3），$y\\in[1,3]$（高2）。向左1后，$x\\in[0,3]$，与原 $x\\in[1,4]$ 重叠区间 $[1,3]$，宽2。向上1后，$y\\in[2,4]$，与原 $y\\in[1,3]$ 重叠区间 $[2,3]$，高1。重叠面积 $=2\\times2=4$，选C。干扰项A(0)误以为完全不重叠；B(2)只算了 $x$ 方向重叠宽2或 $y$ 方向高1，计算了其中一维；D(6)是原矩形完整面积 $3\\times2=6$（完全重叠时才是）。"
+    "explanation": "原矩形：$x\\in[1,4]$（宽3），$y\\in[1,3]$（高2）。向左1后，$x\\in[0,3]$，与原 $x\\in[1,4]$ 重叠区间 $[1,3]$，宽2。向上1后，$y\\in[2,4]$，与原 $y\\in[1,3]$ 重叠区间 $[2,3]$，高1。重叠面积 $=2\\times2=4$，选C。干扰项A(0)误以为完全不重叠；B(2)只算了 $x$ 方向重叠宽2或 $y$ 方向高1，计算了其中一维；D(6)是原矩形完整面积 $3\\times2=6$（完全重叠时才是）。",
+    "svg": "<svg width=\"220\" height=\"195\" viewBox=\"0 0 220 195\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"145\" x2=\"215\" y2=\"145\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"28\" y1=\"178\" x2=\"28\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"216\" y=\"149\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"31\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"14\" y=\"157\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><rect x=\"60\" y=\"49\" width=\"96\" height=\"64\" fill=\"#fef3c7\" fill-opacity=\"0.8\" stroke=\"#d97706\" stroke-width=\"2\"/><rect x=\"28\" y=\"17\" width=\"96\" height=\"64\" fill=\"#dbeafe\" fill-opacity=\"0.7\" stroke=\"#2563eb\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/><rect x=\"60\" y=\"49\" width=\"64\" height=\"32\" fill=\"#bbf7d0\" fill-opacity=\"0.9\" stroke=\"#16a34a\" stroke-width=\"1.5\"/><text x=\"65\" y=\"85\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#15803d\">重叠=4</text><text x=\"62\" y=\"45\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#d97706\">原矩形</text><text x=\"30\" y=\"13\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#2563eb\">移后</text></svg>"
   }
 ]
+
 -->
 
 <!--cards

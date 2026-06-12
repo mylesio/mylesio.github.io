@@ -4,6 +4,7 @@ interface Question {
   options: string[];
   answer: number;
   explanation: string;
+  svg?: string;  // optional inline SVG diagram for the question
 }
 
 interface Props {
@@ -70,6 +71,16 @@ const { questions } = Astro.props;
   .quiz-progress {
     font-size: 0.8rem;
     color: var(--muted, #6b6860);
+  }
+
+  .quiz-diagram {
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+  .quiz-diagram svg {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
   }
 
   .quiz-question {
@@ -216,7 +227,9 @@ const { questions } = Astro.props;
 
     function renderQuestion() {
       const q = questions[currentQ];
-      questionEl.innerHTML = q.question;
+      // Render optional SVG diagram above question text
+      const svgHtml = q.svg ? `<div class="quiz-diagram">${q.svg}</div>` : '';
+      questionEl.innerHTML = svgHtml + q.question;
       renderMath(questionEl);
       currentEl.textContent = String(currentQ + 1);
       feedbackEl.classList.remove('show', 'correct', 'wrong');

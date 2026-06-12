@@ -94,7 +94,8 @@ $OA=OA'=4$，$A$ 在 $x$ 轴正向，$A'$ 在 $y$ 轴正向，$\angle AOA'=90°$
       "D. $(0,3)$"
     ],
     "answer": 1,
-    "explanation": "第一步：$A(3,0)$ 逆时针90°，$(x,y)\\to(-y,x)$，得 $A'=(0,3)$。第二步：$A'(0,3)$ 旋转180°，$(x,y)\\to(-x,-y)$，得 $A''=(0,-3)$，选B。干扰项A(-3,0)误以为第一步后已到 $A'=(-3,0)$（公式用错）；C(3,0)误以为两步后回到原点；D(0,3)只做了第一步停了。"
+    "explanation": "第一步：$A(3,0)$ 逆时针90°，$(x,y)\\to(-y,x)$，得 $A'=(0,3)$。第二步：$A'(0,3)$ 旋转180°，$(x,y)\\to(-x,-y)$，得 $A''=(0,-3)$，选B。干扰项A(-3,0)误以为第一步后已到 $A'=(-3,0)$（公式用错）；C(3,0)误以为两步后回到原点；D(0,3)只做了第一步停了。",
+    "svg": "<svg width=\"215\" height=\"210\" viewBox=\"0 0 215 210\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"100\" x2=\"205\" y2=\"100\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"100\" y1=\"200\" x2=\"100\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"206\" y=\"104\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"103\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"88\" y=\"112\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><path d=\"M 166 100 A 66 66 0 0 0 100 34\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"1.2\" stroke-dasharray=\"4,2\"/><path d=\"M 100 34 A 66 66 0 0 1 100 166\" fill=\"none\" stroke=\"#e11d48\" stroke-width=\"1.2\" stroke-dasharray=\"4,2\"/><circle cx=\"166\" cy=\"100\" r=\"4\" fill=\"#d97706\"/><circle cx=\"100\" cy=\"34\" r=\"4\" fill=\"#16a34a\"/><circle cx=\"100\" cy=\"166\" r=\"4\" fill=\"#e11d48\"/><text x=\"170\" y=\"113\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#d97706\">A(3,0)</text><text x=\"104\" y=\"30\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#16a34a\">A'(0,3)</text><text x=\"104\" y=\"170\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#e11d48\">A''(0,-3)</text><text x=\"140\" y=\"65\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#16a34a\">逆时针90°</text><text x=\"108\" y=\"165\" font-size=\"10\" font-family=\"sans-serif\" fill=\"#e11d48\">顺时针180°</text></svg>"
   },
   {
     "question": "$\\triangle ABC$ 绕 $O$ 旋转后得 $\\triangle A'B'C'$，已知 $\\angle AOA'=50°$，则 $\\angle BOB'=$",
@@ -138,9 +139,11 @@ $OA=OA'=4$，$A$ 在 $x$ 轴正向，$A'$ 在 $y$ 轴正向，$\angle AOA'=90°$
       "D. $\\sqrt{32}$"
     ],
     "answer": 0,
-    "explanation": "$A(4,0)$，$A'(0,4)$，$AA'=\\sqrt{(4-0)^2+(0-4)^2}=\\sqrt{16+16}=\\sqrt{32}=4\\sqrt{2}$，选B（B和D实质相同 $\\sqrt{32}=4\\sqrt{2}$，取B）。旋转半径 $OA=4$，$\\angle AOA'=90°$，等腰直角三角形 $OAA'$ 中斜边 $AA'=4\\sqrt{2}$。干扰项A(4)误以为 $AA'=OA=4$（弧长与弦长混淆）；C(8)误算 $AA'=2OA$；D($\\sqrt{32}$)实际与B相等，此处B为标准答案。"
+    "explanation": "$A(4,0)$，$A'(0,4)$，$AA'=\\sqrt{(4-0)^2+(0-4)^2}=\\sqrt{16+16}=\\sqrt{32}=4\\sqrt{2}$，选B（B和D实质相同 $\\sqrt{32}=4\\sqrt{2}$，取B）。旋转半径 $OA=4$，$\\angle AOA'=90°$，等腰直角三角形 $OAA'$ 中斜边 $AA'=4\\sqrt{2}$。干扰项A(4)误以为 $AA'=OA=4$（弧长与弦长混淆）；C(8)误算 $AA'=2OA$；D($\\sqrt{32}$)实际与B相等，此处B为标准答案。",
+    "svg": "<svg width=\"210\" height=\"200\" viewBox=\"0 0 210 200\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"110\" x2=\"200\" y2=\"110\" stroke=\"#1a1917\" stroke-width=\"1\"/><line x1=\"95\" y1=\"190\" x2=\"95\" y2=\"10\" stroke=\"#1a1917\" stroke-width=\"1\"/><text x=\"201\" y=\"114\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"98\" y=\"10\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"83\" y=\"122\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><path d=\"M 183 110 A 88 88 0 0 0 95 22\" fill=\"none\" stroke=\"#888\" stroke-width=\"1.2\" stroke-dasharray=\"4,2\"/><line x1=\"183\" y1=\"110\" x2=\"95\" y2=\"22\" stroke=\"#e11d48\" stroke-width=\"2\"/><circle cx=\"183\" cy=\"110\" r=\"4\" fill=\"#1a1917\"/><circle cx=\"95\" cy=\"22\" r=\"4\" fill=\"#1a1917\"/><circle cx=\"95\" cy=\"110\" r=\"3\" fill=\"#555\"/><text x=\"187\" y=\"123\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">A(4,0)</text><text x=\"99\" y=\"18\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">A'(0,4)</text><text x=\"144\" y=\"66\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#e11d48\">AA'=4√2</text></svg>"
   }
 ]
+
 -->
 
 <!--cards

@@ -147,9 +147,11 @@ $$(\sqrt{2})^2 + (\sqrt{3})^2 = 2 + 3 = 5 = (\sqrt{5})^2$$
       "D. 直角三角形"
     ],
     "answer": 3,
-    "explanation": "$OA=3$（在$y$轴），$OB=4$（在$x$轴），$x$轴与$y$轴互相垂直，$\\angle AOB=90°$，故为直角三角形，选B。用逆定理验证：$AB=\\sqrt{3^2+4^2}=5$，$OA^2+OB^2=9+16=25=AB^2$，确认直角在 $O$。干扰项A忽略坐标轴垂直条件；C错误估算某角；D误以为 $OA=OB$（实际 $OA=3\\neq OB=4$）。"
+    "explanation": "$OA=3$（在$y$轴），$OB=4$（在$x$轴），$x$轴与$y$轴互相垂直，$\\angle AOB=90°$，故为直角三角形，选B。用逆定理验证：$AB=\\sqrt{3^2+4^2}=5$，$OA^2+OB^2=9+16=25=AB^2$，确认直角在 $O$。干扰项A忽略坐标轴垂直条件；C错误估算某角；D误以为 $OA=OB$（实际 $OA=3\\neq OB=4$）。",
+    "svg": "<svg width=\"200\" height=\"185\" viewBox=\"0 0 200 185\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"20\" y1=\"155\" x2=\"185\" y2=\"155\" stroke=\"#1a1917\" stroke-width=\"1.2\"/><line x1=\"40\" y1=\"170\" x2=\"40\" y2=\"20\" stroke=\"#1a1917\" stroke-width=\"1.2\"/><polygon points=\"40,155 40,65 140,155\" fill=\"#e8f4e8\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><rect x=\"40\" y=\"147\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.2\"/><text x=\"25\" y=\"163\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text><text x=\"28\" y=\"62\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"142\" y=\"168\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"186\" y=\"159\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">x</text><text x=\"43\" y=\"18\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">y</text><text x=\"15\" y=\"62\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#555\">3</text><text x=\"135\" y=\"151\" font-size=\"11\" font-family=\"sans-serif\" fill=\"#555\">4</text></svg>"
   }
 ]
+
 -->
 
 <!--cards

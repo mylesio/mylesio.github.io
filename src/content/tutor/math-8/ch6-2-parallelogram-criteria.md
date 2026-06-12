@@ -70,12 +70,14 @@ $$\angle A = \angle C \text{ 且 } \angle B = \angle D \implies \square ABCD$$
 [
   {
     "question": "下列条件中，能判定四边形 $ABCD$ 是平行四边形的是",
+    "svg": "<svg width=\"200\" height=\"120\" viewBox=\"0 0 200 120\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"40,100 80,20 160,20 120,100\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><text x=\"28\" y=\"112\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"72\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"160\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"118\" y=\"112\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text></svg>",
     "options": ["A. $AB=CD$ 且 $AD\\parallel BC$", "B. $AB\\parallel CD$ 且 $AD=BC$", "C. $\\angle A=\\angle B$ 且 $\\angle C=\\angle D$", "D. $AB\\parallel CD$ 且 $AB=CD$"],
     "answer": 3,
     "explanation": "D满足判定方法三：同一组对边平行且相等，可判定为平行四边形。A选项一组相等另一组平行（不同组），可能是梯形；B选项一组平行另一组相等（不同组），可能是等腰梯形；C选项邻角相等不是对角相等，不满足任何方法。"
   },
   {
     "question": "四边形 $ABCD$ 中，对角线 $AC$ 与 $BD$ 交于点 $O$，若 $OA=OC=3$，$OB=5$，$OD=3$，则 $ABCD$",
+    "svg": "<svg width=\"200\" height=\"130\" viewBox=\"0 0 200 130\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"40,110 80,20 160,20 120,110\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"40\" y1=\"110\" x2=\"160\" y2=\"20\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><line x1=\"80\" y1=\"20\" x2=\"120\" y2=\"110\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><text x=\"28\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"72\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"160\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"118\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"90\" y=\"72\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">O</text></svg>",
     "options": ["A. 是平行四边形", "B. 不是平行四边形", "C. 是矩形", "D. 无法判断"],
     "answer": 1,
     "explanation": "对角线互相平分需要 $OA=OC$ 且 $OB=OD$。此处 $OA=OC=3$，但 $OB=5\neq OD=3$，只满足一半条件，不能判定为平行四边形。A错误是只看到 $OA=OC$ 就认为满足条件；C错误是混淆了矩形和平行四边形；D错误是已可明确排除。"
@@ -88,6 +90,7 @@ $$\angle A = \angle C \text{ 且 } \angle B = \angle D \implies \square ABCD$$
   },
   {
     "question": "如图，$E$、$F$ 分别是 $\\square ABCD$ 对角线 $BD$ 上两点，且 $BE=DF$。则四边形 $AECF$ 是平行四边形，依据是",
+    "svg": "<svg width=\"200\" height=\"130\" viewBox=\"0 0 200 130\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"40,110 80,20 160,20 120,110\" fill=\"none\" stroke=\"#1a1917\" stroke-width=\"1.5\"/><line x1=\"40\" y1=\"110\" x2=\"160\" y2=\"20\" stroke=\"#1a1917\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><line x1=\"80\" y1=\"20\" x2=\"120\" y2=\"110\" stroke=\"#1a1917\" stroke-width=\"1\"/><circle cx=\"92\" cy=\"88\" r=\"2.5\" fill=\"#1a1917\"/><circle cx=\"108\" cy=\"42\" r=\"2.5\" fill=\"#1a1917\"/><text x=\"28\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">A</text><text x=\"72\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">B</text><text x=\"160\" y=\"16\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">C</text><text x=\"118\" y=\"122\" font-size=\"13\" font-family=\"sans-serif\" fill=\"#1a1917\">D</text><text x=\"96\" y=\"96\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">E</text><text x=\"112\" y=\"38\" font-size=\"12\" font-family=\"sans-serif\" fill=\"#1a1917\">F</text></svg>",
     "options": ["A. 两组对角分别相等", "B. 两组对边分别相等", "C. 对角线互相平分", "D. 一组对边平行且相等"],
     "answer": 2,
     "explanation": "设对角线交点为 $O$，$OB=OD$（平行四边形性质），$BE=DF$，所以 $OE=OB-BE=OD-DF=OF$。又 $OA=OC$（平行四边形性质），所以对角线 $AC$ 与 $EF$ 互相平分，由判定方法四，$AECF$ 是平行四边形。A、B、D需要额外计算验证，C（对角线互相平分）可直接由上述推导得出。"
