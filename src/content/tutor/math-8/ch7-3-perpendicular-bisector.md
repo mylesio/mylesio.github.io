@@ -89,11 +89,36 @@ $= AB+6$（等腰三角形 $AB=AC$）
 
 <!--quiz
 [
-  {"question":"点 $P$ 在线段 $AB$ 的垂直平分线上，则","options":["A. $P$ 是 $AB$ 中点","B. $PA=PB$","C. $PA+PB=AB$","D. $PA\\perp PB$"],"answer":1,"explanation":"垂直平分线上的点到两端点距离相等，$PA=PB$"},
-  {"question":"$PA=5$，$PB=5$，$AB=6$，则 $P$ 到 $AB$ 中点 $M$ 的距离为","options":["A. 2","B. 3","C. 4","D. 5"],"answer":2,"explanation":"$PA=PB$ 说明 $P$ 在 $AB$ 垂直平分线上，$PM\\perp AB$，$PM=\\sqrt{PA^2-AM^2}=\\sqrt{25-9}=4$"},
-  {"question":"下列说法正确的是","options":["A. 到两端点等距的点就是中点","B. 中点一定在垂直平分线上","C. 垂直平分线上的点都是中点","D. 垂直平分线与线段的交点是唯一等距点"],"answer":1,"explanation":"线段中点到两端点距离相等，故中点在垂直平分线上。但等距点不只中点，整条垂直平分线上的点都等距。"},
-  {"question":"等腰 $\\triangle ABC$ 中 $AB=AC=10$，$BC=12$，顶角平分线长为","options":["A. 6","B. 8","C. 10","D. $\\sqrt{136}$"],"answer":1,"explanation":"由三线合一，顶角平分线即底边中线，长$=\\sqrt{10^2-6^2}=\\sqrt{64}=8$"},
-  {"question":"$\\triangle ABC$ 三条边的垂直平分线交于点 $O$，则 $O$ 到三顶点距离","options":["A. 不相等","B. $OA=OB=OC$","C. 只有两个相等","D. 等于各边一半"],"answer":1,"explanation":"三角形三条边垂直平分线的交点（外心）到三顶点距离相等"}
+  {
+    "question": "$\triangle ABC$ 中，$AB=AC=10$，$BC=12$，$AB$ 的垂直平分线交 $AC$ 于点 $D$。则 $\triangle BDC$ 的周长为",
+    "options": ["A. 22", "B. 28", "C. 32", "D. 18"],
+    "answer": 0,
+    "explanation": "$D$ 在 $AB$ 的垂直平分线上，故 $DA=DB$。$\triangle BDC$ 周长 $=BD+DC+BC=DA+DC+12=AC+12=10+12=22$。B项错将 $AB+BC=22$ 再加 $DC$；C项将两腰都计入；D项只加底边和一条腰的一段。"
+  },
+  {
+    "question": "$PA=PB=5$，$AB=8$，则点 $P$ 到 $AB$ 中点 $M$ 的距离为",
+    "options": ["A. 2", "B. 4", "C. 3", "D. 5"],
+    "answer": 2,
+    "explanation": "$PA=PB$ 说明 $P$ 在 $AB$ 的垂直平分线上，$PM\perp AB$，$AM=4$，$PM=\sqrt{PA^2-AM^2}=\sqrt{25-16}=3$。A项错用 $AM=3$（混淆半底）；B项将 $PM$ 与 $AM$ 混淆；D项直接取 $PA$ 的值。"
+  },
+  {
+    "question": "已知 $PA=PB$，$QA=QB$，则直线 $PQ$ 与线段 $AB$ 的关系是",
+    "options": ["A. 平行", "B. 相交但不垂直", "C. 垂直平分 $AB$", "D. 只过 $AB$ 中点但不一定垂直"],
+    "answer": 2,
+    "explanation": "$PA=PB$，$P$ 在 $AB$ 垂直平分线上；$QA=QB$，$Q$ 也在 $AB$ 垂直平分线上。两点确定一条直线，$PQ$ 就是 $AB$ 的垂直平分线。A项不能平行；B、D项错误认为不垂直。"
+  },
+  {
+    "question": "锐角三角形、直角三角形、钝角三角形的外心位置分别在",
+    "options": ["A. 都在三角形内部", "B. 内部、外部、斜边中点", "C. 外部、斜边中点、内部", "D. 内部、斜边中点、外部"],
+    "answer": 3,
+    "explanation": "外心（三边垂直平分线交点）：锐角三角形在**内部**；直角三角形恰好在**斜边中点**；钝角三角形在**外部**。A项错误认为都在内部；B、C项位置顺序混乱。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$\angle A=40°$，三条边的垂直平分线交于外心 $O$，则 $\angle BOC=$",
+    "options": ["A. 40°", "B. 70°", "C. 80°", "D. 140°"],
+    "answer": 2,
+    "explanation": "外心角定理（类比内心）：$\angle BOC=2\angle A=2\times40°=80°$。此结论来自：$OB=OC=$ 外接圆半径，$\triangle BOC$ 等腰，$\angle OBC=\angle OCB=\frac{180°-\angle BOC}{2}$，且弧 $BC$ 所对圆心角为 $\angle BOC=2\angle A$。A项直接取 $\angle A$；B项取底角；D项取 $180°-\angle A$（内心公式误用）。"
+  }
 ]
 -->
 

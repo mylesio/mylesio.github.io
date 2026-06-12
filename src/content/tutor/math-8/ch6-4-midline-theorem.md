@@ -102,34 +102,34 @@ $\triangle ABC$ 中，$DE \parallel BC$，$D$ 在 $AB$ 上，$E$ 在 $AC$ 上，
 <!--quiz
 [
   {
-    "question": "$\\triangle ABC$ 中，$D$、$E$ 是 $AB$、$AC$ 的中点，$BC = 12$，则 $DE =$",
-    "options": ["A. 3", "B. 6", "C. 8", "D. 12"],
-    "answer": 1,
-    "explanation": "中位线定理：$DE = \\frac{1}{2}BC = 6$"
-  },
-  {
-    "question": "梯形上底 $= 4$，下底 $= 10$，中位线长为",
-    "options": ["A. 3", "B. 6", "C. 7", "D. 14"],
-    "answer": 2,
-    "explanation": "梯形中位线 $= \\frac{4+10}{2} = 7$"
-  },
-  {
-    "question": "中位线与中线的区别是",
-    "options": ["A. 两者完全相同", "B. 中位线连两边中点，中线连顶点到对边中点", "C. 中线比中位线长", "D. 中位线只在等腰三角形中存在"],
-    "answer": 1,
-    "explanation": "中位线：连两边中点；中线：从顶点到对边中点。概念完全不同"
-  },
-  {
-    "question": "$DE \\parallel BC$ 且 $DE = \\frac{1}{2}BC$，$D$ 在 $AB$ 上，$E$ 在 $AC$ 上，则",
-    "options": ["A. $D$、$E$ 是 $AB$、$AC$ 的中点", "B. $D$、$E$ 是 $AB$、$AC$ 的三等分点", "C. 无法判断", "D. $D$、$E$ 在 $BC$ 的延长线上"],
+    "question": "$\triangle ABC$ 中，$D$、$E$ 分别是 $AB$、$AC$ 的中点，$BC=10$。点 $F$ 在 $DE$ 上且 $BF\perp DE$。若 $BF=6$，则 $\triangle BDE$ 的面积为",
+    "options": ["A. 15", "B. 30", "C. 20", "D. 25"],
     "answer": 0,
-    "explanation": "由中位线定理逆定理，平行第三边且等于其一半，则连接的是两边中点"
+    "explanation": "中位线定理：$DE=\frac{1}{2}BC=5$，底为 $DE=5$，高为 $BF=6$，面积 $=\frac{1}{2}\times5\times6=15$。B项错用 $BC=10$ 为底；C项错算为 $\frac{1}{2}\times10\times4$；D项错算为 $5\times5$。"
   },
   {
-    "question": "三角形三条中位线将三角形分成几个全等的小三角形",
-    "options": ["A. 2个", "B. 3个", "C. 4个", "D. 6个"],
-    "answer": 2,
-    "explanation": "三条中位线将三角形分成4个全等的小三角形，每个面积是原来的$\\frac{1}{4}$"
+    "question": "梯形 $ABCD$ 中，$AD\parallel BC$，$M$、$N$ 分别是 $AB$、$CD$ 的中点，$MN=9$，$BC=14$，则 $AD=$",
+    "options": ["A. 2", "B. 4", "C. 5", "D. 23"],
+    "answer": 1,
+    "explanation": "梯形中位线公式：$MN=\frac{AD+BC}{2}$，故 $9=\frac{AD+14}{2}$，$AD=18-14=4$。A项错用 $MN=\frac{BC-AD}{2}$；C项错误配算；D项直接相加不除以2。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$D$、$E$、$F$ 分别是 $AB$、$BC$、$CA$ 的中点，$AB=8$，$BC=10$，$CA=6$，则 $\triangle DEF$ 的周长为",
+    "options": ["A. 6", "B. 12", "C. 24", "D. 8"],
+    "answer": 1,
+    "explanation": "$DE=\frac{1}{2}CA=3$，$EF=\frac{1}{2}AB=4$，$FD=\frac{1}{2}BC=5$，周长 $=3+4+5=12$。A项只算一条中位线；C项不取一半；D项只用 $AB$ 中位线乘三。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$M$ 是 $BC$ 中点，$D$ 是 $AM$ 中点，连 $BD$ 并延长交 $AC$ 于点 $E$。已知 $AE=3$，则 $AC=$",
+    "options": ["A. 6", "B. 9", "C. 12", "D. 4.5"],
+    "answer": 1,
+    "explanation": "过 $C$ 作 $CF\parallel BE$ 交 $AM$ 延长线于 $F$。在 $\triangle AMC$ 中，$M$ 为 $BC$ 中点推出 $\triangle$ 中 $E$ 是 $AC$ 的三等分点，$AE=\frac{1}{3}AC$，故 $AC=3\times3=9$。A项误认为 $AE=\frac{1}{2}AC$；C项误认为 $AE=\frac{1}{4}AC$；D项将 $AE$ 和 $EC$ 弄反。"
+  },
+  {
+    "question": "已知梯形上底 $a=3$，中位线 $m=8$，则下底 $b=$",
+    "options": ["A. 11", "B. 13", "C. 5.5", "D. 16"],
+    "answer": 1,
+    "explanation": "$m=\frac{a+b}{2}$，故 $8=\frac{3+b}{2}$，$b=16-3=13$。A项错用 $b=m+a=11$；C项错算 $b=m\div2-a$；D项错用 $b=2m=16$。"
   }
 ]
 -->

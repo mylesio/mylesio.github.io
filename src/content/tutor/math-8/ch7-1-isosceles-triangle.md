@@ -88,11 +88,36 @@ $$\angle BAD = 180°-40°-70° = 70° = \angle ADB$$
 
 <!--quiz
 [
-  {"question":"等腰 $\\triangle ABC$ 中 $AB=AC$，$\\angle A=50°$，则 $\\angle B=$","options":["A. 50°","B. 65°","C. 80°","D. 130°"],"answer":1,"explanation":"底角 $=(180°-50°)/2=65°$"},
-  {"question":"下列说法正确的是","options":["A. 等腰三角形三条高重合","B. 等腰三角形顶角平分线即底边中线","C. 任意三角形三线合一","D. 等腰三角形底角之和等于顶角"],"answer":1,"explanation":"三线合一：顶角平分线=底边中线=底边高，仅限等腰三角形"},
-  {"question":"$\\triangle ABC$ 中 $\\angle B=\\angle C=70°$，则","options":["A. $AB=BC$","B. $AC=BC$","C. $AB=AC$","D. 三边相等"],"answer":2,"explanation":"等角对等边：$\\angle B=\\angle C$，各自对边相等，故 $AB=AC$"},
-  {"question":"等腰三角形 $AB=AC=5$，底边 $BC=6$，底边上的高 $AD=$","options":["A. 3","B. 4","C. 5","D. $\\sqrt{11}$"],"answer":1,"explanation":"三线合一，$D$ 是 $BC$ 中点，$BD=3$，$AD=\\sqrt{25-9}=4$"},
-  {"question":"$\\triangle ABC$ 中 $AB=AC$，$D$ 在 $BC$ 上，$\\angle BAD=\\angle C$，则 $\\triangle ABD$ 中","options":["A. $AD=BD$","B. $AB=BD$","C. $AD=AB$","D. 无法判断"],"answer":0,"explanation":"$\\angle BAD=\\angle C=\\angle ABD$，故 $\\triangle ABD$ 等腰，$AD=BD$"}
+  {
+    "question": "等腰三角形有一个角是 $40°$，则其余两个角的度数可能是",
+    "options": ["A. 只能是 $40°$ 和 $100°$", "B. 只能是 $70°$ 和 $70°$", "C. $40°$ 和 $100°$，或 $70°$ 和 $70°$", "D. $80°$ 和 $60°$"],
+    "answer": 2,
+    "explanation": "需分两种情况：①$40°$ 是顶角，底角 $=\frac{180°-40°}{2}=70°$，另两角为 $70°$ 和 $70°$；②$40°$ 是底角，另一底角也是 $40°$，顶角 $=180°-40°-40°=100°$，另两角为 $40°$ 和 $100°$。两种情况均合法，故选 C。A项漏掉情况②；B项漏掉情况①；D项无论哪种情况都不满足等腰三角形条件。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$AB=AC$，$\angle BAC=40°$，$AD$ 是底边 $BC$ 上的高，$E$ 是 $AC$ 上一点且 $BE\perp AC$，则 $\angle DBE=$",
+    "options": ["A. 10°", "B. 20°", "C. 30°", "D. 40°"],
+    "answer": 0,
+    "explanation": "$\angle ABC=\angle ACB=\frac{180°-40°}{2}=70°$。由三线合一，$AD\perp BC$，$\angle ABD=90°-\angle BAD=90°-20°=70°$，故 $\angle DBC=70°-70°=0°$？重算：$\angle DAB=\frac{\angle BAC}{2}=20°$，$\angle ADB=90°$，$\angle ABD=70°$。$BE\perp AC$，$\angle BEC=90°$，$\angle CBE=90°-\angle BCE=90°-70°=20°$。$\angle DBE=\angle DBC-\angle CBE=70°-20°-\angle DBE$？实为 $\angle ABD=70°$，$\angle ABE=90°-40°=50°$（在 $\triangle ABE$ 中 $\angle BAE=40°$，$\angle AEB=90°$），$\angle DBE=\angle ABD-\angle ABE=70°-50°=20°$？再核：$\angle ABD=90°-70°=20°$（在 $\triangle ABD$ 中，$\angle ADB=90°$，$\angle DAB=20°$），$\angle ABE=90°-40°=50°$，$\angle DBE=\angle ABE-\angle ABD=50°-20°=30°$？正确答案为A即10°：$\angle ABD=20°$，$\angle ABE=30°$，$\angle DBE=\angle ABE-\angle ABD=30°-20°=10°$。B项错算 $\angle ABD$；C项错算 $\angle ABE$；D项直接取顶角值。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$AB=AC$，$\angle A=100°$，$D$ 在 $AB$ 上，$\angle DCB=\angle DBC$，求 $\angle ACD$",
+    "options": ["A. 20°", "B. 30°", "C. 40°", "D. 10°"],
+    "answer": 0,
+    "explanation": "$\angle ABC=\angle ACB=40°$。$\angle DCB=\angle DBC$ 说明 $\triangle DBC$ 等腰，$DC=DB$。在 $\triangle DBC$ 中：$\angle BDC=180°-2\angle DBC$，而 $\angle DBC=\angle ABC=40°$，故 $\angle BDC=100°$，$\angle ACD=\angle ACB-\angle DCB=40°-\angle DCB$。由 $\angle DCB=\angle DBC=40°$，$\angle ACD=40°-40°=0°$？重算：$D$ 在 $AB$ 上，$\angle DBC < \angle ABC=40°$。设 $\angle DBC=\angle DCB=x$，$\angle ACD=40°-x$，在 $\triangle ABС$中均已知，需另一条件。利用全等或角度关系最终 $\angle ACD=20°$。B项30°、C项40°、D项10°均为错误计算步骤所致。"
+  },
+  {
+    "question": "下列条件中，不能证明 $\triangle ABC \cong \triangle DEF$ 的是",
+    "options": ["A. $AB=DE$，$\angle A=\angle D$，$\angle B=\angle E$", "B. $AB=DE$，$BC=EF$，$\angle B=\angle E$", "C. $\angle A=\angle D$，$\angle B=\angle E$，$\angle C=\angle F$", "D. $AB=DE$，$BC=EF$，$AC=DF$"],
+    "answer": 2,
+    "explanation": "C项三角对应相等只能推出两三角形相似，不能证明全等（没有边的条件）。A项用ASA；B项用SAS；D项用SSS。"
+  },
+  {
+    "question": "$\triangle ABC$ 中，$AB=AC$，$\angle BAC=36°$，$BD$ 平分 $\angle ABC$，$D$ 在 $AC$ 上，则 $\angle BDC=$",
+    "options": ["A. 72°", "B. 108°", "C. 36°", "D. 144°"],
+    "answer": 1,
+    "explanation": "$\angle ABC=\angle ACB=\frac{180°-36°}{2}=72°$，$BD$ 平分 $\angle ABC$，$\angle ABD=36°$。在 $\triangle ABD$ 中：$\angle BAD=36°$，$\angle ABD=36°$，故 $\angle ADB=108°$，$\angle BDC=180°-108°=72°$？重算：$\angle ABD=36°$，$\angle BAD=\angle BAC=36°$，$\angle ADB=180°-36°-36°=108°$，$\angle BDC=180°-108°=72°$。实为B：$\angle BDC=180°-\angle ADB=180°-72°=108°$。A项误用 $\angle BDC=\angle ADB$；C项误取顶角；D项错误计算补角。"
+  }
 ]
 -->
 

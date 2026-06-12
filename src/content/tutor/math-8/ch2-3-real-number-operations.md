@@ -96,34 +96,59 @@ $$\frac{6}{\sqrt{3}} = \frac{6\sqrt{3}}{\sqrt{3}\times\sqrt{3}} = \frac{6\sqrt{3
 <!--quiz
 [
   {
-    "question": "化简 $\\sqrt{48}$ 的结果是",
-    "options": ["A. $4\\sqrt{3}$", "B. $6\\sqrt{2}$", "C. $2\\sqrt{12}$", "D. $3\\sqrt{4}$"],
+    "question": "计算 $\\sqrt{12}-2\\sqrt{3}+\\sqrt{27}$ 的结果是",
+    "options": [
+      "A. $3\\sqrt{3}$",
+      "B. $\\sqrt{3}$",
+      "C. $5\\sqrt{3}$",
+      "D. $0$"
+    ],
     "answer": 0,
-    "explanation": "$\\sqrt{48}=\\sqrt{16\\times3}=4\\sqrt{3}$"
+    "explanation": "$\\sqrt{12}=2\\sqrt{3}$，$\\sqrt{27}=3\\sqrt{3}$。原式 $=2\\sqrt{3}-2\\sqrt{3}+3\\sqrt{3}=3\\sqrt{3}$，选A。干扰项B($ \\sqrt{3}$)误算 $\\sqrt{12}=\\sqrt{3}$；C($5\\sqrt{3}$)漏掉了减去 $2\\sqrt{3}$ 这一步；D(0)误以为 $\\sqrt{12}=2\\sqrt{3}$ 与 $-2\\sqrt{3}$ 抵消，但忽略了 $\\sqrt{27}$。"
   },
   {
-    "question": "计算 $\\sqrt{3}+\\sqrt{12}$ 的结果是",
-    "options": ["A. $\\sqrt{15}$", "B. $3\\sqrt{3}$", "C. $4\\sqrt{3}$", "D. $2\\sqrt{3}$"],
+    "question": "已知 $a=\\sqrt{5}+1$，则 $a^2-2a-4$ 的值为",
+    "options": [
+      "A. $4$",
+      "B. $-4$",
+      "C. $2\\sqrt{5}$",
+      "D. $0$"
+    ],
+    "answer": 3,
+    "explanation": "$a=\\sqrt{5}+1$，则 $a-1=\\sqrt{5}$，$(a-1)^2=5$，即 $a^2-2a+1=5$，$a^2-2a=4$，故 $a^2-2a-4=0$，选A。干扰项B(-4)误从 $a^2-2a=4$ 出发，多减一个4算成 $4-4-4=-4$；C($2\\sqrt{5}$)直接代入暴力展开出错；D(4)输出 $a^2-2a=4$ 忘了再减4。"
+  },
+  {
+    "question": "若 $|a-2|+\\sqrt{b}=0$，则 $a^b$ 的值为",
+    "options": [
+      "A. $\\dfrac{1}{2}$",
+      "B. $1$",
+      "C. $2$",
+      "D. $-2$"
+    ],
     "answer": 1,
-    "explanation": "$\\sqrt{12}=2\\sqrt{3}$，所以 $\\sqrt{3}+\\sqrt{12}=\\sqrt{3}+2\\sqrt{3}=3\\sqrt{3}$"
+    "explanation": "绝对值与算术平方根均非负，两者之和为0，则各为零：$a-2=0\\Rightarrow a=2$；$b=0$。故 $a^b=2^0=1$，选B。干扰项A($\\frac{1}{2}$)误算 $b=-1$（把 $\\sqrt{b}=0$ 看成 $b=-1$）；C(2)忘记指数为0，直接输出 $a=2$；D(-2)误以为 $a^0=-2$。"
   },
   {
-    "question": "计算 $\\sqrt{5} \\times \\sqrt{20}$ 的结果是",
-    "options": ["A. $5\\sqrt{4}$", "B. $10$", "C. $2\\sqrt{5}$", "D. $\\sqrt{100}$（答案选B）"],
+    "question": "估算 $\\sqrt{19}$ 所在范围，下列正确的是",
+    "options": [
+      "A. $3<\\sqrt{19}<4$",
+      "B. $4<\\sqrt{19}<5$（范围过宽）",
+      "C. $4.3<\\sqrt{19}<4.4$",
+      "D. $4.4<\\sqrt{19}<4.5$"
+    ],
+    "answer": 2,
+    "explanation": "$4^2=16<19<25=5^2$，故 $4<\\sqrt{19}<5$，排除A。再细化：$4.3^2=18.49$，$4.4^2=19.36$，$18.49<19<19.36$，故 $4.3<\\sqrt{19}<4.4$，选C。干扰项A区间错误；B虽然正确但范围太宽，不是最精确；D：$4.4^2=19.36>19$，所以 $\\sqrt{19}<4.4$，不在该区间。"
+  },
+  {
+    "question": "计算 $(\\sqrt{3}+\\sqrt{2})^2-(\\sqrt{3}-\\sqrt{2})^2$ 的结果是",
+    "options": [
+      "A. $2$",
+      "B. $4\\sqrt{6}$",
+      "C. $4\\sqrt{2}$",
+      "D. $4\\sqrt{3}$"
+    ],
     "answer": 1,
-    "explanation": "$\\sqrt{5}\\times\\sqrt{20}=\\sqrt{100}=10$"
-  },
-  {
-    "question": "$\\dfrac{4}{\\sqrt{2}}$ 化简后等于",
-    "options": ["A. $2\\sqrt{2}$", "B. $4\\sqrt{2}$", "C. $\\sqrt{8}$", "D. $2$"],
-    "answer": 0,
-    "explanation": "$\\frac{4}{\\sqrt{2}}=\\frac{4\\sqrt{2}}{2}=2\\sqrt{2}$（分母有理化）"
-  },
-  {
-    "question": "计算 $(\\sqrt{5}+\\sqrt{3})(\\sqrt{5}-\\sqrt{3})$ 的结果是",
-    "options": ["A. $2$", "B. $\\sqrt{2}$", "C. $4$", "D. $8$"],
-    "answer": 0,
-    "explanation": "平方差公式：$(\\sqrt{5})^2-(\\sqrt{3})^2=5-3=2$"
+    "explanation": "利用平方差公式：$(A+B)^2-(A-B)^2=4AB$，取 $A=\\sqrt{3}$，$B=\\sqrt{2}$，结果 $=4\\sqrt{3}\\cdot\\sqrt{2}=4\\sqrt{6}$，选B。干扰项A(2)认为两个平方展开后相减得2（展开错误）；C($4\\sqrt{2}$)误将 $\\sqrt{3}\\cdot\\sqrt{2}$ 算作 $\\sqrt{2}$；D($4\\sqrt{3}$)误将 $\\sqrt{3}\\cdot\\sqrt{2}$ 算作 $\\sqrt{3}$。"
   }
 ]
 -->

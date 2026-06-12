@@ -79,11 +79,36 @@ $$\angle BIC = 180°-\beta-\gamma = 180°-55° = \boxed{125°}$$
 
 <!--quiz
 [
-  {"question":"$P$ 在 $\\angle AOB$ 的角平分线上，$P$ 到 $OA$ 的距离为 5，则 $P$ 到 $OB$ 的距离为","options":["A. 2.5","B. 5","C. 10","D. 无法确定"],"answer":1,"explanation":"角平分线上的点到角两边距离相等，所以也是5"},
-  {"question":"$\\triangle ABC$ 内心到三边的距离关系是","options":["A. 到三顶点距离相等","B. 到三边距离相等","C. 到各边的距离不等","D. 只到两边距离相等"],"answer":1,"explanation":"内心是三条角平分线的交点，由角平分线性质，到三边距离相等（内切圆半径）"},
-  {"question":"$\\angle BAC=50°$，$I$ 是 $\\triangle ABC$ 的内心，则 $\\angle BIC=$","options":["A. 100°","B. 115°","C. 125°","D. 130°"],"answer":1,"explanation":"内心角公式：$\\angle BIC=90°+\\frac{1}{2}\\angle BAC=90°+25°=115°$"},
-  {"question":"点 $P$ 到 $\\angle MON$ 两边距离相等，则 $P$","options":["A. 一定在角平分线上","B. 可能在角平分线延长线上","C. 在角平分线上或其延长线上","D. 一定不在角平分线上"],"answer":2,"explanation":"到两边（所在直线）距离相等的点在角平分线或其延长线上，在角内部的点在角平分线上"},
-  {"question":"以下哪组条件可以判定点 $P$ 在 $\\angle AOB$ 的角平分线上","options":["A. $PA=PB$","B. $P$ 到 $OA$、$OB$ 的距离相等（$P$ 在角内部）","C. $\\angle PAO=\\angle PBO$","D. $OP$ 平分 $AB$"],"answer":1,"explanation":"判定定理：角内部的点到角两边距离相等，则在角平分线上"}
+  {
+    "question": "$\triangle ABC$ 中，$\angle BAC=70°$，$I$ 是内心，则 $\angle BIC=$",
+    "options": ["A. 110°", "B. 125°", "C. 140°", "D. 105°"],
+    "answer": 1,
+    "explanation": "内心角公式：$\angle BIC=90°+\frac{1}{2}\angle BAC=90°+35°=125°$。A项误用 $\angle BIC=90°+\frac{1}{2}(\angle B+\angle C)$（实际 $\angle B+\angle C=110°$，一半55°，90°+55°=145°，也不等于A）；A项实为直接 $180°-70°=110°$，忽略了除以2；C项误算 $180°-40°=140°$；D项误算 $90°+\frac{1}{4}\angle BAC$。"
+  },
+  {
+    "question": "$\angle MON=60°$，$P$ 在角内部，$PD\perp OM$ 于 $D$，$PE\perp ON$ 于 $E$，$PD=PE=3$，$OP=2\sqrt{3}$。则 $OD=$",
+    "options": ["A. $\sqrt{3}$", "B. 3", "C. $2\sqrt{3}$", "D. $\sqrt{21}$"],
+    "answer": 1,
+    "explanation": "$PD=PE$ 且 $P$ 在角内部，故 $P$ 在 $\angle MON$ 的角平分线上，$\angle POD=30°$。$\triangle OPD$ 中 $\angle PDO=90°$，$OP=2\sqrt{3}$，$PD=3$，$OD=\sqrt{OP^2-PD^2}=\sqrt{12-9}=\sqrt{3}$。B项直接取 $PD$ 值；C项取 $OP$ 值；D项错用 $\sqrt{OP^2+PD^2}$。"
+  },
+  {
+    "question": "以下哪组条件**不能**判定点 $P$ 在 $\angle AOB$ 的角平分线上",
+    "options": ["A. $P$ 在角内部，且 $P$ 到 $OA$、$OB$ 的距离相等", "B. $P$ 在角内部，$PC\perp OA$，$PD\perp OB$，$PC=PD$", "C. $\angle AOP=\angle BOP$", "D. $P$ 到 $OA$、$OB$ 的距离相等（$P$ 在角外部）"],
+    "answer": 3,
+    "explanation": "判定定理要求：在角**内部**且到两边距离相等。D项 $P$ 在角外部，到两边所在直线距离相等的点在角平分线的**延长线**上，不在角平分线上，故不能判定在角平分线上。A、B两项均为角内部等距，满足判定定理；C项直接是角平分线定义。"
+  },
+  {
+    "question": "$\triangle ABC$ 内心为 $I$，$\angle BIC=130°$，则 $\angle BAC=$",
+    "options": ["A. 65°", "B. 80°", "C. 100°", "D. 50°"],
+    "answer": 1,
+    "explanation": "由内心角公式 $\angle BIC=90°+\frac{1}{2}\angle BAC$，得 $130°=90°+\frac{1}{2}\angle BAC$，$\frac{1}{2}\angle BAC=40°$，$\angle BAC=80°$。A项错算为 $\angle BAC=\angle BIC\div2$；C项错算 $\angle BAC=2\times(\angle BIC-90°)\times2$；D项错算 $\angle BAC=\angle BIC-80°$。"
+  },
+  {
+    "question": "三角形的内心和外心的区别，下列说法正确的是",
+    "options": ["A. 内心是三条垂直平分线的交点，到三边距离相等", "B. 外心是三条角平分线的交点，到三顶点距离相等", "C. 内心到三顶点距离相等，外心到三边距离相等", "D. 内心是三条角平分线的交点，到三边距离相等；外心是三条垂直平分线的交点，到三顶点距离相等"],
+    "answer": 3,
+    "explanation": "内心：三条角平分线的交点，到三边（而非三顶点）距离相等（内切圆圆心）；外心：三条边的垂直平分线的交点，到三顶点（而非三边）距离相等（外接圆圆心）。A项混淆内外心定义；B项同样混淆；C项将内外心的等距对象互换。"
+  }
 ]
 -->
 

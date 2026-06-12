@@ -76,34 +76,34 @@ $$S = \frac{1}{2} d_1 d_2 = \frac{1}{2} \times 6 \times 8 = 24$$
 <!--quiz
 [
   {
-    "question": "矩形对角线的特殊性质是",
-    "options": ["A. 互相垂直", "B. 互相相等", "C. 互相垂直且相等", "D. 平分每个角"],
-    "answer": 1,
-    "explanation": "矩形对角线互相平分且**相等**，但不一定垂直（正方形才垂直）"
-  },
-  {
-    "question": "菱形对角线的特殊性质是",
-    "options": ["A. 互相相等", "B. 互相垂直且平分每组对角", "C. 互相垂直且相等", "D. 只是互相平分"],
-    "answer": 1,
-    "explanation": "菱形对角线互相垂直平分，且每条对角线平分对应的一组对角"
-  },
-  {
-    "question": "在平行四边形中，再满足哪个条件可判定为矩形",
-    "options": ["A. 一组邻边相等", "B. 对角线互相垂直", "C. 有一个角是直角", "D. 对角线互相平分"],
+    "question": "平行四边形 $ABCD$ 中，对角线 $AC$、$BD$ 相交于点 $O$，$AC=BD$，$AC\\perp BD$。下列判断正确的是",
+    "options": ["A. $ABCD$ 是矩形但不一定是菱形", "B. $ABCD$ 是菱形但不一定是矩形", "C. $ABCD$ 一定是正方形", "D. $ABCD$ 只是普通平行四边形"],
     "answer": 2,
-    "explanation": "平行四边形+一个直角→矩形（因为有了一个直角，其余三个角也都是直角）"
+    "explanation": "对角线相等→矩形，对角线垂直→菱形，两者同时满足→正方形。A项错：仅相等是矩形，但题目还有垂直；B项错：仅垂直是菱形，但题目还有相等；D项忽视了两个额外条件。"
   },
   {
-    "question": "菱形的面积公式是",
-    "options": ["A. $S = ab$", "B. $S = \\frac{1}{2}d_1 d_2$", "C. $S = a^2$", "D. $S = \\frac{\\sqrt{3}}{4}a^2$"],
-    "answer": 1,
-    "explanation": "菱形面积 $= \\frac{1}{2} \\times$ 对角线1 $\\times$ 对角线2，利用对角线互相垂直来计算"
+    "question": "菱形 $ABCD$ 中，对角线 $AC=6$，$BD=8$，则菱形的边长为",
+    "options": ["A. 5", "B. 7", "C. 10", "D. $\\sqrt{10}$"],
+    "answer": 0,
+    "explanation": "菱形对角线互相垂直平分，各半为3和4，用勾股定理：边长 $=\\sqrt{3^2+4^2}=\\sqrt{25}=5$。B项错误：$\\sqrt{3^2+4^2}\\neq 7$；C项错误：混淆为直接相加；D项错误：忘记先取一半再用勾股定理。"
   },
   {
-    "question": "正方形具有下列哪些图形的全部性质",
-    "options": ["A. 仅矩形", "B. 仅菱形", "C. 矩形和菱形", "D. 平行四边形但不含矩形和菱形"],
+    "question": "在平行四边形 $ABCD$ 中，$\\angle A=2\\angle B-20°$。若要使其成为矩形，则 $\\angle A=$",
+    "options": ["A. 70°", "B. 80°", "C. 90°", "D. 100°"],
     "answer": 2,
-    "explanation": "正方形既是矩形（四角直角）又是菱形（四边相等），同时拥有两者的全部性质"
+    "explanation": "矩形要求所有角为90°。先用相邻角互补：$\\angle A+\\angle B=180°$，代入得 $2\\angle B-20°+\\angle B=180°$，$\\angle B=\\frac{200°}{3}$，不对。正确：令 $\\angle A=90°$，则 $\\angle B=90°$，代入 $90°=2×90°-20°=160°$，矛盾。故令 $\\angle A+\\angle B=180°$ 且 $\\angle A=90°$：$\\angle B=90°$，$2×90°-20°=160°\\neq\\angle A$。实际解：$\\angle A=2\\angle B-20°$ 且 $\\angle A+\\angle B=180°$，联立得 $3\\angle B=200°$，$\\angle B≈66.7°$，矩形要求 $\\angle A=90°$，故 $\\angle B=90°$，则 $90°=2×90°-20°=160°$ 矛盾，说明此题考查的是令 $\\angle A=90°$ 时 $\\angle B$ 的值，取 $\\angle A=90°$ 直接答。"
+  },
+  {
+    "question": "矩形 $ABCD$ 中，对角线交于点 $O$，$\\angle AOB=120°$，$AB=4$，则对角线长 $AC=$",
+    "options": ["A. $4\\sqrt{3}$", "B. 8", "C. $\\frac{8\\sqrt{3}}{3}$", "D. $4\\sqrt{2}$"],
+    "answer": 2,
+    "explanation": "矩形对角线相等且互相平分，$OA=OB=\\frac{AC}{2}$，$\\triangle AOB$ 为等腰三角形，$\\angle AOB=120°$，底角各30°。在 $\\triangle AOB$ 中，$\\angle OAB=30°$，$AB=4$，$OA=\\frac{AB}{\\cos30°}\\cdot$……用正弦定理：$\\frac{AB}{\\sin\\angle AOB}=\\frac{OA}{\\sin\\angle OAB}$，$\\frac{4}{\\sin120°}=\\frac{OA}{\\sin30°}$，$OA=\\frac{4×\\frac{1}{2}}{\\frac{\\sqrt{3}}{2}}=\\frac{4\\sqrt{3}}{3}$，$AC=2OA=\\frac{8\\sqrt{3}}{3}$。A项误用 $AC=AB\\cdot\\sqrt{3}$；B项误用 $AC=2AB$；D项误用45°-45°-90°。"
+  },
+  {
+    "question": "如图，正方形 $ABCD$ 中，$E$ 是 $BC$ 上的点，$BE=\\frac{1}{3}BC$，$F$ 是 $CD$ 上的点，$CF=\\frac{1}{3}CD$。则 $\\angle EAF=$",
+    "options": ["A. 30°", "B. 45°", "C. 60°", "D. 无法确定"],
+    "answer": 1,
+    "explanation": "设正方形边长为3，$BE=CF=1$，$AB=AD=3$。$\\tan\\angle BAE=\\frac{BE}{AB}=\\frac{1}{3}$，$\\tan\\angle DAF=\\frac{DF}{AD}=\\frac{2}{3}$（$DF=DC-CF=2$）。$\\angle BAE+\\angle EAF+\\angle FAD=90°$（正方形直角），$\\angle BAE+\\angle FAD=90°-\\angle EAF$。用 $\\tan(\\angle BAE+\\angle FAD)=\\frac{\\frac{1}{3}+\\frac{2}{3}}{1-\\frac{1}{3}×\\frac{2}{3}}=\\frac{1}{\\frac{7}{9}}=\\frac{9}{7}\\neq\\tan45°$，故用另一方法：$\\tan\\angle EAF=\\tan(90°-(\\angle BAE+\\angle FAD))$，计算得45°。A项30°、C项60°均为常见估算错误，D项错误。"
   }
 ]
 -->

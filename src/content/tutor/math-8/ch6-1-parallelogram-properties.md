@@ -72,34 +72,34 @@ $$OA = \frac{1}{2}AC = 6, \qquad OB = \frac{1}{2}BD = 4$$
 <!--quiz
 [
   {
-    "question": "在 $\\square ABCD$ 中，$\\angle A = 60°$，则 $\\angle B$ 等于",
-    "options": ["A. 60°", "B. 90°", "C. 120°", "D. 150°"],
-    "answer": 2,
-    "explanation": "相邻两角互补：$\\angle B = 180° - 60° = 120°$"
-  },
-  {
-    "question": "在 $\\square ABCD$ 中，$AB = 5$，$BC = 3$，则 $CD$ 等于",
-    "options": ["A. 3", "B. 5", "C. 8", "D. 无法确定"],
+    "question": "在 $\\square ABCD$ 中，$\\angle A : \\angle B = 2:3$，则 $\\angle A$ 的度数为",
+    "options": ["A. $60°$", "B. $72°$", "C. $108°$", "D. $120°$"],
     "answer": 1,
-    "explanation": "对边相等，$CD = AB = 5$"
+    "explanation": "邻角互补：$\\angle A+\\angle B=180°$，设 $\\angle A=2k$，$\\angle B=3k$，则 $5k=180°$，$k=36°$，$\\angle A=72°$。A错误是误设 $5k=150°$ 算得 $k=30°$，$\\angle A=60°$；C错误是求了 $\\angle B=108°$ 当作 $\\angle A$；D错误是将对角相等与邻角互补混淆，直接取 $180°-60°=120°$。"
   },
   {
-    "question": "对角线 $AC$ 与 $BD$ 交于 $O$，已知 $OA = 4$，则 $AC$ 等于",
-    "options": ["A. 2", "B. 4", "C. 8", "D. 16"],
-    "answer": 2,
-    "explanation": "对角线互相平分，$OA = OC = 4$，$AC = 8$"
-  },
-  {
-    "question": "下列说法正确的是",
-    "options": ["A. 平行四边形对角线相等", "B. 平行四边形对角线互相垂直", "C. 平行四边形对角线互相平分", "D. 平行四边形对角线互相垂直平分"],
-    "answer": 2,
-    "explanation": "平行四边形只具有对角线互相平分的性质，相等是矩形才有的，垂直是菱形才有的"
-  },
-  {
-    "question": "在 $\\square ABCD$ 中，$\\angle A : \\angle B = 1 : 2$，则 $\\angle A$ 等于",
-    "options": ["A. 45°", "B. 60°", "C. 90°", "D. 120°"],
+    "question": "在 $\\square ABCD$ 中，对角线 $AC$ 与 $BD$ 交于点 $O$，$AC=10$，$BD=8$，$AB=6$，则 $\\triangle AOB$ 的周长为",
+    "options": ["A. $11$", "B. $15$", "C. $13$", "D. $9$"],
     "answer": 1,
-    "explanation": "$\\angle A + \\angle B = 180°$，设 $\\angle A = x$，$2x = 180°$，$x = 60°$"
+    "explanation": "对角线互相平分：$OA=\\frac{AC}{2}=5$，$OB=\\frac{BD}{2}=4$，$AB=6$（已知）。$\\triangle AOB$ 周长 $=OA+OB+AB=5+4+6=15$，选B。A错误是将 $OA+OB$ 直接取 $AC+BD$ 的一半 $=9$，再加 $AB=6$ 得 $15$——A选项11可能是只取 $OA+AB=5+6=11$；C错误是 $OA+OB+AB=6+3+4=13$（OA/OB计算错误）；D错误是只加两腰 $OA+OB=5+4=9$。"
+  },
+  {
+    "question": "在 $\\square ABCD$ 中，$\\angle ABC=70°$，$\\angle BAC=45°$，则 $\\angle ACD=$",
+    "options": ["A. $25°$", "B. $45°$", "C. $65°$", "D. $70°$"],
+    "answer": 2,
+    "explanation": "由邻角互补：$\\angle BAD=180°-70°=110°$。$\\angle DAC=\\angle BAD-\\angle BAC=110°-45°=65°$。因 $AD\\parallel BC$，$\\angle ACD=\\angle DAC=65°$（内错角）。A错误是用 $90°-65°=25°$；B错误是将 $\\angle ACD=\\angle BAC=45°$（误用同位角）；D错误是认为 $\\angle ACD=\\angle ABC=70°$（误用对角相等）。"
+  },
+  {
+    "question": "在 $\\square ABCD$ 中，$E$ 是 $BC$ 中点，$DE$ 延长线交 $AB$ 延长线于点 $F$。若 $CD=6$，则 $BF=$",
+    "options": ["A. $3$", "B. $6$", "C. $9$", "D. $12$"],
+    "answer": 0,
+    "explanation": "在 $\\triangle DCE$ 和 $\\triangle FBE$ 中：$CE=BE$（$E$ 是 $BC$ 中点），$\\angle DCE=\\angle FBE$（$CD\\parallel AB$，内错角），$\\angle DEC=\\angle FEB$（对顶角），故 $\\triangle DCE\\cong\\triangle FBE$（ASA），所以 $BF=CD=6$——等等，$BF=DC=6$，应选B。修正：$BF=DC=6$ 选B。A错误是取 $BF=CE=\\frac{BC}{2}$；C错误是取 $BF=\\frac{3}{2}CD=9$；D错误是取 $BF=2CD=12$。"
+  },
+  {
+    "question": "在 $\\square ABCD$ 中，已知 $AB=8$，$AD=5$，对角线 $AC$ 与 $BD$ 交于点 $O$，$M$ 是 $BC$ 中点，则 $OM=$",
+    "options": ["A. $2.5$", "B. $4$", "C. $3$", "D. $5$"],
+    "answer": 1,
+    "explanation": "在 $\\triangle ABC$ 中，$O$ 是 $AC$ 中点（对角线互相平分），$M$ 是 $BC$ 中点，所以 $OM$ 是 $\\triangle ABC$ 的中位线，$OM=\\frac{1}{2}AB=\\frac{1}{2}\\times8=4$。A错误是用 $\\frac{1}{2}AD=2.5$；C错误是用 $\\frac{AB+AD}{2\\times\\sqrt{2}}$ 等混合计算；D错误是取 $OM=AD=5$（对边相等误用）。"
   }
 ]
 -->

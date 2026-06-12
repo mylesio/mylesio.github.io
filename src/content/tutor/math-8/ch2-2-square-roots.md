@@ -89,34 +89,59 @@ $$\sqrt[3]{-125}=-5,\quad \sqrt[3]{0.001}=0.1$$
 <!--quiz
 [
   {
-    "question": "$(-7)^2$ 的算术平方根是",
-    "options": ["A. $-7$", "B. $7$", "C. $\\pm7$", "D. $49$"],
+    "question": "化简 $\\sqrt{a^2-2a+1}$（其中 $a<1$）的结果是",
+    "options": [
+      "A. $a-1$",
+      "B. $1-a$",
+      "C. $a+1$",
+      "D. $\\pm(a-1)$"
+    ],
     "answer": 1,
-    "explanation": "$(-7)^2=49$，49的算术平方根 $=\\sqrt{49}=7$（非负值）"
+    "explanation": "$a^2-2a+1=(a-1)^2$，$\\sqrt{(a-1)^2}=|a-1|$。因 $a<1$，$a-1<0$，$|a-1|=1-a$，选B。干扰项A($a-1$)忽略绝对值直接写 $a-1$（当 $a<1$ 时为负，但算术平方根非负，矛盾）；C($a+1$)错误展开；D($\\pm(a-1)$)混淆算术平方根与平方根（算术平方根唯一，不取 $\\pm$）。"
   },
   {
-    "question": "下列说法正确的是",
-    "options": ["A. 4的平方根是2", "B. $-9$的平方根是$-3$", "C. 8的立方根是$\\pm2$", "D. $-27$的立方根是$-3$"],
-    "answer": 3,
-    "explanation": "A错：4的平方根是$\\pm2$；B错：$-9$没有平方根；C错：立方根唯一是2；D正确：$(-3)^3=-27$"
+    "question": "若 $\\sqrt{3x-1}$ 与 $\\sqrt{x+2}$ 均有意义，则 $x$ 的取值范围是",
+    "options": [
+      "A. $x\\geq\\dfrac{1}{3}$",
+      "B. $x\\geq-2$",
+      "C. $-2\\leq x<\\dfrac{1}{3}$",
+      "D. $x>\\dfrac{1}{3}$"
+    ],
+    "answer": 0,
+    "explanation": "两个条件同时满足：$3x-1\\geq0\\Rightarrow x\\geq\\frac{1}{3}$；$x+2\\geq0\\Rightarrow x\\geq-2$。取交集得 $x\\geq\\frac{1}{3}$，选A。干扰项B只考虑第二个条件；C误取差集（两条件范围之差）；D误用严格大于号（被开方数可以等于零）。"
   },
   {
-    "question": "$\\sqrt{(-6)^2}$ 的值是",
-    "options": ["A. $-6$", "B. $6$", "C. $\\pm6$", "D. $36$"],
-    "answer": 1,
-    "explanation": "$\\sqrt{(-6)^2}=\\sqrt{36}=6=|-6|$，$\\sqrt{a^2}=|a|$，结果非负"
+    "question": "计算 $\\sqrt{(-3)^2}+\\sqrt[3]{-27}-|{-2}|$ 的结果是",
+    "options": [
+      "A. $-2$",
+      "B. $2$",
+      "C. $-8$",
+      "D. $8$"
+    ],
+    "answer": 0,
+    "explanation": "$\\sqrt{(-3)^2}=\\sqrt{9}=3$（算术平方根取正）；$\\sqrt[3]{-27}=-3$（立方根可以为负）；$|-2|=2$。结果 $=3+(-3)-2=-2$，选A。干扰项B把 $\\sqrt[3]{-27}$ 误算为 $+3$（误以为立方根也取正）；C全取负 $-3-3-2=-8$；D全取正 $3+3+2=8$。"
   },
   {
-    "question": "下列各式中，结果是负数的是",
-    "options": ["A. $\\sqrt{(-4)^2}$", "B. $(-\\sqrt{3})^2$", "C. $\\sqrt[3]{-8}$", "D. $|{-5}|$"],
+    "question": "比较大小：$\\sqrt{7}-\\sqrt{5}$ 与 $\\sqrt{5}-\\sqrt{3}$",
+    "options": [
+      "A. $\\sqrt{7}-\\sqrt{5} > \\sqrt{5}-\\sqrt{3}$",
+      "B. $\\sqrt{7}-\\sqrt{5} = \\sqrt{5}-\\sqrt{3}$",
+      "C. $\\sqrt{7}-\\sqrt{5} < \\sqrt{5}-\\sqrt{3}$",
+      "D. 无法比较"
+    ],
     "answer": 2,
-    "explanation": "$\\sqrt[3]{-8}=-2$，立方根可以是负数。其余：$\\sqrt{(-4)^2}=4$；$(-\\sqrt{3})^2=3$；$|-5|=5$"
+    "explanation": "设 $d_1=\\sqrt{7}-\\sqrt{5}$，$d_2=\\sqrt{5}-\\sqrt{3}$，则 $d_1-d_2=(\\sqrt{7}+\\sqrt{3})-2\\sqrt{5}$。由 $\\sqrt{7}\\cdot\\sqrt{3}=\\sqrt{21}<\\sqrt{25}=5=(\\sqrt{5})^2$，均值不等式得 $\\frac{\\sqrt{7}+\\sqrt{3}}{2}<\\sqrt{\\sqrt{7}\\cdot\\sqrt{3}+...}$——更直接：$\\sqrt{7}\\approx2.646$，$\\sqrt{5}\\approx2.236$，$\\sqrt{3}\\approx1.732$，$d_1\\approx0.410$，$d_2\\approx0.504$，故 $d_1<d_2$，选C。干扰项A直觉上以为差值一样或更大；B认为等差数列差相等；D认为无法比较。"
   },
   {
-    "question": "若 $\\sqrt{x-1}$ 有意义，则 $x$ 的范围是",
-    "options": ["A. $x>1$", "B. $x\\geq1$", "C. $x<1$", "D. $x\\leq1$"],
-    "answer": 1,
-    "explanation": "平方根被开方数必须 $\\geq0$，即 $x-1\\geq0$，所以 $x\\geq1$"
+    "question": "化简 $\\sqrt{4+2\\sqrt{3}}$ 的结果是",
+    "options": [
+      "A. $2\\sqrt{3}$",
+      "B. $2+\\sqrt{3}$",
+      "C. $\\sqrt{2}+\\sqrt{3}$",
+      "D. $1+\\sqrt{3}$"
+    ],
+    "answer": 3,
+    "explanation": "$4+2\\sqrt{3}=3+2\\sqrt{3}+1=(\\sqrt{3}+1)^2$，故 $\\sqrt{4+2\\sqrt{3}}=\\sqrt{(\\sqrt{3}+1)^2}=\\sqrt{3}+1$，选A。干扰项B检验：$(2+\\sqrt{3})^2=7+4\\sqrt{3}\\neq4+2\\sqrt{3}$；C($\\sqrt{2}+\\sqrt{3}$)检验：$(\\sqrt{2}+\\sqrt{3})^2=5+2\\sqrt{6}\\neq4+2\\sqrt{3}$；D($2\\sqrt{3}$)是误以为 $\\sqrt{4+2\\sqrt{3}}=\\sqrt{4}\\cdot\\sqrt{2\\sqrt{3}}$ 乱拆。"
   }
 ]
 -->

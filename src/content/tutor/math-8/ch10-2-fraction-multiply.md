@@ -61,11 +61,11 @@ $$= \frac{(x-1)^2}{(x+1)(x-1)} \cdot \frac{x+1}{x(x-1)} = \frac{(x-1)^2}{(x-1)} 
 
 <!--quiz
 [
-  {"question":"$\\frac{a}{b}\\div\\frac{c}{d}=$","options":["A. $\\frac{ac}{bd}$","B. $\\frac{ad}{bc}$","C. $\\frac{bc}{ad}$","D. $\\frac{a}{b}\\cdot\\frac{c}{d}$"],"answer":1,"explanation":"除以分式等于乘以其倒数：$\\frac{a}{b}\\cdot\\frac{d}{c}=\\frac{ad}{bc}$"},
-  {"question":"$\\frac{x^2-9}{x+3}\\cdot\\frac{1}{x-3}=$","options":["A. $\\frac{x+3}{x-3}$","B. 1","C. $x-3$","D. $\\frac{1}{1}$"],"answer":1,"explanation":"$\\frac{(x+3)(x-3)}{x+3}\\cdot\\frac{1}{x-3}=1$"},
-  {"question":"$\\frac{2x}{x-1}\\div\\frac{4x^2}{x^2-1}=$","options":["A. $\\frac{x+1}{2x}$","B. $\\frac{x-1}{2x}$","C. $\\frac{2x}{x+1}$","D. $\\frac{x+1}{2}$"],"answer":0,"explanation":"$\\frac{2x}{x-1}\\cdot\\frac{(x+1)(x-1)}{4x^2}=\\frac{2x(x+1)(x-1)}{4x^2(x-1)}=\\frac{x+1}{2x}$"},
-  {"question":"化简 $\\frac{x^2+2x}{x^2-4}$","options":["A. $\\frac{x}{x-2}$","B. $\\frac{x+2}{x-2}$","C. $\\frac{x}{x+2}$","D. $\\frac{2x}{x-2}$"],"answer":0,"explanation":"$\\frac{x(x+2)}{(x+2)(x-2)}=\\frac{x}{x-2}$"},
-  {"question":"分式乘法最高效的操作顺序是","options":["A. 先相乘再化简","B. 先因式分解约简再相乘","C. 顺序无关","D. 先展开所有括号"],"answer":1,"explanation":"先因式分解各分子分母，约去公因式后再相乘，计算量最小"}
+  {"question":"计算 $\dfrac{x^2-4}{x^2+x}\cdot\dfrac{x^2+2x+1}{x^2-x-2}$，化简结果是","options":["A. $\dfrac{x+2}{x}$","B. $\dfrac{x-2}{x}$","C. $\dfrac{x+1}{x}$","D. $\dfrac{(x+2)(x+1)}{x(x-2)}$"],"answer":0,"explanation":"分解：$x^2-4=(x+2)(x-2)$，$x^2+x=x(x+1)$，$x^2+2x+1=(x+1)^2$，$x^2-x-2=(x-2)(x+1)$。约简后：$\dfrac{(x+2)\cancel{(x-2)}}{x\cancel{(x+1)}}\cdot\dfrac{\cancel{(x+1)}^2}{\cancel{(x-2)}\cancel{(x+1)}}=\dfrac{x+2}{x}$。干扰项B：符号算反；干扰项C：约分时多消了 $(x+2)$；干扰项D：未约分。选 A。"},
+  {"question":"计算 $\dfrac{x^2-2x+1}{x^2-1}\div\dfrac{x-1}{x+1}$，化简结果是","options":["A. $\dfrac{x-1}{x+1}$","B. $x-1$","C. $\dfrac{(x-1)^2}{x+1}$","D. $1$"],"answer":3,"explanation":"除法变乘倒数：$\dfrac{(x-1)^2}{(x+1)(x-1)}\cdot\dfrac{x+1}{x-1}=\dfrac{(x-1)^2(x+1)}{(x+1)(x-1)(x-1)}=1$（$x\neq\pm1$）。干扰项A：除法未取倒数；干扰项B：约分时漏掉了 $(x+1)$；干扰项C：中间步骤未继续化简。选 D。"},
+  {"question":"计算 $\dfrac{a^2-ab}{a^2-b^2}\div\dfrac{a}{a+b}$，化简结果是","options":["A. $1$","B. $\dfrac{a-b}{a}$","C. $\dfrac{a}{a+b}$","D. $\dfrac{b}{a+b}$"],"answer":0,"explanation":"$\dfrac{a(a-b)}{(a+b)(a-b)}\cdot\dfrac{a+b}{a}=\dfrac{a(a-b)(a+b)}{(a+b)(a-b)\cdot a}=1$。干扰项B：忘记取倒数；干扰项C：约分不彻底；干扰项D：分子分母搞混。选 A。"},
+  {"question":"化简 $\dfrac{x^2-x}{x^2-1}\div\dfrac{x}{x+1}$ 后代入 $x=\sqrt{3}+1$，结果是","options":["A. $2$","B. $\sqrt{3}$","C. $\sqrt{3}+1$","D. $1$"],"answer":3,"explanation":"化简：$\dfrac{x(x-1)}{(x+1)(x-1)}\cdot\dfrac{x+1}{x}=1$（约去 $x$、$(x-1)$、$(x+1)$）。代入任意合法 $x$ 结果均为 $1$，选 D。干扰项A/B/C：未化简直接代入，计算繁琐且可能出错。"},
+  {"question":"计算 $\dfrac{x^2+3x+2}{x^2-1}\cdot\dfrac{x-1}{x+2}$，化简结果是","options":["A. $\dfrac{x+2}{x-1}$","B. $1$","C. $\dfrac{x-1}{x+2}$","D. $x+1$"],"answer":1,"explanation":"$x^2+3x+2=(x+1)(x+2)$，$x^2-1=(x+1)(x-1)$；$\dfrac{(x+1)(x+2)}{(x+1)(x-1)}\cdot\dfrac{x-1}{x+2}=\dfrac{(x+1)(x+2)(x-1)}{(x+1)(x-1)(x+2)}=1$。干扰项A：约分后分子分母搞反；干扰项C：部分约分；干扰项D：中间步骤计算错误。选 B。"}
 ]
 -->
 
