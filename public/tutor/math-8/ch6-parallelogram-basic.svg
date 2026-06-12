@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 160" width="280" height="160">
+  <polygon points="50,130 180,130 230,30 100,30" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <!-- parallel marks -->
+  <line x1="108" y1="80" x2="118" y2="80" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="113" y1="75" x2="113" y2="85" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="162" y1="80" x2="172" y2="80" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="167" y1="75" x2="167" y2="85" stroke="#3b82f6" stroke-width="1.5"/>
+  <!-- labels -->
+  <text x="40" y="145" font-family="serif" font-size="14" fill="#1e40af">A</text>
+  <text x="183" y="145" font-family="serif" font-size="14" fill="#1e40af">B</text>
+  <text x="233" y="26" font-family="serif" font-size="14" fill="#1e40af">C</text>
+  <text x="93" y="26" font-family="serif" font-size="14" fill="#1e40af">D</text>
+  <!-- bottom parallel mark -->
+  <line x1="108" y1="130" x2="118" y2="130" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="113" y1="125" x2="113" y2="135" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="162" y1="130" x2="172" y2="130" stroke="#3b82f6" stroke-width="1.5"/>
+  <line x1="167" y1="125" x2="167" y2="135" stroke="#3b82f6" stroke-width="1.5"/>
+</svg>
